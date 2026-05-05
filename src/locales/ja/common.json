@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "work": "作品",
+    "writing": "執筆",
+    "career": "経歴",
+    "contact": "連絡",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "menuDescription": "サイトのナビゲーションと言語切り替え。",
+    "about": "プロフィール",
+    "skipToContent": "本文へスキップ"
+  },
+  "hero": {
+    "eyebrow": "Agent Engineer",
+    "tagline": "AI is <highlight>in the build</highlight>, not next to it.",
+    "scrollCue": "スクロール",
+    "tagline_plain": "AI is in the build, not next to it.",
+    "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line.",
+    "cta": "Read the work"
+  },
+  "home": {
+    "workEyebrow": "How I work",
+    "workTitle": "With agents in the loop.",
+    "workBody": "Not a productivity hack. The way the work gets built. Years of shipping production software end-to-end mean the AI-augmented work I do becomes product, not demos. I've led an engineering organization through AI tooling adoption end to end: evaluation, rollout, training, and the harder part of moving the engineers who weren't going to come along on their own. I build at the model boundary too, including production MCP tooling for the agents I work with day to day.",
+    "thinkEyebrow": "How I think",
+    "thinkTitle": "From the system, not the pattern.",
+    "thinkBody": "I reach for the underlying mechanism before I reach for prior art. When a system is unfamiliar, I'd rather study it from the foundations than copy a shape that worked somewhere else. On my own time I read papers and build cognitive architectures from scratch, partly because I want to understand the systems I'm shipping at a layer below the API. I bring the same discipline to my own code: every pull request on my main project gets reviewed against a written architectural document before it merges.",
+    "openEyebrow": "Open to",
+    "openTitle": "What I'm looking for next.",
+    "openBody": "AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo.",
+    "openCta": "Email me",
+    "openEmail": "jctisdale1988@gmail.com"
+  },
+  "work": {
+    "title": "選ばれた仕事",
+    "intro": "二つのプロジェクト。一貫しているのは、複雑な領域へシステム思考を適用する姿勢です。",
+    "featuredLabel": "注目",
+    "comingSoonLabel": "2026年公開予定",
+    "viewCase": "ケーススタディを読む",
+    "backToWork": "作品一覧へ戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "caseComingSoon": "ケーススタディは執筆中です。骨子はwikiにあり、本編は近日公開予定です。",
+    "cases": {
+      "sylphie": {
+        "title": "Sylphie",
+        "role": "認知アーキテクチャ",
+        "summary": "実行経路にLLMを置かない認知アーキテクチャ。二重プロセス推論、ドライブによる注意制御、思考ではなく発声装置としての言語モデル。"
+      },
+      "mediavine": {
+        "title": "Mediavine, Journey",
+        "role": "AIツール導入",
+        "summary": "メディアテック企業におけるAIツール導入を主導。社内プロダクト、ワークフローの変革、パブリッシャー網への定量的インパクト。"
+      }
+    }
+  },
+  "writing": {
+    "title": "執筆",
+    "intro": "仕事の記録：認知アーキテクチャ、エージェント設計、フロントエンドの工芸。",
+    "backToWriting": "執筆一覧へ戻る",
+    "readingTime_one": "{{count}}分で読める",
+    "readingTime_other": "{{count}}分で読める",
+    "languageLabel": "言語",
+    "empty": "投稿はまだありません。最初の長文記事は執筆中です。"
+  },
+  "career": {
+    "title": "経歴",
+    "intro": "Eight years senior frontend, four at Mediavine, pivoting into AI.",
+    "downloadResume": "履歴書をダウンロード（PDF）",
+    "empty": "近日更新。",
+    "sections": {
+      "roles": "職歴",
+      "education": "学歴",
+      "certifications": "資格",
+      "languages": "言語"
+    }
+  },
+  "about": {
+    "eyebrow": "プロフィール",
+    "title": "プロフィール。",
+    "body1": "I'm a senior frontend engineer based in Charlotte, NC. I spent four years at Mediavine building their Journey product end-to-end with a small team (onboarding, an analytics engine, publisher dashboards) and led AI tooling adoption across the company. Before that: Tek Systems for React + GraphQL work, and Legal Associations Management, where I was promoted to team lead in nine months.",
+    "body2": "For the past two years I've been building Sylphie, a cognitive architecture where the LLM is a voice box, not the decision-maker. I've shipped two MCP servers alongside the core system, and I review every pull request on the project against a written architectural constitution. It's a long bet that's taught me to design systems by reasoning about the problem rather than borrowing from prior art."
+  },
+  "contact": {
+    "eyebrow": "連絡",
+    "title": "連絡。",
+    "lede": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo. The fastest channel is email.",
+    "emailLabel": "メール"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "email": "Email",
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
+  },
+  "language": {
+    "toggle": "English"
+  }
+}

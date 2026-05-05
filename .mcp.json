@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "railway": {
+      "command": "npx",
+      "args": ["-y", "dotenv-cli", "-e", ".env", "--", "npx", "-y", "@railway/mcp-server"]
+    }
+  }
+}

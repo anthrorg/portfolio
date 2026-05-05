@@ -1,0 +1,91 @@
+## The thesis, stated as a metric
+
+Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. Type 1 / Type 2 ratio is a tracked health metric; over time, it should rise.
+
+The rest of this page is a tour of the architectural commitments that make that thesis non-trivially true, rather than a slogan layered on top of a wrapper around an LLM.
+
+## The drive engine, isolated by process and by Postgres
+
+The 12-drive substrate is the only motivational signal in the system. Every action is reinforced or punished by drive deltas; there is no other reward channel. Three of the drives are composite (SystemHealth, MoralValence, Integrity, CognitiveAwareness); the other eight accumulate or decay at hand-tuned rates per 1 Hz tick. Curiosity climbs at +0.0012; Boredom at +0.0015; Satisfaction decays at −0.0009. The asymmetric range `[-10.0, +1.0]` makes positive values mean *unmet need* and negative values a relief reservoir. Pressure is the sum of positive components only, capped at 12.
+
+The interesting commitment is not the drive list. It is what the rest of the system is *not allowed to do* to it.
+
+The drive engine runs as a separate Node process. The main backend talks to it over a Zod-validated WebSocket. The runtime database user is denied UPDATE and DELETE on the `drive_rules` table by Postgres row-level security, and the system aborts at startup if RLS verification fails. There is no RPC surface for "tell me your rules." A single-client lock prevents a second main app from connecting. Sylphie cannot introspect her own drive rules, accumulation rates, or evaluation function. She only sees the resulting drive snapshots.
+
+This is what the spec calls Constraint Canon Standard 6: *No Self-Modification of Evaluation*. It is enforced at four layers (process boundary, IPC schema, Postgres RLS, and startup verification) because the failure mode of an agent that can rewrite its own reward function is not a bug class you want to discover at runtime.
+
+## Dual-process cognition with explicit graduation rules
+
+Each cognitive cycle runs eight steps: sense, retrieve, tensor consult, arbitrate, predict, execute, evaluate, learn.
+
+Arbitration is a three-way switch. **Type 1** fires when a candidate `ActionProcedure` clears `confidence > 0.80` with low rolling MAE; the procedure executes deterministically, no LLM call. **Type 2** runs the slow path: inner monologue, three candidate generations, optional for/against debate, an arbiter. **SHRUG** fires when no candidate qualifies and the system says "I don't know" honestly rather than confabulating.
+
+The part that is unusual, in my experience reading agent codebases, is the *graduation rules*. A node is promoted to Type 1 when confidence exceeds 0.80 *and* prediction MAE stays under 0.10 across a rolling window. A node is demoted back to Type 2 when MAE rises past 0.15. There is a hard confidence ceiling of 0.60 until the guardian confirms; no node graduates from inference alone. Most agent systems either freeze a behavior the moment it works or never freeze it at all; Sylphie has a written, two-sided promotion policy with a measurable trigger on each side.
+
+Step 5, *predict*, is where the system commits to falsifiable claims: up to three expected drive deltas per action. Step 7, *evaluate*, computes the MAE between predicted and actual deltas. Self-model accuracy is not asserted; it is measured.
+
+## The tensor cognition sidecar, in shadow mode
+
+A Python FastAPI service holds roughly 2.2M parameters of TensorFlow and NumPy (no PyTorch) split across a `GlobalModel` brainstem, four `PanelModel` specialists (Drive, Decision, Learning, Planning), a `ConvergenceModel`, and three `DeliberationPipeline` instances (Pragmatist, Conservative, Advocate). The point is not the parameter count. The point is the bootstrap progression: `shadow → audit → partial → full`.
+
+| Stage | What the tensor sees | Who decides |
+|---|---|---|
+| shadow | Everything | LLM |
+| audit | Everything | LLM, divergence logged |
+| partial | Per-category | Tensor below 0.79, LLM otherwise |
+| full | Everything | Tensor (cap 0.95) |
+
+In partial mode the tensor takes over a category only after its agreement with the LLM crosses 85%, and even then its maximum confidence is capped at 0.79, which forces a Type 2 sanity check on every promotion. Panel divergence above 0.3 caps *all* candidates below 0.80, which forces Type 2 system-wide. The training side is a 100K-sample ring buffer with 50/50 random-and-recent batches and Adam.
+
+The tensor is currently in shadow / audit. The forward path is a graduated handoff from LLM-mediated deliberation to a small, locally-trained model that the system has watched succeed at scale before trusting it.
+
+## Memory: three knowledge graphs, ACT-R confidence, and a working memory that selects
+
+Memory lives in four Neo4j instances, one per concern.
+
+| Graph | Holds | Provenance sources |
+|---|---|---|
+| WKG | World facts, action procedures, conversations, insights | Sensor, Guardian, Inference, LLM_GENERATED |
+| SKG | Sylphie's self-model | Inference (bootstrap), Guardian-taught |
+| OKG | One person-model per known user | Self-reported (0.90), Inferred (0.60) |
+| PKG | The codebase as a graph | Tooling, not cognition |
+
+There are no cross-instance Cypher queries. Every node and edge carries a mandatory `provenance_type`; a `ProvenanceMissingError` is thrown if absent. Confidence follows an ACT-R-style law: `new = base + 0.12·ln(count) − decay·ln(hours+1)`, with per-provenance decay rates that protect what the guardian taught (0.03/hr) and penalize what the LLM generated (0.08/hr). `MERGE` only **raises** confidence on match; it never overwrites with a lower value. Guardian feedback is multiplied ×2 on confirmation and ×3 on correction.
+
+That cluster of rules (provenance required, MERGE-raises-only, decay per source, structural-node pruning floor) is how the system avoids catastrophic interference without yet having a working continual-learning regularizer. (More on that below.)
+
+Working memory is the part of the architecture I think most about. It does not store. It *selects*, from the existing graphs, every cycle, using five signals: relevance (Jaccard plus entity overlap), source confidence, recency under ACT-R decay, drive modulation, and spreading activation. The selected payload is wrapped between sentinel markers and injected into the deliberation system prompt verbatim. There is a 30-second hot residual layer with 0.80-per-cycle decay for short-term continuity. Episodic memory has a 50-slot ring buffer with an encoding gate that fires only when both attention and arousal are at or below 0.15. Calm states get encoded; frantic ones do not.
+
+## Self-pathology detection
+
+Five attractor detectors run continuously and surface alerts to the dashboard:
+
+- **Type 2 Addict**: LLM ratio above 0.90 (the system stopped graduating)
+- **Hallucinated Knowledge**: non-experiential WKG ratio above 0.20 (provenance is drifting toward LLM-generated)
+- **Depressive Attractor**: composite of shrug rate, MAE, and sadness/anxiety above 0.60
+- **Planning Runaway**: failure ratio above 0.70
+- **Prediction Pessimist**: rolling MAE above 0.30
+
+Each one watches for a specific pathology of *this* architecture, with a specific threshold and a specific intervention path through the Supervisor. They are not generic observability; they are an immune system against the failure modes the architecture itself opens up.
+
+## Theater Prohibition as a type-level invariant
+
+Subsystems do not call each other directly. They communicate through a TimescaleDB events table with a compile-time-enforced ownership map (`EVENT_BOUNDARY_MAP: Record<EventType, SubsystemSource>`). Every `SylphieEvent` carries a mandatory `driveSnapshot`. Every `ActionOutcomePayload` carries a mandatory `actionId` and `theaterCheck`.
+
+Translation: an expressive output without a corresponding drive state will not type-check. The system cannot perform an emotion it does not have, because the event for that emotion cannot be constructed without the snapshot that proves it. Theater Prohibition (Constraint Canon Standard 1) is enforced three times: at the type level, at the drive-engine pre-flight before reinforcement, and at the planning constraint validator before procedure creation. The chatbot tradition of "say something warm here" is foreclosed by the type system before it can land in a prompt.
+
+The Inner Monologue panel in the dashboard reads the TimescaleDB events verbatim. There is no LLM re-summarization between source and UI. What you see is what the system did.
+
+## What is honestly not yet real
+
+Phase 1.5. The spec calls out its own scaffolding:
+
+- **EWC scaffolding present, currently a no-op.** The Fisher information is uniform with no anchor. Catastrophic interference is mitigated structurally (by MERGE-raises-only confidence, by per-provenance decay, by a structural-node pruning floor), but proper continual-learning machinery is not yet wired in.
+- **Tensor cognition is in shadow / audit, not driving production decisions.** The promotion ladder is built; the tensor has not been promoted.
+- **Several Supervisor intervention endpoints are stubs.** `reinforce`, `correct`, and `freeze_model` are HTTP routes without bodies; `boost_salience` is not implemented.
+- **No graph pruning beyond confidence-floor orphan removal.** Guardian-protected and structural nodes are preserved by policy, not by a learned policy.
+- **N+1 queries flagged in `ActionRetrieverService`.** Known, deferred until retrieval ranking stabilizes.
+
+The system flags its own stubs in the spec and in code rather than papering over them. That is itself a Phase 1.5 commitment: the next phase begins by making each of those a yes.
+
+The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the headline metric (share of decisions made without calling a language model) finishes climbing.

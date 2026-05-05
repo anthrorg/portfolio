@@ -1,0 +1,313 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+/*
+ * Surface design tokens from theme.css to Tailwind v4 utilities.
+ *
+ * Using `@theme inline` so the utility values reference the CSS vars at
+ * runtime — that's what makes [data-theme="dark"] overrides work without
+ * Tailwind regenerating utilities.
+ *
+ * If you add a token in theme.css that you want to use as a utility
+ * (e.g. `bg-{name}`, `text-{name}`, `rounded-{name}`), add a matching
+ * line below. If you only need it via `var(--name)`, you can skip it.
+ */
+@theme inline {
+  /* Color */
+  --color-bg: var(--color-bg);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-ink: var(--color-accent-ink);
+  --color-gradient-start: var(--color-gradient-start);
+  --color-gradient-end: var(--color-gradient-end);
+
+  /* Type */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+  --text-5xl: var(--text-5xl);
+  --text-6xl: var(--text-6xl);
+  --text-7xl: var(--text-7xl);
+  --text-8xl: var(--text-8xl);
+
+  --font-weight-light: var(--font-weight-light);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-bold: var(--font-weight-bold);
+  --font-weight-black: var(--font-weight-black);
+
+  --tracking-tighter: var(--tracking-tighter);
+  --tracking-tight: var(--tracking-tight);
+  --tracking-wide: var(--tracking-wide);
+  --tracking-wider: var(--tracking-wider);
+  --tracking-widest: var(--tracking-widest);
+
+  --leading-tight: var(--leading-tight);
+  --leading-snug: var(--leading-snug);
+  --leading-relaxed: var(--leading-relaxed);
+
+  /* Shape */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-3xl: var(--radius-3xl);
+  --radius-4xl: var(--radius-4xl);
+
+  --blur-sm: var(--blur-sm);
+  --blur-md: var(--blur-md);
+  --blur-xl: var(--blur-xl);
+  --blur-3xl: var(--blur-3xl);
+
+  --drop-shadow-sm: var(--drop-shadow-sm);
+  --drop-shadow-md: var(--drop-shadow-md);
+
+  /* Layout */
+  --spacing: var(--spacing);
+
+  --container-sm: var(--container-sm);
+  --container-md: var(--container-md);
+  --container-lg: var(--container-lg);
+  --container-2xl: var(--container-2xl);
+  --container-3xl: var(--container-3xl);
+  --container-4xl: var(--container-4xl);
+  --container-5xl: var(--container-5xl);
+  --container-6xl: var(--container-6xl);
+  --container-7xl: var(--container-7xl);
+
+  /* Motion */
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+
+  --default-transition-duration: var(--duration-base);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-feature-settings: "kern", "liga";
+    line-height: 1.5;
+    text-shadow: var(--text-halo);
+  }
+
+  input, textarea, select {
+    text-shadow: none;
+  }
+
+  .bg-clip-text {
+    text-shadow: none;
+  }
+
+  :lang(ja) body {
+    font-family: var(--font-body-jp);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+  }
+
+  :lang(ja) h1,
+  :lang(ja) h2,
+  :lang(ja) h3,
+  :lang(ja) h4,
+  :lang(ja) h5,
+  :lang(ja) h6 {
+    font-family: var(--font-display-jp);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+}
+
+/*
+ * Japanese typography overrides — CJK glyphs are wider per character than
+ * Latin, and uppercase is meaningless for Kana/Kanji. These rules step
+ * down hero/H1 sizes one notch and remove uppercase on i18n'd labels so
+ * the JA reading register matches the EN one rather than shouting.
+ */
+:lang(ja) h1 {
+  font-size: clamp(1.75rem, 5vw, 3.75rem);
+  line-height: var(--leading-snug);
+  letter-spacing: 0;
+}
+
+:lang(ja) h2 {
+  line-height: var(--leading-snug);
+  letter-spacing: 0;
+}
+
+:lang(ja) .uppercase {
+  text-transform: none;
+  letter-spacing: var(--tracking-wider);
+}
+
+/*
+ * Skip-to-content link — visually hidden until focused, then sits at top-left
+ * over chrome with high contrast. WCAG 2.4.1 (Bypass Blocks).
+ */
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-150%);
+  padding: 0.5rem 1rem;
+  background-color: var(--color-ink);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  border-radius: var(--radius-md);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/*
+ * Background text grid — a tiled keyword pattern behind page content,
+ * with a cursor-following spotlight that illuminates a small radius in
+ * the indigo→pink gradient. Driven by --mx / --my custom properties
+ * written from JS (see src/components/BackgroundText.tsx).
+ *
+ * Two layers: a static dim base always visible, plus a bright gradient
+ * layer revealed only inside the spotlight mask. On no-hover devices
+ * the whole effect is hidden; under reduced motion the spotlight is
+ * dropped and the dim base stays.
+ */
+.bg-text-grid {
+  font-family: var(--font-mono);
+  font-size: var(--bg-text-size);
+  font-weight: var(--font-weight-bold);
+  line-height: 2;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Opt out of the body halo: haloing the grid would defeat its own visibility / spotlight reveal. */
+  text-shadow: none;
+  /* Promote each grid layer onto its own GPU layer so the shimmer animation
+     and cursor mask updates composite cheaply instead of triggering
+     full-document repaints. */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.bg-text-dim {
+  color: var(--color-ink);
+  opacity: var(--bg-text-dim-opacity);
+}
+
+.bg-text-bright {
+  opacity: var(--bg-text-bright-opacity);
+  -webkit-mask-image: radial-gradient(
+    circle var(--bg-text-spotlight-size) at var(--mx, -1000px) var(--my, -1000px),
+    black,
+    transparent 70%
+  );
+  mask-image: radial-gradient(
+    circle var(--bg-text-spotlight-size) at var(--mx, -1000px) var(--my, -1000px),
+    black,
+    transparent 70%
+  );
+}
+
+/*
+ * Each row in the bright layer paints two stacked backgrounds clipped
+ * to its text shape: a base indigo→pink gradient (always visible inside
+ * the spotlight) and a moving white shimmer stripe on top. The shimmer
+ * is offscreen for most of the cycle and sweeps left-to-right in the
+ * final ~8 %; per-row random animation-delays scatter the timing so
+ * shimmers don't fire in unison. The bright layer's spotlight mask
+ * means shimmer is only visible inside the cursor circle.
+ */
+.bg-text-bright > div {
+  background-image:
+    linear-gradient(90deg, transparent 47%, var(--bg-text-shimmer-color) 50%, transparent 53%),
+    linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
+  background-size: 200% 100%, 100% 100%;
+  background-position: -50% 0, 0 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: bg-text-shimmer var(--bg-text-shimmer-cycle, 14s) linear infinite;
+  /* Hint the compositor that bg-position changes per frame, and contain
+     each row so its animation tick can't invalidate ancestors' layout. */
+  will-change: background-position;
+  contain: layout style paint;
+}
+
+@keyframes bg-text-shimmer {
+  0%, 75% { background-position: -50% 0, 0 0; }
+  100%    { background-position: 250% 0, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-text-bright > div {
+    animation: none;
+  }
+}
+
+/* Hide entirely on touch devices and on narrow viewports — matches the
+   md breakpoint where MobileNav takes over from the desktop nav. */
+@media (hover: none), (max-width: 768px) {
+  .bg-text-grid {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-text-bright {
+    display: none;
+  }
+}

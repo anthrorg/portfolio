@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "work": "Work",
+    "writing": "Writing",
+    "career": "Career",
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuDescription": "Site navigation links and language toggle.",
+    "about": "About",
+    "skipToContent": "Skip to content"
+  },
+  "hero": {
+    "eyebrow": "Agent Engineer",
+    "tagline": "AI is <highlight>in the build</highlight>, not next to it.",
+    "scrollCue": "Scroll",
+    "tagline_plain": "AI is in the build, not next to it.",
+    "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line.",
+    "cta": "Read the work"
+  },
+  "home": {
+    "workEyebrow": "How I work",
+    "workTitle": "With agents in the loop.",
+    "workBody": "Not a productivity hack. The way the work gets built. Years of shipping production software end-to-end mean the AI-augmented work I do becomes product, not demos. I've led an engineering organization through AI tooling adoption end to end: evaluation, rollout, training, and the harder part of moving the engineers who weren't going to come along on their own. I build at the model boundary too, including production MCP tooling for the agents I work with day to day.",
+    "thinkEyebrow": "How I think",
+    "thinkTitle": "From the system, not the pattern.",
+    "thinkBody": "I reach for the underlying mechanism before I reach for prior art. When a system is unfamiliar, I'd rather study it from the foundations than copy a shape that worked somewhere else. On my own time I read papers and build cognitive architectures from scratch, partly because I want to understand the systems I'm shipping at a layer below the API. I bring the same discipline to my own code: every pull request on my main project gets reviewed against a written architectural document before it merges.",
+    "openEyebrow": "Open to",
+    "openTitle": "What I'm looking for next.",
+    "openBody": "AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo.",
+    "openCta": "Email me",
+    "openEmail": "jctisdale1988@gmail.com"
+  },
+  "work": {
+    "title": "Selected work",
+    "intro": "Two projects. The throughline is systems thinking applied to messy domains.",
+    "featuredLabel": "Featured",
+    "comingSoonLabel": "Coming 2026",
+    "viewCase": "Read the case study",
+    "backToWork": "Back to work",
+    "next": "Next",
+    "previous": "Previous",
+    "caseComingSoon": "Case study in progress. Outline lives in the wiki; the full write-up lands soon.",
+    "cases": {
+      "sylphie": {
+        "title": "Sylphie",
+        "role": "Cognitive architecture",
+        "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker."
+      },
+      "mediavine": {
+        "title": "Mediavine, Journey",
+        "role": "AI tooling adoption",
+        "summary": "Led adoption of AI tooling inside a media-tech company. Internal product, workflow shifts, measured impact on a publisher network."
+      }
+    }
+  },
+  "writing": {
+    "title": "Writing",
+    "intro": "Notes from the work: cognitive architectures, agent design, frontend craft.",
+    "backToWriting": "Back to writing",
+    "readingTime_one": "{{count}} min read",
+    "readingTime_other": "{{count}} min read",
+    "languageLabel": "Language",
+    "empty": "No posts yet. The first long-form piece is in flight."
+  },
+  "career": {
+    "title": "Career",
+    "intro": "Eight years senior frontend, four at Mediavine, pivoting into AI.",
+    "downloadResume": "Download resume (PDF)",
+    "empty": "Updating soon.",
+    "sections": {
+      "roles": "Roles",
+      "education": "Education",
+      "certifications": "Certifications",
+      "languages": "Languages"
+    }
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "About.",
+    "body1": "I'm a senior frontend engineer based in Charlotte, NC. I spent four years at Mediavine building their Journey product end-to-end with a small team (onboarding, an analytics engine, publisher dashboards) and led AI tooling adoption across the company. Before that: Tek Systems for React + GraphQL work, and Legal Associations Management, where I was promoted to team lead in nine months.",
+    "body2": "For the past two years I've been building Sylphie, a cognitive architecture where the LLM is a voice box, not the decision-maker. I've shipped two MCP servers alongside the core system, and I review every pull request on the project against a written architectural constitution. It's a long bet that's taught me to design systems by reasoning about the problem rather than borrowing from prior art."
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Contact.",
+    "lede": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo. The fastest channel is email.",
+    "emailLabel": "Email"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "email": "Email",
+    "github": "GitHub",
+    "linkedin": "LinkedIn"
+  },
+  "language": {
+    "toggle": "日本語"
+  }
+}

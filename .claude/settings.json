@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/review-on-stop.sh",
+            "timeout": 300,
+            "statusMessage": "Sonnet reviewing completed work..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/review-on-write.sh",
+            "timeout": 90,
+            "statusMessage": "Senior-engineer reviewing write..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/snapshot-baseline.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
