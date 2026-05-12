@@ -84,7 +84,7 @@ async function prerender() {
   console.log(`prerendering ${routes.length} routes:`, routes.join(", "));
 
   const { server, port } = await startServer(DIST_DIR);
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ chromiumSandbox: false });
   const context = await browser.newContext({
     locale: "en-US",
     viewport: { width: 1280, height: 800 },
