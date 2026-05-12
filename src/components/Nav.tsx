@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { Container } from "./Container";
-import { LanguageToggle } from "./LanguageToggle";
 import { MobileNav } from "./MobileNav";
 
 export function Nav() {
@@ -53,14 +52,10 @@ export function Nav() {
                 {t("nav.contact")}
               </Link>
             </li>
-            <li>
-              <LanguageToggle />
-            </li>
           </ul>
         </nav>
 
         <div className="flex items-center gap-3 md:hidden">
-          <LanguageToggle />
           <MobileNav />
         </div>
       </Container>

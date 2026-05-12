@@ -3,8 +3,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
-import { LanguageToggle } from "./LanguageToggle";
-
 const NAV_ITEMS = [
   { to: "/work" as const, key: "nav.work" },
   { to: "/about" as const, key: "nav.about" },
@@ -92,10 +90,6 @@ export function MobileNav() {
                 </li>
               ))}
             </ul>
-
-            <div className="flex items-center justify-end gap-3">
-              <LanguageToggle />
-            </div>
           </nav>
         </Dialog.Content>
       </Dialog.Portal>

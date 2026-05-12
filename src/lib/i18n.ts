@@ -16,6 +16,7 @@ i18next
       en: { common: enCommon },
       ja: { common: jaCommon },
     },
+    lng: "en",
     fallbackLng: "en",
     supportedLngs: SUPPORTED_LANGUAGES,
     defaultNS: "common",

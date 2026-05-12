@@ -1,15 +1,27 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Work index", () => {
-  test("renders heading and the Sylphie case featured", async ({ page }) => {
+  test("renders heading and a featured case from the pool", async ({
+    page,
+  }) => {
     await page.goto("/work");
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Sylphie" })).toBeVisible();
+    // Exactly one card carries the "Featured" eyebrow per render (the
+    // randomly chosen one from the featured pool). The other two cases sit
+    // in the supporting grid; all three case titles must appear somewhere
+    // on the page regardless of which one is featured this paint.
     await expect(page.getByText("Featured")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sylphie" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "memory-pkg" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "sylphie-pkg" }),
+    ).toBeVisible();
   });
 
-  test("clicking the featured case navigates to /work/sylphie", async ({
+  test("clicking the Sylphie card navigates to /work/sylphie", async ({
     page,
   }) => {
     await page.goto("/work");
@@ -18,6 +30,46 @@ test.describe("Work index", () => {
       .first()
       .click();
     await expect(page).toHaveURL(/\/work\/sylphie/);
+  });
+});
+
+test.describe("memory-pkg case study", () => {
+  test("renders the H1 title from i18n and a body heading", async ({
+    page,
+  }) => {
+    await page.goto("/work/memory-pkg");
+
+    await expect(
+      page.getByRole("heading", { level: 1, name: "memory-pkg" }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: /the problem/i }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("link", { name: /back to work/i }),
+    ).toBeVisible();
+  });
+});
+
+test.describe("sylphie-pkg case study", () => {
+  test("renders the H1 title from i18n and a body heading", async ({
+    page,
+  }) => {
+    await page.goto("/work/sylphie-pkg");
+
+    await expect(
+      page.getByRole("heading", { level: 1, name: "sylphie-pkg" }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: /the problem/i }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("link", { name: /back to work/i }),
+    ).toBeVisible();
   });
 });
 
@@ -71,9 +123,11 @@ test.describe("Mobile drawer nav", () => {
 });
 
 test.describe("Language toggle", () => {
-  test("switches to Japanese and persists across navigation", async ({
+  test.skip("switches to Japanese and persists across navigation", async ({
     page,
   }) => {
+    // Disabled while the JA copy is being audited. Re-enable once the
+    // LanguageToggle is back in the nav.
     await page.goto("/");
     await page.getByRole("button", { name: /switch language to ja/i }).click();
 
