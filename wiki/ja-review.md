@@ -4,7 +4,7 @@
 **Owner:** Jim
 **Last updated:** 2026-04-28
 
-The Japanese copy on `jim.sylphie.live` was authored by a non-native (translation-aided). This file is the brief for the native reviewer.
+The Japanese copy on `author.sylphie.live` was authored by a non-native (translation-aided). This file is the brief for the native reviewer.
 
 ## Where the copy lives
 

@@ -47,7 +47,7 @@ export function Footer() {
           <span>
             © {year} Jim Tisdale. {t("footer.rights")}
           </span>
-          <span className="font-mono">jim.sylphie.live</span>
+          <span className="font-mono">author.sylphie.live</span>
         </div>
       </Container>
     </footer>

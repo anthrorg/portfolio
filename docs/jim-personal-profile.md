@@ -323,7 +323,7 @@ The Japan move sits on a 5–10 year horizon: Japanese study now, Tokyo-office r
 
 ## I. Portfolio
 
-- **Domain:** `jim.sylphie.live`
+- **Domain:** `author.sylphie.live`
 - **Stack:** Vite + React 19 + TypeScript + Tailwind v4; GSAP + ScrollTrigger + SplitText; Motion; Lenis; Radix; react-three-fiber + drei
 - **Inspiration:** pszostak.pl
 - **Bilingual EN/JA** (Japanese reviewed by native speaker before launch)

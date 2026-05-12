@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 
 import { getAllRoutes } from "./routes-manifest.mjs";
 
-const SITE_URL = "https://jim.sylphie.live";
+const SITE_URL = "https://author.sylphie.live";
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(here, "..", "dist", "sitemap.xml");
 

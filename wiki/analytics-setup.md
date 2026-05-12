@@ -27,7 +27,7 @@ Initialization happens in `src/main.tsx` immediately after `createRouter(...)`.
 ### 1a. Create the account and project
 
 1. Go to https://posthog.com and sign up. Pick **US Cloud** for lower latency in North America, or **EU Cloud** if you want EU residency. The default in this repo is US.
-2. Create a project. Name it `jim.sylphie.live`.
+2. Create a project. Name it `author.sylphie.live`.
 3. After landing in the project, go to **Settings → Project → General**. The **Project API Key** (starts with `phc_...`) is the value you want. Copy it.
 
 ### 1b. Adjust project defaults
@@ -60,7 +60,7 @@ On the deploy host (Vercel/Netlify/Cloudflare Pages):
 1. Open the deployed site in an incognito window.
 2. Click around a few routes.
 3. Back in PostHog, go to **Activity → Live events**. You should see `$pageview` and `$autocapture` events streaming in within ~10 seconds.
-4. Heatmaps: **Web analytics → Heatmaps → New** → enter `https://jim.sylphie.live/` → load. The view renders an overlay of click density on your live site. Each route is a separate heatmap.
+4. Heatmaps: **Web analytics → Heatmaps → New** → enter `https://author.sylphie.live/` → load. The view renders an overlay of click density on your live site. Each route is a separate heatmap.
 5. Recordings: **Activity → Recordings**. Recordings appear after a session ends (page close or 30 min of inactivity).
 
 ---
@@ -71,11 +71,11 @@ On the deploy host (Vercel/Netlify/Cloudflare Pages):
 
 1. Go to https://analytics.google.com and sign in.
 2. **Admin → Create → Property**.
-   - Property name: `jim.sylphie.live`
+   - Property name: `author.sylphie.live`
    - Time zone: your operating time zone (affects daily rollups)
    - Currency: USD (or whatever)
 3. **Business details:** small / under 100 visitors per day for now.
-4. **Create a stream:** select **Web**. Enter `https://jim.sylphie.live` and a stream name (`jim.sylphie.live web`).
+4. **Create a stream:** select **Web**. Enter `https://author.sylphie.live` and a stream name (`author.sylphie.live web`).
 5. After creation, the stream detail page shows your **Measurement ID** (format: `G-XXXXXXXXXX`). Copy it.
 
 ### 2b. Adjust stream defaults
@@ -138,7 +138,7 @@ If you add other tracking later (Mixpanel, Sentry, etc.), guard each behind `isP
 Local dev doesn't need analytics firing. Two ways to keep it quiet:
 
 - **Don't set the env vars in `.env.local`** — the cleanest option. Code no-ops.
-- **Or use separate dev keys**: create a second PostHog project (`jim.sylphie.live (dev)`) and stash its key in `.env.local` if you want to validate the wiring against real network calls.
+- **Or use separate dev keys**: create a second PostHog project (`author.sylphie.live (dev)`) and stash its key in `.env.local` if you want to validate the wiring against real network calls.
 
 The build env vars on Vercel/Netlify only apply to deploy builds, so production keys never leak into local dev unless you copy them yourself.
 

@@ -288,7 +288,7 @@ Things most career-pivot plans miss but matter for your specific profile:
 
 Don't wait. Do this in the next seven days, in this order:
 
-1. **Buy your personal domain today.** Not jim.sylphie.live (we agreed) — your *personal* domain. Doesn't matter exactly what; pick something in 30 minutes and ship the DNS.
+1. **Buy your personal domain today.** Not author.sylphie.live (we agreed) — your *personal* domain. Doesn't matter exactly what; pick something in 30 minutes and ship the DNS.
 2. **Audit Sylphie repo for public release.** README focused on "what is this and why does it exist," LICENSE (AGPL-3.0), CONTRIBUTING.md, the CANON diagram in `docs/`. Don't fix issues yet. Just make it presentable.
 3. **Make Sylphie public on GitHub.** Tag v0.1.0. This is the single highest-leverage action this week.
 4. **Open the Anthropic FDE application page.** Read the JD slowly. Note the phrases. Begin drafting the cover letter — don't submit yet, but start the document.

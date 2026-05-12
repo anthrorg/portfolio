@@ -1,4 +1,4 @@
-# jim.sylphie.live — Portfolio Plan
+# author.sylphie.live — Portfolio Plan
 
 **Status:** Planning
 **Last updated:** 2026-04-27
@@ -125,7 +125,7 @@ Persistent minimal nav. Logo (returns home), Work, Writing, Career, Contact. Lan
 
 ### Domain
 
-- **`jim.sylphie.live`** — primary
+- **`author.sylphie.live`** — primary
 - `sylphie.live` root needs a minimum-viable holding page before portfolio launch (separate small task)
 
 ---
@@ -271,7 +271,7 @@ Each phase ends with a deployable, working state. No phase blocks merging to mai
 - **Three flagship blog posts written** — bulk of pre-launch content effort, 2-3 weeks parallel to coding.
 - **Mediavine NDA review** — Jim uploads, Claude reviews, we scope what's permissible. Same week.
 - **Native JA speaker review** — find a reviewer (iTalki tutor, language exchange contact, or paid service like Gengo for the bio/contact pages specifically). Phase 5 task but lining up the reviewer should happen earlier.
-- **Domain DNS for jim.sylphie.live** — five-minute task, do it now to avoid propagation delays at launch.
+- **Domain DNS for author.sylphie.live** — five-minute task, do it now to avoid propagation delays at launch.
 
 ---
 
