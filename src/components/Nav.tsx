@@ -37,15 +37,6 @@ export function Nav() {
             </li>
             <li>
               <Link
-                to="/writing"
-                className="transition-colors hover:text-accent"
-                activeProps={{ className: "text-accent" }}
-              >
-                {t("nav.writing")}
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/career"
                 className="transition-colors hover:text-accent"
                 activeProps={{ className: "text-accent" }}

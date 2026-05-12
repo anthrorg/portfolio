@@ -4,5 +4,5 @@ test("homepage renders the hero tagline", async ({ page }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { level: 1 }),
-  ).toContainText("in the build");
+  ).toContainText("ship production software");
 });

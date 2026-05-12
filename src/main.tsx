@@ -5,6 +5,7 @@ import { I18nextProvider } from "react-i18next";
 
 import { routeTree } from "./routeTree.gen";
 import { i18n } from "./lib/i18n";
+import { initAnalytics } from "./lib/analytics";
 import "./styles/global.css";
 
 const router = createRouter({
@@ -18,6 +19,8 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+initAnalytics(router);
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");

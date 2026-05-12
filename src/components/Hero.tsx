@@ -44,58 +44,56 @@ export function Hero() {
   return (
     <section className="pt-24 pb-20 md:pt-40 md:pb-32">
       <Container>
-        <div className="max-w-3xl">
-          <motion.p
-            initial={reduced ? false : "hidden"}
-            animate="visible"
-            variants={eyebrowVariants}
-            className="mb-8 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm"
-          >
-            {t("hero.eyebrow")}
-          </motion.p>
+        <motion.p
+          initial={reduced ? false : "hidden"}
+          animate="visible"
+          variants={eyebrowVariants}
+          className="mb-8 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm"
+        >
+          {t("hero.eyebrow")}
+        </motion.p>
 
-          <h1 className="font-display font-light leading-[1.05] tracking-tight text-[clamp(2rem,6vw,4.5rem)]">
-            <span className="block overflow-hidden pr-1">
-              <motion.span
-                className="block"
-                initial={reduced ? false : "hidden"}
-                animate="visible"
-                variants={lineVariants}
-              >
-                <Trans
-                  i18nKey="hero.tagline"
-                  components={{
-                    highlight: <span className="italic" />,
-                  }}
-                />
-              </motion.span>
-            </span>
-          </h1>
-
-          <motion.p
-            initial={reduced ? false : "hidden"}
-            animate="visible"
-            variants={fadeUpVariants(0.3)}
-            className="mt-8 text-lg text-ink-muted md:text-xl"
-          >
-            {t("hero.subhead")}
-          </motion.p>
-
-          <motion.div
-            initial={reduced ? false : "hidden"}
-            animate="visible"
-            variants={fadeUpVariants(0.5)}
-            className="mt-10"
-          >
-            <Link
-              to="/work"
-              className="group inline-flex items-center gap-3 rounded-full border border-border bg-bg px-5 py-3 text-sm uppercase tracking-widest transition-colors hover:border-accent hover:text-accent"
+        <h1 className="font-display leading-[1.05] tracking-tight text-[clamp(2.25rem,7vw,5.5rem)]">
+          <span className="block overflow-hidden pr-1">
+            <motion.span
+              className="block"
+              initial={reduced ? false : "hidden"}
+              animate="visible"
+              variants={lineVariants}
             >
-              <span>{t("hero.cta")}</span>
-              <span aria-hidden>→</span>
-            </Link>
-          </motion.div>
-        </div>
+              <Trans
+                i18nKey="hero.tagline"
+                components={{
+                  highlight: <span className="italic" />,
+                }}
+              />
+            </motion.span>
+          </span>
+        </h1>
+
+        <motion.p
+          initial={reduced ? false : "hidden"}
+          animate="visible"
+          variants={fadeUpVariants(0.3)}
+          className="mt-8 max-w-3xl text-lg text-ink-muted md:text-xl"
+        >
+          {t("hero.subhead")}
+        </motion.p>
+
+        <motion.div
+          initial={reduced ? false : "hidden"}
+          animate="visible"
+          variants={fadeUpVariants(0.5)}
+          className="mt-10"
+        >
+          <Link
+            to="/work"
+            className="group inline-flex items-center gap-3 rounded-full border border-border bg-bg px-5 py-3 text-sm uppercase tracking-widest transition-colors hover:border-accent hover:text-accent"
+          >
+            <span>{t("hero.cta")}</span>
+            <span aria-hidden>→</span>
+          </Link>
+        </motion.div>
       </Container>
     </section>
   );

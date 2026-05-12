@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { CaseStudyLayout } from "@/components/case-study/CaseStudyLayout";
 import { getCase } from "@/content/cases";
-import { useDocumentTitle } from "@/lib/use-document-title";
+import { useHead } from "@/lib/use-head";
 
 const caseModules = import.meta.glob<{ default: ComponentType }>(
   "@/content/work/*.mdx",
@@ -28,7 +28,12 @@ function CaseStudy() {
   const { t } = useTranslation();
   const { slug } = Route.useParams();
   const meta = getCase(slug);
-  useDocumentTitle(meta ? t(`work.cases.${slug}.title`) : undefined);
+  useHead({
+    title: meta ? t(`work.cases.${slug}.title`) : undefined,
+    description: meta ? t(`work.cases.${slug}.summary`) : "",
+    path: `/work/${slug}`,
+    ogType: "article",
+  });
   if (!meta) throw notFound();
 
   const MDXContent = getLazyCase(slug);

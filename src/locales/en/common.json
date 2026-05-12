@@ -1,7 +1,6 @@
 {
   "nav": {
-    "work": "Work",
-    "writing": "Writing",
+    "work": "Frontier",
     "career": "Career",
     "contact": "Contact",
     "openMenu": "Open menu",
@@ -12,9 +11,9 @@
   },
   "hero": {
     "eyebrow": "Agent Engineer",
-    "tagline": "AI is <highlight>in the build</highlight>, not next to it.",
+    "tagline": "Harnessing AI agents to ship production software, <highlight>predictably</highlight>.",
     "scrollCue": "Scroll",
-    "tagline_plain": "AI is in the build, not next to it.",
+    "tagline_plain": "Harnessing AI agents to ship production software, predictably.",
     "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line.",
     "cta": "Read the work"
   },
@@ -32,8 +31,8 @@
     "openEmail": "jctisdale1988@gmail.com"
   },
   "work": {
-    "title": "Selected work",
-    "intro": "Two projects. The throughline is systems thinking applied to messy domains.",
+    "title": "Frontier",
+    "intro": "Systems thinking applied to messy AI problems.",
     "featuredLabel": "Featured",
     "comingSoonLabel": "Coming 2026",
     "viewCase": "Read the case study",
@@ -46,24 +45,10 @@
         "title": "Sylphie",
         "role": "Cognitive architecture",
         "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker."
-      },
-      "mediavine": {
-        "title": "Mediavine, Journey",
-        "role": "AI tooling adoption",
-        "summary": "Led adoption of AI tooling inside a media-tech company. Internal product, workflow shifts, measured impact on a publisher network."
       }
     }
   },
-  "writing": {
-    "title": "Writing",
-    "intro": "Notes from the work: cognitive architectures, agent design, frontend craft.",
-    "backToWriting": "Back to writing",
-    "readingTime_one": "{{count}} min read",
-    "readingTime_other": "{{count}} min read",
-    "languageLabel": "Language",
-    "empty": "No posts yet. The first long-form piece is in flight."
-  },
-  "career": {
+"career": {
     "title": "Career",
     "intro": "Eight years senior frontend, four at Mediavine, pivoting into AI.",
     "downloadResume": "Download resume (PDF)",
@@ -78,8 +63,8 @@
   "about": {
     "eyebrow": "About",
     "title": "About.",
-    "body1": "I'm a senior frontend engineer based in Charlotte, NC. I spent four years at Mediavine building their Journey product end-to-end with a small team (onboarding, an analytics engine, publisher dashboards) and led AI tooling adoption across the company. Before that: Tek Systems for React + GraphQL work, and Legal Associations Management, where I was promoted to team lead in nine months.",
-    "body2": "For the past two years I've been building Sylphie, a cognitive architecture where the LLM is a voice box, not the decision-maker. I've shipped two MCP servers alongside the core system, and I review every pull request on the project against a written architectural constitution. It's a long bet that's taught me to design systems by reasoning about the problem rather than borrowing from prior art."
+    "body1": "I make the engineering team I join better than it was before I joined. Half of that is patience: pairing with the engineer who hasn't found their AI workflow yet, writing the rollout doc nobody wants to own, taking the meeting where you explain to the skeptic why this isn't a fad. I led that work end-to-end at my last company and watched the team's ceiling rise as a result.",
+    "body2": "The other half is discipline. I review every pull request on my main project against a written architectural document before it merges, and I bring the same standard to whatever team I'm on, starting with my own code. I reason from a system's mechanism before I reach for prior art. Engineers feel the floor rise around them. That's the value."
   },
   "contact": {
     "eyebrow": "Contact",
@@ -95,5 +80,12 @@
   },
   "language": {
     "toggle": "日本語"
+  },
+  "meta": {
+    "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
+    "work": "Selected work — cognitive architectures, agent tooling, and the systems Jim Tisdale has built.",
+    "career": "Eight years senior frontend, four at Mediavine, pivoting into AI engineering.",
+    "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
+    "contact": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo."
   }
 }

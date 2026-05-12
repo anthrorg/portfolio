@@ -2,11 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 import { Container } from "@/components/Container";
-import { useDocumentTitle } from "@/lib/use-document-title";
+import { useHead } from "@/lib/use-head";
 
 function About() {
   const { t } = useTranslation();
-  useDocumentTitle(t("nav.about"));
+  useHead({
+    title: t("nav.about"),
+    description: t("meta.about"),
+    path: "/about",
+  });
   return (
     <Container className="py-24 md:py-32">
       <header className="max-w-3xl">

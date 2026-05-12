@@ -1,21 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Work index", () => {
-  test("renders heading and both cases with Sylphie featured", async ({
-    page,
-  }) => {
+  test("renders heading and the Sylphie case featured", async ({ page }) => {
     await page.goto("/work");
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-
     await expect(page.getByRole("heading", { name: "Sylphie" })).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /Mediavine/ }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Third case" }),
-    ).toHaveCount(0);
-
     await expect(page.getByText("Featured")).toBeVisible();
   });
 
@@ -56,27 +46,6 @@ test.describe("Sylphie case study", () => {
   });
 });
 
-test.describe("Case study without MDX yet", () => {
-  test("falls back to layout with placeholder + back link, no MDX body", async ({
-    page,
-  }) => {
-    await page.goto("/work/mediavine");
-
-    await expect(
-      page.getByRole("heading", { level: 1, name: /Mediavine/ }),
-    ).toBeVisible();
-
-    await expect(page.getByText(/case study in progress/i)).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /back to work/i }),
-    ).toBeVisible();
-
-    await expect(page.getByRole("heading", { name: "Overview" })).toHaveCount(
-      0,
-    );
-  });
-});
-
 test.describe("Mobile drawer nav", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
@@ -92,7 +61,7 @@ test.describe("Mobile drawer nav", () => {
 
     const drawerWorkLink = page
       .getByRole("dialog")
-      .getByRole("link", { name: /^Work$/ });
+      .getByRole("link", { name: /^Frontier$/ });
     await expect(drawerWorkLink).toBeVisible();
 
     await drawerWorkLink.click();
@@ -109,7 +78,7 @@ test.describe("Language toggle", () => {
     await page.getByRole("button", { name: /switch language to ja/i }).click();
 
     await expect(page.locator("html")).toHaveAttribute("lang", "ja");
-    const navWorkLink = page.getByRole("link", { name: "作品", exact: true });
+    const navWorkLink = page.getByRole("link", { name: "Frontier", exact: true });
     await expect(navWorkLink).toBeVisible();
 
     await navWorkLink.click();

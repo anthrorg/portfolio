@@ -8,7 +8,7 @@ import {
   pickLocalized,
   type CareerEntry,
 } from "@/content/career";
-import { useDocumentTitle } from "@/lib/use-document-title";
+import { useHead } from "@/lib/use-head";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const RESUME_HREF = "/jim-tisdale-resume.pdf";
@@ -22,7 +22,11 @@ const SECTIONS = [
 
 function Career() {
   const { t, i18n } = useTranslation();
-  useDocumentTitle(t("career.title"));
+  useHead({
+    title: t("career.title"),
+    description: t("meta.career"),
+    path: "/career",
+  });
   const reduced = useReducedMotion();
   const lang = i18n.resolvedLanguage ?? "en";
   const visibleSections = SECTIONS.filter((s) => s.entries.length > 0);

@@ -1,7 +1,6 @@
 {
   "nav": {
-    "work": "作品",
-    "writing": "執筆",
+    "work": "Frontier",
     "career": "経歴",
     "contact": "連絡",
     "openMenu": "メニューを開く",
@@ -12,9 +11,9 @@
   },
   "hero": {
     "eyebrow": "Agent Engineer",
-    "tagline": "AI is <highlight>in the build</highlight>, not next to it.",
+    "tagline": "Harnessing AI agents to ship production software, <highlight>predictably</highlight>.",
     "scrollCue": "スクロール",
-    "tagline_plain": "AI is in the build, not next to it.",
+    "tagline_plain": "Harnessing AI agents to ship production software, predictably.",
     "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line.",
     "cta": "Read the work"
   },
@@ -32,8 +31,8 @@
     "openEmail": "jctisdale1988@gmail.com"
   },
   "work": {
-    "title": "選ばれた仕事",
-    "intro": "二つのプロジェクト。一貫しているのは、複雑な領域へシステム思考を適用する姿勢です。",
+    "title": "Frontier",
+    "intro": "Systems thinking applied to messy AI problems.",
     "featuredLabel": "注目",
     "comingSoonLabel": "2026年公開予定",
     "viewCase": "ケーススタディを読む",
@@ -46,24 +45,10 @@
         "title": "Sylphie",
         "role": "認知アーキテクチャ",
         "summary": "実行経路にLLMを置かない認知アーキテクチャ。二重プロセス推論、ドライブによる注意制御、思考ではなく発声装置としての言語モデル。"
-      },
-      "mediavine": {
-        "title": "Mediavine, Journey",
-        "role": "AIツール導入",
-        "summary": "メディアテック企業におけるAIツール導入を主導。社内プロダクト、ワークフローの変革、パブリッシャー網への定量的インパクト。"
       }
     }
   },
-  "writing": {
-    "title": "執筆",
-    "intro": "仕事の記録：認知アーキテクチャ、エージェント設計、フロントエンドの工芸。",
-    "backToWriting": "執筆一覧へ戻る",
-    "readingTime_one": "{{count}}分で読める",
-    "readingTime_other": "{{count}}分で読める",
-    "languageLabel": "言語",
-    "empty": "投稿はまだありません。最初の長文記事は執筆中です。"
-  },
-  "career": {
+"career": {
     "title": "経歴",
     "intro": "Eight years senior frontend, four at Mediavine, pivoting into AI.",
     "downloadResume": "履歴書をダウンロード（PDF）",
@@ -78,8 +63,8 @@
   "about": {
     "eyebrow": "プロフィール",
     "title": "プロフィール。",
-    "body1": "I'm a senior frontend engineer based in Charlotte, NC. I spent four years at Mediavine building their Journey product end-to-end with a small team (onboarding, an analytics engine, publisher dashboards) and led AI tooling adoption across the company. Before that: Tek Systems for React + GraphQL work, and Legal Associations Management, where I was promoted to team lead in nine months.",
-    "body2": "For the past two years I've been building Sylphie, a cognitive architecture where the LLM is a voice box, not the decision-maker. I've shipped two MCP servers alongside the core system, and I review every pull request on the project against a written architectural constitution. It's a long bet that's taught me to design systems by reasoning about the problem rather than borrowing from prior art."
+    "body1": "I make the engineering team I join better than it was before I joined. Half of that is patience: pairing with the engineer who hasn't found their AI workflow yet, writing the rollout doc nobody wants to own, taking the meeting where you explain to the skeptic why this isn't a fad. I led that work end-to-end at my last company and watched the team's ceiling rise as a result.",
+    "body2": "The other half is discipline. I review every pull request on my main project against a written architectural document before it merges, and I bring the same standard to whatever team I'm on, starting with my own code. I reason from a system's mechanism before I reach for prior art. Engineers feel the floor rise around them. That's the value."
   },
   "contact": {
     "eyebrow": "連絡",
@@ -95,5 +80,12 @@
   },
   "language": {
     "toggle": "English"
+  },
+  "meta": {
+    "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
+    "work": "Selected work — cognitive architectures, agent tooling, and the systems Jim Tisdale has built.",
+    "career": "Eight years senior frontend, four at Mediavine, pivoting into AI engineering.",
+    "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
+    "contact": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo."
   }
 }

@@ -32,10 +32,7 @@ test.describe("SEO meta", () => {
 
   test("each route updates the document title", async ({ page }) => {
     await page.goto("/work");
-    await expect(page).toHaveTitle("Work — Jim Tisdale");
-
-    await page.goto("/writing");
-    await expect(page).toHaveTitle("Writing — Jim Tisdale");
+    await expect(page).toHaveTitle("Frontier — Jim Tisdale");
 
     await page.goto("/career");
     await expect(page).toHaveTitle("Career — Jim Tisdale");

@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 import { Hero } from "@/components/Hero";
 import { HomeSections } from "@/components/HomeSections";
-import { useDocumentTitle } from "@/lib/use-document-title";
+import { useHead } from "@/lib/use-head";
 
 function HomePage() {
-  useDocumentTitle();
+  const { t } = useTranslation();
+  useHead({ description: t("meta.home"), path: "/" });
   return (
     <>
       <Hero />

@@ -1,8 +1,11 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 
+import { isPrerender } from "./is-prerender";
+
 export function useLenis() {
   useEffect(() => {
+    if (isPrerender()) return;
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;

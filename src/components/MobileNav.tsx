@@ -8,7 +8,6 @@ import { LanguageToggle } from "./LanguageToggle";
 const NAV_ITEMS = [
   { to: "/work" as const, key: "nav.work" },
   { to: "/about" as const, key: "nav.about" },
-  { to: "/writing" as const, key: "nav.writing" },
   { to: "/career" as const, key: "nav.career" },
   { to: "/contact" as const, key: "nav.contact" },
 ];

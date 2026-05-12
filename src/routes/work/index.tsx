@@ -4,14 +4,18 @@ import { useTranslation } from "react-i18next";
 
 import { Container } from "@/components/Container";
 import { cases, type CaseMeta } from "@/content/cases";
-import { useDocumentTitle } from "@/lib/use-document-title";
+import { useHead } from "@/lib/use-head";
 import { useViewTransitionEnabled } from "@/lib/use-view-transition";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
 function WorkIndex() {
   const { t } = useTranslation();
-  useDocumentTitle(t("nav.work"));
+  useHead({
+    title: t("nav.work"),
+    description: t("meta.work"),
+    path: "/work",
+  });
   const featured = cases.find((c) => c.featured);
   const supporting = cases.filter((c) => !c.featured);
   const reduced = useReducedMotion();

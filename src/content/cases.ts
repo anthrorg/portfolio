@@ -1,4 +1,4 @@
-export type CaseSlug = "sylphie" | "mediavine";
+export type CaseSlug = "sylphie";
 
 export type CaseMeta = {
   slug: CaseSlug;
@@ -14,12 +14,6 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["TypeScript", "Node", "CANON"],
-  },
-  {
-    slug: "mediavine",
-    featured: false,
-    year: "2024",
-    stack: ["React", "Internal tooling", "AI workflow"],
   },
 ] as const;
 

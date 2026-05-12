@@ -25,7 +25,7 @@ export const career: CareerData = {
         en: "Senior full-stack on the ad-tech platform serving thousands of publishers.",
         ja: "Senior full-stack on the ad-tech platform serving thousands of publishers.",
       },
-      dates: "Nov 2021 – Mar 2025",
+      dates: "Nov 2021 – Mar 2026",
       detail: {
         en: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. Led internal AI tooling adoption company-wide. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
         ja: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. Led internal AI tooling adoption company-wide. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
