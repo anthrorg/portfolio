@@ -128,7 +128,7 @@ export function CaseTOC() {
   return (
     <>
       {/* Mobile: collapsible, sits above the article body. */}
-      <details className="mb-10 rounded-2xl border border-border bg-surface px-5 py-3 lg:hidden">
+      <details className="text-plate mb-10 px-5 py-3 lg:hidden">
         <summary className="cursor-pointer list-none font-mono text-xs uppercase tracking-widest text-ink-muted">
           {t("work.tocLabel")}
         </summary>
@@ -152,7 +152,7 @@ export function CaseTOC() {
           landmark-complementary-is-top-level rule. The labelled <nav>
           inside is the real semantic landmark. */}
       <div
-        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] self-start overflow-y-auto pr-2 lg:block"
+        className="text-plate sticky top-24 hidden max-h-[calc(100vh-8rem)] self-start overflow-y-auto p-5 lg:block"
       >
         <nav aria-label={t("work.tocNavLabel")}>
           <p className="mb-4 font-mono text-xs uppercase tracking-widest text-ink-muted">
