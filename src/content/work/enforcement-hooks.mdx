@@ -6,7 +6,7 @@ The fix isn't to write a better agent. The fix is to add a second pair of eyes t
 
 That's what this hook system does. It's three bash scripts wired through `.claude/settings.json` against three Claude Code lifecycle events. Each script is small. The composition is what makes the loop tight.
 
-> This article is about the per-write and per-turn review hooks in this portfolio repo. For the related pattern of using hooks to inject long-term memory into prompts, see [memory-pkg](/work/memory-pkg). For the graph-backed map of a codebase that the agent queries instead of re-reading, see [sylphie-pkg](/work/sylphie-pkg).
+> This article is about the per-write and per-turn review hooks in this portfolio repo. For the related pattern of using hooks to inject long-term memory into prompts, see [memory-pkg](/frontier/memory-pkg). For the graph-backed map of a codebase that the agent queries instead of re-reading, see [sylphie-pkg](/frontier/sylphie-pkg).
 
 ## What the system is
 
@@ -24,7 +24,7 @@ Two files give the reviewers continuity across their stateless `claude -p` invoc
 
 Before walking through the hooks themselves, the design axis that frames all three of them is worth naming, because it'll come up at every layer below.
 
-Compare these review hooks with the injection hook described in the [memory-pkg](/work/memory-pkg) write-up. That hook *fails open*. If the retrieval CLI errors, if the DB is down, if anything goes wrong, the hook silently exits and the user's prompt proceeds untouched. Memory enrichment is a nice-to-have; not blocking the user is the priority.
+Compare these review hooks with the injection hook described in the [memory-pkg](/frontier/memory-pkg) write-up. That hook *fails open*. If the retrieval CLI errors, if the DB is down, if anything goes wrong, the hook silently exits and the user's prompt proceeds untouched. Memory enrichment is a nice-to-have; not blocking the user is the priority.
 
 The review hooks fail *safe*. If the reviewer fails to spawn, the failure is captured and emitted as the review output: `[reviewer failed: ...]`. (`review-on-write.sh:71`, `review-on-stop.sh:148`) The user sees that something went wrong instead of silently shipping unreviewed work. The hash that records "we already reviewed this diff" is persisted *only after* a successful emit, so a failed run re-tries instead of getting marked done.
 
@@ -100,7 +100,7 @@ Step 3 is where the actual review happens. Expanded:
 
 Most automated review systems check the diff against itself: lint, format, tests, type-check. The Stop reviewer checks the diff against the *original request*. It reads the transcript, recovers what the user prompted for at the start of the turn, and asks whether the cumulative work actually delivers that. That's the move a human reviewer makes — and the one most reviewer bots skip, because it requires understanding intent, not just code.
 
-The structural reason the reviewer can do this is that Claude Code persists every turn's full transcript to `~/.claude/projects/<sanitized-cwd>/<session-id>.jsonl`. This is a stable path in Claude Code's filesystem layout — the same one the [memory-pkg](/work/memory-pkg) capture hook reads from. The reviewer's prompt teaches it how to find that file from a session id alone (`review-on-stop.sh:94-99`) — sanitized cwd as the directory, session id as the filename. From there, recovering the user's original prompt is one read. The reviewer is the second pair of eyes that the writer is structurally unable to be: it sees both the ask and the result, with the ask treated as the ground truth rather than something to be re-interpreted post hoc.
+The structural reason the reviewer can do this is that Claude Code persists every turn's full transcript to `~/.claude/projects/<sanitized-cwd>/<session-id>.jsonl`. This is a stable path in Claude Code's filesystem layout — the same one the [memory-pkg](/frontier/memory-pkg) capture hook reads from. The reviewer's prompt teaches it how to find that file from a session id alone (`review-on-stop.sh:94-99`) — sanitized cwd as the directory, session id as the filename. From there, recovering the user's original prompt is one read. The reviewer is the second pair of eyes that the writer is structurally unable to be: it sees both the ask and the result, with the ask treated as the ground truth rather than something to be re-interpreted post hoc.
 
 The other two design choices in the checklist matter more than they look. The Stop reviewer is told *not* to redo the per-file review work — that's already been done synchronously, write by write. And "Playwright not configured" doesn't produce a warning; it's a fail. Verification missing is treated as identical to verification failed. That's what keeps the lock-step honest — the agent can't ship a UI change and self-attest that it looks good.
 

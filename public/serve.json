@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/work", "destination": "/frontier", "type": 301 },
+    { "source": "/work/:slug", "destination": "/frontier/:slug", "type": 301 }
+  ]
+}

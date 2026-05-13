@@ -32,11 +32,11 @@
   },
   "work": {
     "title": "Frontier",
-    "intro": "Systems thinking applied to messy AI problems.",
+    "intro": "What I build so coding agents stay oriented, honest, and on task.",
     "featuredLabel": "注目",
     "comingSoonLabel": "2026年公開予定",
     "viewCase": "ケーススタディを読む",
-    "backToWork": "作品一覧へ戻る",
+    "backToWork": "Back to Frontier",
     "next": "次へ",
     "previous": "前へ",
     "caseNavLabel": "ケーススタディのナビゲーション",
@@ -103,7 +103,7 @@
   },
   "meta": {
     "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
-    "work": "Selected work — cognitive architectures, agent tooling, and the systems Jim Tisdale has built.",
+    "work": "Four case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates.",
     "career": "Eight years senior frontend, four at Mediavine, pivoting into AI engineering.",
     "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
     "contact": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo."

@@ -32,11 +32,11 @@
   },
   "work": {
     "title": "Frontier",
-    "intro": "Systems thinking applied to messy AI problems.",
+    "intro": "What I build so coding agents stay oriented, honest, and on task.",
     "featuredLabel": "Featured",
     "comingSoonLabel": "Coming 2026",
     "viewCase": "Read the case study",
-    "backToWork": "Back to work",
+    "backToWork": "Back to Frontier",
     "next": "Next",
     "previous": "Previous",
     "caseNavLabel": "Case study navigation",
@@ -103,7 +103,7 @@
   },
   "meta": {
     "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
-    "work": "Selected work — cognitive architectures, agent tooling, and the systems Jim Tisdale has built.",
+    "work": "Four case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates.",
     "career": "Eight years senior frontend, four at Mediavine, pivoting into AI engineering.",
     "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
     "contact": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo."

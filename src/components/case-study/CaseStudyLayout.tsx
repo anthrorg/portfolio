@@ -36,7 +36,7 @@ export function CaseStudyLayout({
   return (
     <Container className="py-16 md:py-24">
       <Link
-        to="/work"
+        to="/frontier"
         viewTransition={viewTransition}
         className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-ink-muted transition-colors hover:text-accent"
       >
@@ -153,7 +153,7 @@ function CaseNavLink({
 
   return (
     <Link
-      to="/work/$slug"
+      to="/frontier/$slug"
       params={{ slug: target.slug }}
       viewTransition={viewTransition}
       className={`group block py-6 transition-colors hover:text-accent ${
@@ -237,7 +237,7 @@ function RelatedCard({
 
   return (
     <Link
-      to="/work/$slug"
+      to="/frontier/$slug"
       params={{ slug: meta.slug }}
       viewTransition={viewTransition}
       className="group relative block h-full rounded-3xl border border-border p-6 transition-colors hover:bg-surface md:p-8"

@@ -997,3 +997,122 @@ enforcement_hooks_alignment:
     sylphie-pkg in the established pattern. No edits needed.
 
   developer_questions: []
+
+frontier_header_refresh:
+  generated_at: "2026-05-12"
+
+  eyebrow:
+    current: "Frontier"   # locale key: work.title
+    verdict: keep
+    proposed: ~
+    rationale: |
+      "Frontier" is the page's structural label — it appears in
+      nav.work, the route name (/frontier), the breadcrumb, and
+      meta.work as the noun for this collection. Editorial weight
+      sits in the H1; the eyebrow's job is to anchor the visitor
+      to the section they're in, not to do a second take on what
+      it's about. Changing it here would create drift across
+      surfaces for no payoff. The mono-uppercase "FRONTIER" also
+      reads with intentional terseness against a fuller H1, which
+      is the rhythm we want.
+
+  h1:
+    current: "Systems thinking applied to messy AI problems."   # locale key: work.intro
+    proposed: "What I build so coding agents stay oriented, honest, and on task."
+    rationale: |
+      The current line was written when only Sylphie was live and
+      now under-specifies. "Systems thinking applied to messy AI
+      problems" could describe an ML platform team's roadmap. The
+      four cases here are not abstract — each is a concrete piece
+      of infrastructure built *for* coding agents to function
+      reliably in production work.
+
+      The proposed line names three concrete failure modes that
+      the four cases collectively answer:
+        - oriented   → sylphie-pkg (a map for the agent, not a
+                       flashlight) and the working-memory selector
+                       in Sylphie
+        - honest     → enforcement-hooks (the second pair of eyes
+                       the writer-agent structurally can't be)
+                       and Sylphie's pathology detectors / theater
+                       prohibition
+        - on task    → memory-pkg (continuity across sessions so
+                       the agent doesn't re-derive prior decisions)
+                       and Sylphie's drives + graduated procedures
+
+      Three plain adjectives, each doing real work, each mapping
+      to a case study below the fold. First-person ("What I build")
+      keeps it as Jim's portfolio voice rather than a product
+      tagline. No buzzwords, no breathless promises, no "AI
+      projects" — just what the work is for.
+
+      Length: 12 words. Sits well under the ~7vw clamp that the
+      Hero treatment uses; the analogous /frontier H1 treatment
+      should handle it comfortably without forced line-breaks at
+      desktop, and wraps cleanly at narrow widths because the
+      three adjectives form a natural break point after the comma.
+    alternatives:
+      - |
+        "Four things I built so the agents I work with stay honest."
+        — Runner-up. Tighter, names the count, "honest" earns its
+        place. Slightly under-promises against what the page
+        actually delivers (Sylphie is much more than an
+        honesty-keeper), and "things" is a soft noun where the
+        proposed line uses verbs to do the lifting.
+      - |
+        "Four moves at the boundary between agents and production code."
+        — Strong if we want a page that reads more deliberately as
+        portfolio-as-collection. "Moves" is a touch arty for Jim's
+        otherwise-mechanical voice, and "boundary between agents
+        and production code" duplicates a phrase already in the
+        Hero subhead ("model boundary"), which would make the
+        Hero → /frontier transition feel redundant on a single
+        skim.
+
+  meta_description:
+    current: "Selected work — cognitive architectures, agent tooling, and the systems Jim Tisdale has built."   # locale key: meta.work
+    proposed: "Four case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates."
+    rationale: |
+      Mirrors the H1's vocabulary so a SERP click-through reads
+      continuous with the page that loads. Adds the four concrete
+      artifact-categories at the end so the snippet earns the
+      click for queries like "claude code memory", "codebase
+      knowledge graph", or "agent review hooks" without needing
+      the H1 to carry them. 150 chars — under the 160 SEO cap
+      with margin.
+
+  ja_strategy:
+    note: |
+      Stubs mirror EN per established strategy. Two notes for the
+      later JA pass: (1) the "oriented, honest, on task" triad is
+      doing rhythmic work in English and won't translate as a
+      direct three-noun list without sounding clinical — the JA
+      H1 may need to pick the single strongest of the three or
+      restructure as a clause. (2) "coding agents" → "コーディング
+      エージェント" is now established register; keep it.
+
+  voice_notes_for_wiring: |
+    Three things the developer wiring this should know.
+
+    1. The new H1 is one line. Don't add a supporting paragraph
+       beneath it before the case-card grid — the brief was
+       explicit about no subhead at this surface, and the line
+       is sized to stand alone. If the layout currently has slot
+       space for a subhead under work.intro, leave it empty
+       rather than padding with copy.
+
+    2. The proposed H1 contains two commas. At desktop widths
+       it will sit on one line under the clamp used elsewhere;
+       at narrow widths the natural break is after the first
+       comma ("...stay oriented, / honest, and on task."). If
+       the template forces a non-breaking hyphen or em-dash
+       treatment, that wraps badly — prefer letting it break
+       naturally on commas.
+
+    3. The current locale value for work.intro ends with a
+       period. The proposed value also ends with a period;
+       keep it. The sibling H1 in Hero (hero.tagline) ends
+       with a period too, so the rhythm matches.
+
+  developer_questions: []
+

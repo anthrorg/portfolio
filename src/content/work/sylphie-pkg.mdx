@@ -6,11 +6,11 @@ You can see the cost both ways: the developer is paying for tokens that consist 
 
 The fix is to give the agent a map instead of a flashlight.
 
-> `sylphie-pkg` addresses the structural side of agent forgetting — the agent's lack of a map of the codebase. For the episodic side — the agent's lack of memory for the work itself, the decisions and false starts and constraints that shape the next session — see [memory-pkg](/work/memory-pkg), the complementary piece.
+> `sylphie-pkg` addresses the structural side of agent forgetting — the agent's lack of a map of the codebase. For the episodic side — the agent's lack of memory for the work itself, the decisions and false starts and constraints that shape the next session — see [memory-pkg](/frontier/memory-pkg), the complementary piece.
 
 ## Why this exists
 
-[Sylphie](/work/sylphie) is an ambitious system — a multi-subsystem cognitive architecture with seven CANON panels (decision-making, communication, learning, drive-engine, planning, knowledge-graph, infrastructure) spanning thousands of TypeScript files across an NX-style monorepo. Working on it with a coding agent, the agent kept getting lost in its own architecture. It would forget which subsystem a function belonged to, miss that a type was used across three packages, or re-derive call graphs it had already seen earlier in the session. Reading files faster wasn't the answer. *Reading fewer files was.*
+[Sylphie](/frontier/sylphie) is an ambitious system — a multi-subsystem cognitive architecture with seven CANON panels (decision-making, communication, learning, drive-engine, planning, knowledge-graph, infrastructure) spanning thousands of TypeScript files across an NX-style monorepo. Working on it with a coding agent, the agent kept getting lost in its own architecture. It would forget which subsystem a function belonged to, miss that a type was used across three packages, or re-derive call graphs it had already seen earlier in the session. Reading files faster wasn't the answer. *Reading fewer files was.*
 
 `sylphie-pkg` was built to solve that specific problem in that specific repo. The abstraction turned out to be more general than the use case — once the code was working, porting it to a second project (drift-detector) took about **thirty minutes**.
 

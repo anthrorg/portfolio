@@ -35,7 +35,7 @@ export function CaseTOC() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   // Build the TOC after mount. The MDX content is lazy-loaded via
-  // React.Suspense in the parent route (`routes/work/$slug.tsx`), which
+  // React.Suspense in the parent route (`routes/frontier/$slug.tsx`), which
   // means on first effect tick the <article> may be empty — the H2s
   // haven't been rendered yet. A naive one-shot effect captures zero
   // headings and the TOC stays hidden.

@@ -6,6 +6,9 @@ import { CaseStudyLayout } from "@/components/case-study/CaseStudyLayout";
 import { getCase } from "@/content/cases";
 import { useHead } from "@/lib/use-head";
 
+// HISTORICAL: the MDX directory stays at src/content/work/. Only the URL
+// path renamed to /frontier 2026-05 — the on-disk content location is
+// internal-only and renaming it would churn imports across the repo.
 const caseModules = import.meta.glob<{ default: ComponentType }>(
   "@/content/work/*.mdx",
 );
@@ -31,7 +34,7 @@ function CaseStudy() {
   useHead({
     title: meta ? t(`work.cases.${slug}.title`) : undefined,
     description: meta ? t(`work.cases.${slug}.summary`) : "",
-    path: `/work/${slug}`,
+    path: `/frontier/${slug}`,
     ogType: "article",
   });
   if (!meta) throw notFound();
@@ -53,6 +56,6 @@ function CaseStudy() {
   );
 }
 
-export const Route = createFileRoute("/work/$slug")({
+export const Route = createFileRoute("/frontier/$slug")({
   component: CaseStudy,
 });

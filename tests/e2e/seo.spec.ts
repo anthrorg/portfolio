@@ -31,13 +31,13 @@ test.describe("SEO meta", () => {
   });
 
   test("each route updates the document title", async ({ page }) => {
-    await page.goto("/work");
+    await page.goto("/frontier");
     await expect(page).toHaveTitle("Frontier — Jim Tisdale");
 
     await page.goto("/career");
     await expect(page).toHaveTitle("Career — Jim Tisdale");
 
-    await page.goto("/work/sylphie");
+    await page.goto("/frontier/sylphie");
     await expect(page).toHaveTitle("Sylphie — Jim Tisdale");
   });
 });

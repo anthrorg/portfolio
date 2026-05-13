@@ -10,12 +10,15 @@ import { useViewTransitionEnabled } from "@/lib/use-view-transition";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-function WorkIndex() {
+// HISTORICAL: i18n keys keep work.* naming; the URL renamed to /frontier
+// 2026-05. Renaming the keys would touch every locale + every consumer
+// for no UX win — the keys are internal-only.
+function FrontierIndex() {
   const { t } = useTranslation();
   useHead({
     title: t("nav.work"),
     description: t("meta.work"),
-    path: "/work",
+    path: "/frontier",
   });
   const reduced = useReducedMotion();
   const viewTransition = useViewTransitionEnabled();
@@ -119,7 +122,7 @@ function FeaturedCase({
       className="mt-20"
     >
       <Link
-        to="/work/$slug"
+        to="/frontier/$slug"
         params={{ slug: meta.slug }}
         viewTransition={viewTransition}
         className="group relative block overflow-hidden rounded-3xl border border-border bg-surface p-8 md:p-14"
@@ -180,7 +183,7 @@ function SupportingCase({
       className="border-b border-border md:border-b-0 md:px-1 md:[&:not(:last-child)]:border-r"
     >
       <Link
-        to="/work/$slug"
+        to="/frontier/$slug"
         params={{ slug: meta.slug }}
         viewTransition={viewTransition}
         className="group relative block h-full rounded-3xl py-10 transition-colors hover:bg-surface md:px-8 md:py-12"
@@ -251,6 +254,6 @@ function ComingSoonCase({ meta, index, reduced }: ComingSoonCaseProps) {
   );
 }
 
-export const Route = createFileRoute("/work/")({
-  component: WorkIndex,
+export const Route = createFileRoute("/frontier/")({
+  component: FrontierIndex,
 });

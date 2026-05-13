@@ -12,7 +12,7 @@ Claude Code's `MEMORY.md` auto-memory file partly addresses this, but it's hand-
 
 One thing worth flagging up front: the fast path is plain SQL trigram search against a Postgres GIN index. For well-formed prompts it short-circuits the rest of the pipeline at score ≥ 0.7 — which surprised me, and may surprise you. The semantic-embedding tier exists in the code but is dormant in the live config. Trigram lexical retrieval, plus an entity tier that reads the last 20 lines of the active transcript, is enough most of the time. The next sections explain why.
 
-> `memory-pkg` addresses the episodic side of agent forgetting — the agent's lack of memory for the work itself. For the structural side — the agent's lack of a map of the codebase — see [sylphie-pkg](/work/sylphie-pkg), the complementary piece.
+> `memory-pkg` addresses the episodic side of agent forgetting — the agent's lack of memory for the work itself. For the structural side — the agent's lack of a map of the codebase — see [sylphie-pkg](/frontier/sylphie-pkg), the complementary piece.
 
 ## What `memory-pkg` is
 
@@ -271,4 +271,4 @@ That's worth more than the disk it takes up.
 | MCP wiring | `.mcp.json` | drift-detector |
 | README | `packages/memory-pkg/README.md` | drift-detector |
 
-`memory-pkg` is original to drift-detector — no earlier version exists in the sylphie repo. The complementary `codebase-pkg` package in the same monorepo *was* ported from sylphie's [`sylphie-pkg`](/work/sylphie-pkg), and is what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`. Once `memory-pkg` is published as an NPM package, any other project — sylphie included — can pull it in as a workspace dependency.
+`memory-pkg` is original to drift-detector — no earlier version exists in the sylphie repo. The complementary `codebase-pkg` package in the same monorepo *was* ported from sylphie's [`sylphie-pkg`](/frontier/sylphie-pkg), and is what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`. Once `memory-pkg` is published as an NPM package, any other project — sylphie included — can pull it in as a workspace dependency.

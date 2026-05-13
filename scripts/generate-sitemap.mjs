@@ -10,7 +10,7 @@ const OUT = resolve(here, "..", "dist", "sitemap.xml");
 
 function priorityFor(route) {
   if (route === "/") return "1.0";
-  if (route === "/work" || route.startsWith("/work/")) return "0.8";
+  if (route === "/frontier" || route.startsWith("/frontier/")) return "0.8";
   return "0.6";
 }
 
