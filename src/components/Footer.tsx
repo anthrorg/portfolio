@@ -23,7 +23,7 @@ export function Footer() {
           </li>
           <li>
             <a
-              href="https://github.com/blubagoo"
+              href="https://github.com/Sylphie-Labs"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-accent"

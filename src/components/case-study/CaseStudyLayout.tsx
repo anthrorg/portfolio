@@ -88,6 +88,11 @@ export function CaseStudyLayout({
        * the value of the project before any code language enters the page.
        * The eyebrow is a styled <p>, not an <h2>, so this block doesn't
        * compete with the MDX article's H2s for the TOC.
+       *
+       * The "Read the deep dive" link jumps past the engineer card to
+       * the article body so a non-technical reader who decides they want
+       * more can skip the code-shaped middle, and an engineer who's
+       * already sold on the repo can skip straight to the prose.
        */}
       <motion.section
         aria-label="TL;DR"
@@ -102,6 +107,16 @@ export function CaseStudyLayout({
         <p className="mt-4 text-xl leading-snug md:text-2xl">
           {t(`work.cases.${meta.slug}.tldr`)}
         </p>
+        <a
+          href="#deep-dive"
+          className="group mt-6 inline-flex items-center gap-3 text-xs uppercase tracking-widest text-ink-muted transition-colors hover:text-accent"
+        >
+          <span>{t("work.deepDiveLabel")}</span>
+          <span
+            aria-hidden
+            className="block h-px w-8 bg-current transition-[width] duration-500 ease-out group-hover:w-14"
+          />
+        </a>
       </motion.section>
 
       {/*
@@ -165,7 +180,10 @@ export function CaseStudyLayout({
        * <details> form or its desktop <aside> form via Tailwind
        * breakpoints. See CaseTOC.tsx for the mechanics.
        */}
-      <article className="mt-12 md:mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start lg:gap-12">
+      <article
+        id="deep-dive"
+        className="mt-12 scroll-mt-24 md:mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start lg:gap-12"
+      >
         <div className="text-plate contents p-8 md:p-12 lg:block">
           <MDXProvider components={mdxComponents}>{children}</MDXProvider>
         </div>
@@ -336,16 +354,20 @@ function RelatedCard({
       viewTransition={viewTransition}
       className="group text-plate relative block h-full p-6 transition-colors hover:bg-surface/90 md:p-8"
     >
+      {/*
+       * Same category-first flip as SupportingCase on the index page —
+       * keeps the related-work strip scannable by type of work.
+       */}
       <div className="flex items-baseline justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-          {t(`work.cases.${meta.slug}.role`)}
+          {t(`work.cases.${meta.slug}.title`)}
         </span>
         <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
           {meta.year}
         </span>
       </div>
-      <h3 className="mt-4 font-display text-2xl tracking-tight md:text-3xl">
-        {t(`work.cases.${meta.slug}.title`)}
+      <h3 className="mt-4 font-display text-2xl leading-[1.1] tracking-tight md:text-3xl">
+        {t(`work.cases.${meta.slug}.role`)}
       </h3>
       <p className="mt-3 max-w-md text-sm text-ink-muted md:text-base">
         {t(`work.cases.${meta.slug}.summary`)}

@@ -8,24 +8,28 @@ test.describe("Cutting Edge Tech index", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     // Exactly one card carries the "Featured" eyebrow per render (the
-    // randomly chosen one from the featured pool). The other three cases
-    // sit in the supporting grid; all four case titles must appear
-    // somewhere on the page regardless of which one is featured this
-    // paint.
+    // randomly chosen one from the featured pool). All four cases must
+    // appear on the page regardless of which one is featured this paint.
+    //
+    // Asserting on link hrefs rather than heading text because the
+    // supporting cards now lead with the category (role) as the H3 and
+    // demote the project name to a small mono kicker. That's by design
+    // — recruiters scan by *type of work*, not project slug — but it
+    // means the project name is no longer a heading on three of the
+    // four cards. The link is the durable assertion: every card is a
+    // navigation to its slug, featured or supporting.
     await expect(page.getByText("Featured")).toBeVisible();
-    // exact: true so "Sylphie" doesn't substring-match the link/heading
-    // for "sylphie-pkg" when that one wins the featured rotation.
     await expect(
-      page.getByRole("heading", { name: "Sylphie", exact: true }),
+      page.locator('a[href="/cutting-edge-tech/sylphie"]').first(),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "memory-pkg", exact: true }),
+      page.locator('a[href="/cutting-edge-tech/memory-pkg"]').first(),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "sylphie-pkg", exact: true }),
+      page.locator('a[href="/cutting-edge-tech/sylphie-pkg"]').first(),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Enforcement Hooks", exact: true }),
+      page.locator('a[href="/cutting-edge-tech/enforcement-hooks"]').first(),
     ).toBeVisible();
   });
 
@@ -43,11 +47,10 @@ test.describe("Cutting Edge Tech index", () => {
     page,
   }) => {
     await page.goto("/cutting-edge-tech");
-    // exact: true so we don't accidentally click the sylphie-pkg card
-    // when it shares the substring "Sylphie".
-    await page
-      .getByRole("heading", { name: "Sylphie", exact: true })
-      .click();
+    // Click the card link directly — href is exact, so this can't
+    // collide with the sylphie-pkg card the way a substring-matched
+    // heading text could have.
+    await page.locator('a[href="/cutting-edge-tech/sylphie"]').first().click();
     await expect(page).toHaveURL(/\/cutting-edge-tech\/sylphie\/?$/);
   });
 });

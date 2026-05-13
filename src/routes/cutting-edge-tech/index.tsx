@@ -189,16 +189,23 @@ function SupportingCase({
         viewTransition={viewTransition}
         className="group text-plate relative block h-full p-8 transition-colors md:p-10"
       >
+        {/*
+         * Card typography flip: category (role) is the visual hero so a
+         * scan-reader can sort the four cases by *type of work* in two
+         * seconds — "agent long-term memory" vs "codebase knowledge graph"
+         * — instead of by project name. The project name moves into the
+         * small mono eyebrow alongside the year.
+         */}
         <div className="flex items-baseline justify-between gap-4">
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-            {t(`work.cases.${meta.slug}.role`)}
+            {t(`work.cases.${meta.slug}.title`)}
           </span>
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
             {meta.year}
           </span>
         </div>
-        <h3 className="mt-6 font-display text-3xl tracking-tight md:text-5xl">
-          {t(`work.cases.${meta.slug}.title`)}
+        <h3 className="mt-6 font-display text-3xl leading-[1.1] tracking-tight md:text-5xl">
+          {t(`work.cases.${meta.slug}.role`)}
         </h3>
         <p className="mt-4 text-sm text-ink-muted md:text-base">
           {t(`work.cases.${meta.slug}.summary`)}
