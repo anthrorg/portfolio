@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 const SITE_NAME = "Jim Tisdale";
 const SITE_URL = "https://author.sylphie.live";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png?v=2026-05-13`;
 
 export type HeadConfig = {
   title?: string;
