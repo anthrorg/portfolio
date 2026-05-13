@@ -102,6 +102,9 @@
         "eval-quality": "Eval & quality"
       },
       "shipsInPrefix": "Ships in",
+      "projectPrefix": "Project",
+      "openCase": "Open case study",
+      "graphLabel": "Constellation map: skills clustered by intent, linked to the projects that ship them.",
       "selectPrompt": "Hover or focus a skill to see which projects ship it.",
       "noProjects": "{{name}} · No featured project ships this yet."
     }

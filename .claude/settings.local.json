@@ -29,7 +29,8 @@
       "Bash(railway logs *)",
       "mcp__railway__list-deployments",
       "mcp__playwright__browser_hover",
-      "WebFetch(domain:www.indeed.com)"
+      "WebFetch(domain:www.indeed.com)",
+      "PowerShell(Stop-Process *)"
     ]
   },
   "enableAllProjectMcpServers": true

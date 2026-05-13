@@ -65,3 +65,6 @@ test-results/
 .claude/.last-review-hash
 .claude/.turn-baseline-hash
 .claude/review-log/
+
+# Private cover-letter drafts
+wiki/cover-letters/

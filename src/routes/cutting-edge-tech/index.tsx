@@ -77,7 +77,7 @@ function CuttingEdgeTechIndex() {
         />
       )}
 
-      <div className="mt-8 grid md:mt-12 md:grid-cols-2">
+      <div className="mt-8 grid gap-y-8 md:mt-12 md:grid-cols-2 md:gap-y-12">
         {supporting.map((meta, i) =>
           meta.comingSoon ? (
             <ComingSoonCase

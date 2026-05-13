@@ -193,7 +193,7 @@ The structural shape (one structured response vs. N unstructured reads) is the d
 - **Multi-language.** Today it's TypeScript and TSX only. The `ast-parser.ts` is ts-morph-bound. Drift-detector's roadmap explicitly mentions tree-sitter integration for Python, Go, Rust as the next step. (`drift-detector/packages/codebase-pkg/README.md:82`)
 - **Test coverage.** Integrity checks substitute for unit tests on the sync pipeline. The drift-detector port carries that forward as known tech debt. (`drift-detector/packages/codebase-pkg/README.md:81`)
 - **Single-binary distribution.** The Neo4j dependency means Docker today. Kuzu (embedded graph DB) is a future option for shipping this as a self-contained CLI.
-- **A public NPM package.** Next milestone. Once it ships the install story becomes one command, and the hands-on tutorial version of this article gets written.
+- **A hands-on install tutorial.** The package is published as [`@sylphie-labs/codebase-pkg`](https://github.com/Sylphie-Labs/codebase-pkg) with a CLI lifecycle (`init`, `upgrade`, `status`, `doctor`, `uninstall`), but a step-by-step walkthrough for adding it to a new repo is still owed.
 
 ## Why it matters
 

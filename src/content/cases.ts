@@ -30,14 +30,14 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["TypeScript", "TimescaleDB", "Postgres trigram", "MCP"],
-    repoUrl: null,
+    repoUrl: "https://github.com/Sylphie-Labs/memory-pkg",
   },
   {
     slug: "sylphie-pkg",
     featured: true,
     year: "2026",
     stack: ["TypeScript", "Neo4j", "ts-morph", "MCP"],
-    repoUrl: null,
+    repoUrl: "https://github.com/Sylphie-Labs/codebase-pkg",
   },
   {
     slug: "enforcement-hooks",

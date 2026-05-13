@@ -240,7 +240,7 @@ The fast-path short-circuit at score ≥ 0.7 is intended to keep the typical pro
 - **Cross-project memory federation.** Memory is per-project. Two repos with related work don't share a store.
 - **Continuous aggregates and compression.** Timescale supports both; the README's roadmap notes them as future work. (`packages/memory-pkg/README.md:166-168`) Today the table grows linearly.
 - **Vector embedding backfill at scale.** The `backfillEmbeddings()` helper exists (`embed.ts:69-108`) but is meant to be run deliberately; nothing automatically enforces that every event gets embedded.
-- **Public NPM distribution.** That's the next milestone, and it's why this isn't an install tutorial.
+- **A hands-on install tutorial.** The package is published as [`@sylphie-labs/memory-pkg`](https://github.com/Sylphie-Labs/memory-pkg) with a CLI lifecycle (`init`, `upgrade`, `status`, `doctor`, `uninstall`), but a step-by-step walkthrough for adding it to a new repo is still owed.
 
 ## Why it matters
 
@@ -269,4 +269,4 @@ Git remembers what changed. `memory-pkg` remembers *why*. The developer stops be
 | MCP wiring | `.mcp.json` | drift-detector |
 | README | `packages/memory-pkg/README.md` | drift-detector |
 
-`memory-pkg` is original to drift-detector — no earlier version exists in the sylphie repo. The complementary `codebase-pkg` package in the same monorepo *was* ported from sylphie's [`sylphie-pkg`](/cutting-edge-tech/sylphie-pkg), and is what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`. Once `memory-pkg` is published as an NPM package, any other project — sylphie included — can pull it in as a workspace dependency.
+`memory-pkg` is original to drift-detector — no earlier version exists in the sylphie repo. The complementary `codebase-pkg` package in the same monorepo *was* ported from sylphie's [`sylphie-pkg`](/cutting-edge-tech/sylphie-pkg), and is what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`. Both packages now live in standalone repos under the `Sylphie-Labs` org — [`@sylphie-labs/memory-pkg`](https://github.com/Sylphie-Labs/memory-pkg) and [`@sylphie-labs/codebase-pkg`](https://github.com/Sylphie-Labs/codebase-pkg) — so any other project, sylphie included, can pull them in as a normal npm dependency.

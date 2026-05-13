@@ -8,20 +8,24 @@ const SITE_URL = "https://author.sylphie.live";
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(here, "..", "dist", "sitemap.xml");
 
-function priorityFor(route) {
-  if (route === "/") return "1.0";
-  if (route === "/frontier" || route.startsWith("/frontier/")) return "0.8";
+function priorityFor(route, dynamicParents) {
+  if (route.path === "/") return "1.0";
+  if (route.kind === "dynamic") return "0.8";
+  if (dynamicParents.has(route.path)) return "0.8";
   return "0.6";
 }
 
 async function generate() {
   const routes = await getAllRoutes();
+  const dynamicParents = new Set(
+    routes.filter((r) => r.kind === "dynamic").map((r) => r.parent),
+  );
   const today = new Date().toISOString().split("T")[0];
 
   const urls = routes
     .map((route) => {
-      const loc = `${SITE_URL}${route}`;
-      return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priorityFor(route)}</priority>\n  </url>`;
+      const loc = `${SITE_URL}${route.path}`;
+      return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priorityFor(route, dynamicParents)}</priority>\n  </url>`;
     })
     .join("\n");
 

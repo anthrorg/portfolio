@@ -81,7 +81,8 @@ function outputPathFor(route) {
 
 async function prerender() {
   const routes = await getAllRoutes();
-  console.log(`prerendering ${routes.length} routes:`, routes.join(", "));
+  const paths = routes.map((r) => r.path);
+  console.log(`prerendering ${routes.length} routes:`, paths.join(", "));
 
   const { server, port } = await startServer(DIST_DIR);
   const browser = await chromium.launch({ chromiumSandbox: false });
@@ -99,7 +100,7 @@ async function prerender() {
 
   const errors = [];
   try {
-    for (const route of routes) {
+    for (const { path: route } of routes) {
       const page = await context.newPage();
       try {
         const url = `http://127.0.0.1:${port}${route}`;

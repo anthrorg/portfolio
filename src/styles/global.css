@@ -123,15 +123,6 @@
     font-family: var(--font-body);
     font-feature-settings: "kern", "liga";
     line-height: 1.5;
-    text-shadow: var(--text-halo);
-  }
-
-  input, textarea, select {
-    text-shadow: none;
-  }
-
-  .bg-clip-text {
-    text-shadow: none;
   }
 
   :lang(ja) body {
@@ -233,8 +224,6 @@
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
   white-space: nowrap;
-  /* Opt out of the body halo: haloing the grid would defeat its own visibility / spotlight reveal. */
-  text-shadow: none;
   /* Promote each grid layer onto its own GPU layer so the shimmer animation
      and cursor mask updates composite cheaply instead of triggering
      full-document repaints. */
