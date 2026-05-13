@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 
 import { Container } from "@/components/Container";
+import { Skills } from "@/components/Skills";
 import {
   career,
   pickLocalized,
@@ -34,7 +35,7 @@ function Career() {
   return (
     <Container className="py-24 md:py-32">
       <motion.header
-        className="max-w-3xl"
+        className="text-plate max-w-3xl"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
@@ -56,7 +57,11 @@ function Career() {
         </a>
       </motion.header>
 
-      <div className="mt-20 space-y-16 md:space-y-20">
+      <div className="mt-20">
+        <Skills delay={reduced ? 0 : 0.15} />
+      </div>
+
+      <div className="mt-16 space-y-16 md:space-y-20">
         {visibleSections.map((section, i) => (
           <CareerSection
             key={section.key}
@@ -64,7 +69,7 @@ function Career() {
             entries={section.entries}
             lang={lang}
             reduced={!!reduced}
-            delay={reduced ? 0 : 0.2 + 0.1 * i}
+            delay={reduced ? 0 : 0.3 + 0.1 * i}
           />
         ))}
       </div>

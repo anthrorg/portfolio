@@ -311,3 +311,42 @@
     display: none;
   }
 }
+
+/*
+ * Frosted backdrop plate for text-heavy containers.
+ *
+ * The bg-text grid's cursor spotlight lights up indigo→pink keyword text
+ * behind page content, which interferes with paragraph readability when
+ * the cursor parks over a reading area. `.text-plate` renders a soft
+ * blurred backdrop just behind the container via a ::before pseudo —
+ * negative inset so the plate scales out from the visible content edge
+ * without touching the box model, `isolation: isolate` so the z-index: -1
+ * resolves inside the parent's stacking context (above the fixed -z-10
+ * BackgroundText, below the prose itself).
+ *
+ * Hidden on touch and on narrow viewports — matches the @media gates on
+ * the grid itself, so the plate only paints where the spotlight actually
+ * fires.
+ */
+.text-plate {
+  position: relative;
+  isolation: isolate;
+}
+
+.text-plate::before {
+  content: "";
+  position: absolute;
+  inset: -1.25rem -1.5rem;
+  z-index: -1;
+  background-color: color-mix(in srgb, var(--color-bg) 75%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-3xl);
+  pointer-events: none;
+}
+
+@media (hover: none), (max-width: 768px) {
+  .text-plate::before {
+    display: none;
+  }
+}

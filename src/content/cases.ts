@@ -10,6 +10,11 @@ export type CaseMeta = {
   year: string;
   stack: readonly string[];
   comingSoon?: boolean;
+  /**
+   * Public repo URL surfaced on the engineer card. `null` renders a
+   * "Repo coming soon" placeholder; wire a real URL once the repo is public.
+   */
+  repoUrl?: string | null;
 };
 
 export const cases: readonly CaseMeta[] = [
@@ -18,24 +23,28 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["TypeScript", "Node", "CANON"],
+    repoUrl: null,
   },
   {
     slug: "memory-pkg",
     featured: true,
     year: "2026",
     stack: ["TypeScript", "TimescaleDB", "Postgres trigram", "MCP"],
+    repoUrl: null,
   },
   {
     slug: "sylphie-pkg",
     featured: true,
     year: "2026",
     stack: ["TypeScript", "Neo4j", "ts-morph", "MCP"],
+    repoUrl: null,
   },
   {
     slug: "enforcement-hooks",
     featured: true,
     year: "2026",
     stack: ["Bash", "Claude Code hooks", "Sonnet", "Playwright"],
+    repoUrl: null,
   },
 ] as const;
 

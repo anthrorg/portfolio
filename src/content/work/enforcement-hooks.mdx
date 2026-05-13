@@ -2,7 +2,7 @@
 
 A coding agent that grades its own work declares done early. Not maliciously — the loop just doesn't have a reason to keep going once the visible diff "looks right." Per-file code smells slip in. Scope drifts a file or two beyond what was asked. A UI change "looks fine" without anyone having clicked the button. The model is doing its best, but its best is one judgment call per turn, and that call is the same one that just made the changes.
 
-The fix isn't to write a better agent. The fix is to add a second pair of eyes that the agent *can't bypass* — and to add them at the moments where drift actually happens. Two moments matter: the instant a file is written (line-level drift), and the instant the turn ends (delivery-level drift). Catch both and the agent stays *in lock step* with the standards the repo has agreed on, rather than drifting away by degrees over a long session.
+The fix isn't to write a better agent. The fix is a second pair of eyes the agent *can't bypass*, at the two moments drift happens: the instant a file is written (line-level drift), and the instant the turn ends (delivery-level drift). Catch both and the agent stays *in lock step* with the standards the repo has agreed on, rather than drifting away by degrees over a long session.
 
 That's what this hook system does. It's three bash scripts wired through `.claude/settings.json` against three Claude Code lifecycle events. Each script is small. The composition is what makes the loop tight.
 
@@ -21,8 +21,6 @@ Three hooks, three lifecycle events, one shared state directory under `.claude/`
 Two files give the reviewers continuity across their stateless `claude -p` invocations: `.claude/review-overrides.md` (committed; intentional choices the reviewer should not re-flag) and `.claude/review-log/YYYY-MM-DD.md` (gitignored; auto-appended record of every review).
 
 ## Fail-safe, not fail-open
-
-Before walking through the hooks themselves, the design axis that frames all three of them is worth naming, because it'll come up at every layer below.
 
 Compare these review hooks with the injection hook described in the [memory-pkg](/frontier/memory-pkg) write-up. That hook *fails open*. If the retrieval CLI errors, if the DB is down, if anything goes wrong, the hook silently exits and the user's prompt proceeds untouched. Memory enrichment is a nice-to-have; not blocking the user is the priority.
 
@@ -160,9 +158,7 @@ The split is deliberate: overrides are *curated* (consumed by the reviewer, writ
 
 ## Why it matters
 
-A solo agent is a writer with no editor. It gets a lot done, but the second pass that turns "done" into *actually* done is the one humans always wanted from a junior engineer and rarely got. These hooks are that second pass — automated, synchronous, gated. The whole system is three short bash scripts and two markdown files. Nothing here is clever; the leverage is in *where* it fires, not what it does.
-
-That's lock step: the agent and the standards moving together, gated at each file write and at each turn end, with reviewer memory that survives the stateless calls. The writer now has an editor, and the editor remembers what you've already worked out.
+A solo agent is a writer with no editor. It gets a lot done. The second pass — the one that turns "done" into *actually* done — is what humans wanted from a junior engineer and rarely got. These hooks are that second pass: automated, synchronous, gated. The whole system is three short bash scripts and two markdown files. Nothing here is clever; the leverage is in *where* it fires, not what it does.
 
 ## Code map
 

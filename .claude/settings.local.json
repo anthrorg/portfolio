@@ -27,7 +27,9 @@
       "PowerShell(npm run *)",
       "PowerShell(Get-NetTCPConnection *)",
       "Bash(railway logs *)",
-      "mcp__railway__list-deployments"
+      "mcp__railway__list-deployments",
+      "mcp__playwright__browser_hover",
+      "WebFetch(domain:www.indeed.com)"
     ]
   },
   "enableAllProjectMcpServers": true

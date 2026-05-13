@@ -1,3 +1,7 @@
+# Voice
+
+User-facing prose follows `.claude/voice-guide.md`. Any agent producing copy (especially `content-creator`) should Read that file first — §4 (anti-patterns) and §8 (revision checklist) are the gate before showing drafts to the user. Direct, evidence-led, no validating openers, no recruiter bromides.
+
 # Working Style
 
 - **Conversational mode**: Always work in a conversational manner. Discuss before acting.

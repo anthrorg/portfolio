@@ -15,7 +15,7 @@ function Contact() {
   });
   return (
     <Container className="py-24 md:py-32">
-      <header className="max-w-3xl">
+      <header className="text-plate max-w-3xl">
         <p className="mb-6 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
           {t("contact.eyebrow")}
         </p>

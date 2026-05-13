@@ -45,7 +45,7 @@ export function CaseStudyLayout({
       </Link>
 
       <motion.header
-        className="mt-12 border-b border-border pb-12 md:pb-20"
+        className="text-plate mt-12 border-b border-border pb-12 md:pb-20"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
@@ -82,6 +82,70 @@ export function CaseStudyLayout({
       </motion.header>
 
       {/*
+       * TLDR — recruiter-friendly two-to-three sentence pitch.
+       *
+       * Sits above the engineer card so a non-technical reader can absorb
+       * the value of the project before any code language enters the page.
+       * The eyebrow is a styled <p>, not an <h2>, so this block doesn't
+       * compete with the MDX article's H2s for the TOC.
+       */}
+      <motion.section
+        aria-label="TL;DR"
+        className="text-plate mt-12 max-w-3xl md:mt-16"
+        initial={reduced ? false : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: reduced ? 0 : 0.1, ease: EASE_OUT }}
+      >
+        <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
+          {t("work.tldrLabel")}
+        </p>
+        <p className="mt-4 text-xl leading-snug md:text-2xl">
+          {t(`work.cases.${meta.slug}.tldr`)}
+        </p>
+      </motion.section>
+
+      {/*
+       * Engineer card — bordered surface block with a short README-style
+       * description and a repo CTA. Audience: a senior engineer skimming
+       * who wants to skip the long write-up and jump to the code.
+       *
+       * `repoUrl` is currently `null` for every case (repos going public
+       * soon) — the placeholder branch renders an "Repo going public soon"
+       * line in the same slot the CTA will occupy once URLs are wired.
+       */}
+      <motion.section
+        aria-label="For engineers"
+        className="mt-10"
+        initial={reduced ? false : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: reduced ? 0 : 0.2, ease: EASE_OUT }}
+      >
+        <div className="rounded-3xl border border-border bg-surface p-6 md:p-10">
+          <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
+            {t("work.engineerCardLabel")}
+          </p>
+          <p className="mt-4 max-w-3xl text-base text-ink-muted md:text-lg">
+            {renderWithInlineCode(t(`work.cases.${meta.slug}.engineerSummary`))}
+          </p>
+          {meta.repoUrl ? (
+            <a
+              href={meta.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-3 text-sm uppercase tracking-widest transition-colors hover:text-accent"
+            >
+              <span>{t("work.viewRepo")}</span>
+              <span aria-hidden>→</span>
+            </a>
+          ) : (
+            <p className="mt-6 font-mono text-xs uppercase tracking-widest text-ink-muted">
+              {t("work.repoComingSoon")}
+            </p>
+          )}
+        </div>
+      </motion.section>
+
+      {/*
        * Article body + TOC.
        *
        * Mobile (< lg): single column. The TOC renders inline above the
@@ -100,7 +164,7 @@ export function CaseStudyLayout({
        * breakpoints. See CaseTOC.tsx for the mechanics.
        */}
       <article className="mt-12 md:mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start lg:gap-12">
-        <div className="contents lg:block">
+        <div className="text-plate contents lg:block">
           <MDXProvider components={mdxComponents}>{children}</MDXProvider>
         </div>
         <CaseTOC />
@@ -137,6 +201,34 @@ export function CaseStudyLayout({
       </nav>
     </Container>
   );
+}
+
+/**
+ * Render a plain string with backtick-wrapped spans converted to inline
+ * `<code>` nodes. The engineer summaries borrow README convention —
+ * wrapping paths and symbol names in backticks — so a reader can see at
+ * a glance what's a concrete file or identifier vs. ordinary prose.
+ *
+ * Distinct from `mdx-components.InlineCode`, which overrides the `<code>`
+ * element produced by the MDX pipeline; this helper parses raw i18n
+ * strings outside the MDX flow, hence the different prop shape and the
+ * `bg-bg` chip color (the engineer card sits on `bg-surface`, so chips
+ * need the opposite contrast).
+ */
+function renderWithInlineCode(text: string) {
+  return text.split(/(`[^`]+`)/g).map((part, i) => {
+    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      return (
+        <code
+          key={i}
+          className="rounded bg-bg px-1.5 py-0.5 font-mono text-[0.85em] text-ink"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
 }
 
 function CaseNavLink({

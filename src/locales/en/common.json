@@ -45,26 +45,38 @@
     "tocLabel": "Contents",
     "tocNavLabel": "Article contents",
     "caseComingSoon": "Case study in progress. Outline lives in the wiki; the full write-up lands soon.",
+    "tldrLabel": "TL;DR",
+    "engineerCardLabel": "For engineers",
+    "viewRepo": "View repo",
+    "repoComingSoon": "Repo going public soon",
     "cases": {
       "sylphie": {
         "title": "Sylphie",
         "role": "Cognitive architecture",
-        "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker."
+        "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker.",
+        "tldr": "Sylphie is a cognitive architecture for AI agents that's designed to depend on language models less over time, not more. Most agent products get smarter by switching to a bigger model; Sylphie gets smarter by learning which decisions it no longer needs to ask a model to make. The system measures that share itself and reports it as a health metric.",
+        "engineerSummary": "A multi-process TypeScript / Python system: a NestJS backend, an isolated Node drive engine over Zod-validated WebSocket, a FastAPI tensor sidecar (~2.2M params, TF + NumPy), four Neo4j knowledge graphs, and a TimescaleDB event bus with a compile-time ownership map. Reward function lives in a Postgres table with row-level security that the runtime user can't write to — startup aborts if RLS verification fails."
       },
       "memory-pkg": {
         "title": "memory-pkg",
         "role": "Agent long-term memory",
-        "summary": "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path."
+        "summary": "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path.",
+        "tldr": "memory-pkg gives a coding agent long-term memory across sessions. When the agent forgets what you decided two weeks ago and re-derives the answer, that's lost time and lost trust; memory-pkg pulls the relevant prior decision into the next prompt automatically, so the agent picks up where you left off.",
+        "engineerSummary": "A TimescaleDB-backed long-term memory package under `drift-detector/packages/memory-pkg/`. A `Stop` hook tails the official Claude Code transcript JSONL into a buffer, an ingester rotates it atomically into a hypertable, and a `UserPromptSubmit` hook spawns a multi-tier retrieval CLI (trigram + entity on the fast path; embedding, classifier, graph tiers behind a one-line registry flip) and emits up to 4 KB of pre-fetched context. Fails open at every layer. MCP server exposes four tools for deliberate recall."
       },
       "sylphie-pkg": {
         "title": "sylphie-pkg",
         "role": "Codebase knowledge graph",
-        "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight."
+        "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight.",
+        "tldr": "sylphie-pkg gives a coding agent a map of your codebase instead of making it re-read files every time it needs to orient. The agent answers structural questions (\"where is this called from?\", \"what depends on this type?\") in one query instead of dozens of file reads, so its answers stay sharp on large projects.",
+        "engineerSummary": "A monorepo package under `sylphie/packages/sylphie-pkg/` that maintains a Neo4j knowledge graph of a TypeScript codebase. ts-morph parses changed files, a differ compares content-hashed entities against the graph, mutations apply in a single Cypher transaction, and a six-check integrity pass gates the sync cursor — fail and the next sync re-runs the same diff instead of skipping over the corruption. Exposed to Claude Code as seven MCP tools over stdio. Ported clean to a second repo in about thirty minutes."
       },
       "enforcement-hooks": {
         "title": "Enforcement Hooks",
         "role": "Self-review gates for agents",
-        "summary": "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards."
+        "summary": "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards.",
+        "tldr": "A pair of automatic reviewers that catch a coding agent before it declares work done too early. One reads every file the agent writes; the other reads the cumulative work at the end of each turn and checks it against the original ask. The result is fewer surprises after the agent says \"done.\"",
+        "engineerSummary": "Three Bash scripts wired into `.claude/settings.json` against `UserPromptSubmit`, `PostToolUse(Write|Edit|MultiEdit)`, and `Stop`. Per-write spawns a single-file Sonnet reviewer with a two-state output contract; per-turn spawns a Sonnet reviewer with git, transcript, and Playwright access that verifies the cumulative diff against the user's original prompt. Two SHA-1 hash files (`.turn-baseline-hash`, `.last-review-hash`) gate the Stop reviewer so it runs exactly once per unique diff state regardless of how often Stop fires. Fail-safe rather than fail-open — a reviewer crash surfaces as visible output, not a silent pass."
       }
     }
   },
@@ -78,13 +90,46 @@
       "education": "Education",
       "certifications": "Certifications",
       "languages": "Languages"
+    },
+    "skills": {
+      "eyebrow": "Stack",
+      "title": "What I reach for, and for what.",
+      "intro": "Grouped by what the tool is doing in the work — agent runtime, frontend craft, infra and observability, evaluation and quality — not by which logo it has.",
+      "clusters": {
+        "agent-runtime": "Agent runtime",
+        "frontend-craft": "Frontend craft",
+        "infra-data": "Infra & data",
+        "eval-quality": "Eval & quality"
+      },
+      "shipsInPrefix": "Ships in",
+      "selectPrompt": "Hover or focus a skill to see which projects ship it.",
+      "noProjects": "{{name}} · No featured project ships this yet."
     }
   },
   "about": {
     "eyebrow": "About",
     "title": "About.",
-    "body1": "I make the engineering team I join better than it was before I joined. Half of that is patience: pairing with the engineer who hasn't found their AI workflow yet, writing the rollout doc nobody wants to own, taking the meeting where you explain to the skeptic why this isn't a fad. I led that work end-to-end at my last company and watched the team's ceiling rise as a result.",
-    "body2": "The other half is discipline. I review every pull request on my main project against a written architectural document before it merges, and I bring the same standard to whatever team I'm on, starting with my own code. I reason from a system's mechanism before I reach for prior art. Engineers feel the floor rise around them. That's the value."
+    "body1": "Engineering teams I join tend to leave better than I found them. Half of that is patience — pairing with the engineer who hasn't found their agent workflow yet, writing the rollout doc nobody wants to own, taking the meeting where you explain to the skeptic why this isn't a fad. The other half is discipline. I review every pull request on my main project against a written architectural document before it merges, and I bring the same standard to whatever team I'm on, starting with my own code.",
+    "trajectory": {
+      "eyebrow": "From",
+      "title": "Eight years of frontend, then the model showed up.",
+      "body": "I spent eight years shipping production frontend — four of them at Mediavine, where I built Mediavine Journey end-to-end with a small team and was primary dev on the analytics dashboard. The last two years of that, I led internal AI tooling adoption across the engineering org. Evaluation, rollout, training, and the harder part: moving the engineers who weren't going to come along on their own. The team's ceiling rose as a result. I watched it happen. That's the work I want to do for other companies' engineering orgs now, not just my own."
+    },
+    "frontier": {
+      "eyebrow": "Frontier",
+      "title": "Four projects on the same instinct.",
+      "body": "The case studies are not portfolio pieces. memory-pkg started because I got tired of being my own agent's notebook between sessions. sylphie-pkg started because the agent kept re-reading the same files to orient. The enforcement hooks started because reviewing the agent's work after it claimed done was costing me more time than the work itself. Sylphie, the cognitive architecture they all feed into, is a longer answer to a related question — what would an agent look like if depending on the language model less were the goal, not the constraint. The instinct underneath all four is the same. Reach for the system mechanism before reaching for prior art."
+    },
+    "next": {
+      "eyebrow": "Next",
+      "title": "Forward Deployed Engineer, specifically.",
+      "body": "The home page lists three roles I'm open to. Forward Deployed is the one I'm pointing at. The job is taking Claude into other companies' engineering orgs and getting it into production — which is the same shape as the work I led at Mediavine, except with a better model and a wider audience. Anthropic Tokyo would be the version I'd reach for first. Remote and the Bay Area are equally on the table."
+    },
+    "curiosity": {
+      "eyebrow": "Off-hours",
+      "title": "The same instinct, off the clock.",
+      "body": "I study Japanese on JLPT material and read cognitive science papers for the same reason I built Sylphie — I'd rather understand a system from its mechanism than work around its surface. Tokyo is the version of that life I'd most want to live. The papers are the same curiosity I bring to architecture reviews."
+    }
   },
   "contact": {
     "eyebrow": "Contact",

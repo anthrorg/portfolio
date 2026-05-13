@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { isPrerender } from "@/lib/is-prerender";
 
 const PHRASE_PARTS = [
   "Mushoku Tensei: Jobless Reincarnation",
@@ -36,25 +38,36 @@ function shuffle<T>(arr: readonly T[]): T[] {
   return out;
 }
 
-// Each row is REPEATS_PER_ROW independently-shuffled passes of PHRASE_PARTS,
-// joined together. Rows differ from each other so the grid reads as scatter
-// rather than a strict monogram. Computed once at module load — Vite SPA,
-// no SSR, so Math.random() at top level has no hydration concern.
-const ROWS = Array.from({ length: ROW_COUNT }, () =>
-  Array.from({ length: REPEATS_PER_ROW }, () => shuffle(PHRASE_PARTS).join(SEP)).join(SEP),
-);
-
-// Negative random delays in [-CYCLE, 0] so every row starts already at a random
-// point in its shimmer cycle (no dead window after page load before first shimmer).
-// Keep this in sync with --bg-text-shimmer-cycle in theme.css.
+// Keep in sync with --bg-text-shimmer-cycle in theme.css. Negative random
+// delays in [-CYCLE, 0] start each row mid-shimmer (no dead window on load).
 const SHIMMER_CYCLE_SECONDS = 50;
-const SHIMMER_DELAYS = Array.from(
-  { length: ROW_COUNT },
-  () => -Math.random() * SHIMMER_CYCLE_SECONDS,
-);
+
+type Content = { rows: string[]; delays: number[] };
+
+// Rows are generated on the client after hydration, and skipped entirely
+// during the build-time prerender crawl. This keeps the prerendered HTML free
+// of the ~157KB decorative text wall — crawlers, link-preview bots, and AI
+// fetchers that strip HTML to plain text don't honor aria-hidden, so rendering
+// the marquee at build time drowns out the real page copy.
+function buildContent(): Content {
+  const rows = Array.from({ length: ROW_COUNT }, () =>
+    Array.from({ length: REPEATS_PER_ROW }, () => shuffle(PHRASE_PARTS).join(SEP)).join(SEP),
+  );
+  const delays = Array.from(
+    { length: ROW_COUNT },
+    () => -Math.random() * SHIMMER_CYCLE_SECONDS,
+  );
+  return { rows, delays };
+}
 
 export function BackgroundText() {
   const ref = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState<Content | null>(null);
+
+  useEffect(() => {
+    if (isPrerender()) return;
+    setContent(buildContent());
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -93,18 +106,22 @@ export function BackgroundText() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none"
     >
-      <div className="bg-text-grid bg-text-dim absolute inset-0">
-        {ROWS.map((row, i) => (
-          <div key={i}>{row}</div>
-        ))}
-      </div>
-      <div className="bg-text-grid bg-text-bright absolute inset-0">
-        {ROWS.map((row, i) => (
-          <div key={i} style={{ animationDelay: `${SHIMMER_DELAYS[i]}s` }}>
-            {row}
+      {content && (
+        <>
+          <div className="bg-text-grid bg-text-dim absolute inset-0">
+            {content.rows.map((row, i) => (
+              <div key={i}>{row}</div>
+            ))}
           </div>
-        ))}
-      </div>
+          <div className="bg-text-grid bg-text-bright absolute inset-0">
+            {content.rows.map((row, i) => (
+              <div key={i} style={{ animationDelay: `${content.delays[i]}s` }}>
+                {row}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,16 +1,16 @@
 ## The problem
 
-There are two kinds of forgetting that hurt a coding agent.
+Coding agents forget two ways. Structural: they don't know what the codebase looks like. Episodic: they don't remember the work.
 
-The first is **structural forgetting**: the agent doesn't know what your codebase looks like. It re-greps and re-reads files every session to reconstruct who calls whom, what types live where, which functions are entry points. That's what graph-backed codebase tools — `sylphie-pkg` and its drift-detector port `codebase-pkg` — solve. Encode the codebase's structure once; let the agent query it.
+**Structural forgetting** is the agent not knowing what your codebase looks like. It re-greps and re-reads files every session to reconstruct who calls whom, what types live where, which functions are entry points. That's what graph-backed codebase tools — `sylphie-pkg` and its drift-detector port `codebase-pkg` — solve. Encode the codebase's structure once; let the agent query it.
 
-The second is **episodic forgetting**: the agent doesn't remember the *work*. Two weeks ago you and the agent worked out why TimescaleDB beat plain Postgres for your use case. Today you're asking "should I add pgvector or use Pinecone for embeddings?" and the agent will not consult that prior reasoning. It will re-derive an answer from scratch, sometimes contradicting itself, often hedging.
+**Episodic forgetting** is the agent not remembering the *work*. Two weeks ago you and the agent worked out why TimescaleDB beat plain Postgres for your use case. Today you're asking "should I add pgvector or use Pinecone for embeddings?" and the agent will not consult that prior reasoning. It will re-derive an answer from scratch, sometimes contradicting itself, often hedging.
 
 Claude Code's `MEMORY.md` auto-memory file partly addresses this, but it's hand-curated — you decide what to remember. That's the right tool for stable preferences and user facts. It's the wrong tool for *"what did we try last Thursday and why did it not work?"* That kind of recall needs the full transcript, indexed and searchable.
 
 `memory-pkg` fills that second gap. It reads the official Claude Code transcript JSONL files, extracts events, persists them to TimescaleDB, and injects relevant historical events into every new user prompt — automatically, transparently, without the developer doing anything.
 
-One thing worth flagging up front: the fast path is plain SQL trigram search against a Postgres GIN index. For well-formed prompts it short-circuits the rest of the pipeline at score ≥ 0.7 — which surprised me, and may surprise you. The semantic-embedding tier exists in the code but is dormant in the live config. Trigram lexical retrieval, plus an entity tier that reads the last 20 lines of the active transcript, is enough most of the time. The next sections explain why.
+Up front: the fast path is plain SQL trigram search against a Postgres GIN index. For well-formed prompts it short-circuits the rest of the pipeline at score ≥ 0.7. The semantic-embedding tier exists in the code but is dormant in the live config. Trigram lexical retrieval, plus an entity tier that reads the last 20 lines of the active transcript, is enough most of the time. The next sections explain why.
 
 > `memory-pkg` addresses the episodic side of agent forgetting — the agent's lack of memory for the work itself. For the structural side — the agent's lack of a map of the codebase — see [sylphie-pkg](/frontier/sylphie-pkg), the complementary piece.
 
@@ -244,9 +244,7 @@ The fast-path short-circuit at score ≥ 0.7 is intended to keep the typical pro
 
 ## Why it matters
 
-Git remembers what changed. `memory-pkg` remembers *why* — and surfaces it back automatically, on the next prompt, without anyone asking. The agent gets continuity; the developer stops being the agent's notebook.
-
-That's worth more than the disk it takes up.
+Git remembers what changed. `memory-pkg` remembers *why*. The developer stops being the agent's notebook.
 
 ## Code map
 

@@ -16,7 +16,7 @@ The fix is to give the agent a map instead of a flashlight.
 
 What was portable: the AST parser, the sync pipeline, the graph differ, the mutation builder, the integrity checker, the MCP server, and the three skill markdown files all transferred without code changes. The shape was the same; only the configuration moved. What needed reconfiguration was the surface — Neo4j Bolt port (`7691` → `7688` so the two graphs could coexist if both projects were checked out), workspace import scope (`@sylphie` → `@drift`), the watched-directory list, and the `DOMAIN_LABELS` enum (sylphie's subsystem-specific labels swapped for drift-detector's product-specific ones). Container password, image tag, env var prefix — surface details. The architecture didn't move.
 
-That kind of accidental portability is the signal that says the abstraction is right.
+Accidental portability is the tell that the abstraction is right.
 
 ## What `sylphie-pkg` is
 
@@ -173,7 +173,7 @@ Two effects are visible from the code.
 
 ## What this costs
 
-The honest answer is: less than the alternative, but not zero.
+Less than the alternative, but not zero.
 
 **Compute.** The sync pipeline runs `git diff`, parses changed files with ts-morph, writes Cypher. The initial seed reports its parse-time and relationship-pass time explicitly. (`initial-seed.ts:521-525, 630-634`) Files process in batches of 50 with the ts-morph project cache cleared every 5 batches to keep memory bounded. (`initial-seed.ts:44, 515`) Incremental syncs are dominated by Neo4j round-trips, not parsing.
 
@@ -197,7 +197,7 @@ The structural shape (one structured response vs. N unstructured reads) is the d
 
 ## Why it matters
 
-`sylphie-pkg` doesn't make the agent smarter. It hands the agent a map instead of a flashlight. The developer stops being the agent's index, and the agent stops being a tourist with a flashlight.
+`sylphie-pkg` doesn't make the agent smarter. It hands the agent a map instead of a flashlight. The developer stops being the agent's index.
 
 That's the whole pitch.
 
