@@ -20,13 +20,13 @@
   "home": {
     "workEyebrow": "How I work",
     "workTitle": "With agents in the loop.",
-    "workBody": "Not a productivity hack. The way the work gets built. Years of shipping production software end-to-end mean the AI-augmented work I do becomes product, not demos. I've led an engineering organization through AI tooling adoption end to end: evaluation, rollout, training, and the harder part of moving the engineers who weren't going to come along on their own. I build at the model boundary too, including production MCP tooling for the agents I work with day to day.",
+    "workBody": "Not a productivity hack. The way the work gets built. Years of shipping production software end-to-end mean the AI-augmented work I do becomes product, not demos. At Mediavine I went deeper on the Anthropic surface than anyone else on the team — became the engineer other ICs came to when their workflow stalled, the de facto lead by the time I left. I build at the model boundary too, including production MCP tooling for the agents I work with day to day.",
     "thinkEyebrow": "How I think",
     "thinkTitle": "From the system, not the pattern.",
-    "thinkBody": "I reach for the underlying mechanism before I reach for prior art. When a system is unfamiliar, I'd rather study it from the foundations than copy a shape that worked somewhere else. On my own time I read papers and build cognitive architectures from scratch, partly because I want to understand the systems I'm shipping at a layer below the API. I bring the same discipline to my own code: every pull request on my main project gets reviewed against a written architectural document before it merges.",
+    "thinkBody": "Every pull request on my main project gets reviewed against a written architectural document before it merges. The discipline isn't decorative — I'd rather study a system from its foundations than copy a shape that worked somewhere else. On my own time I read papers and build cognitive architectures from scratch, partly because I want to understand the systems I'm shipping at a layer below the API.",
     "openEyebrow": "Open to",
-    "openTitle": "What I'm looking for next.",
-    "openBody": "AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo.",
+    "openTitle": "Forward Deployed Engineer, specifically.",
+    "openBody": "Forward Deployed Engineer is the one I'm pointing at — taking Claude into other companies' engineering orgs the way I became the engineer my team came to for Anthropic-tooling questions at Mediavine. Tokyo first. Bay Area or remote also open. AI Product and Agent Engineer roles welcome too; they're versions of the same job from a different angle.",
     "openCta": "Email me",
     "openEmail": "jctisdale1988@gmail.com"
   },
@@ -46,6 +46,7 @@
     "tocNavLabel": "Article contents",
     "caseComingSoon": "Case study in progress. Outline lives in the wiki; the full write-up lands soon.",
     "tldrLabel": "TL;DR",
+    "deepDiveLabel": "Read the deep dive",
     "engineerCardLabel": "For engineers",
     "viewRepo": "View repo",
     "repoComingSoon": "Repo going public soon",
@@ -54,7 +55,7 @@
         "title": "Sylphie",
         "role": "Cognitive architecture",
         "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker.",
-        "tldr": "Sylphie is a cognitive architecture for AI agents that's designed to depend on language models less over time, not more. Most agent products get smarter by switching to a bigger model; Sylphie gets smarter by learning which decisions it no longer needs to ask a model to make. The system measures that share itself and reports it as a health metric.",
+        "tldr": "Sylphie is a cognitive architecture for AI agents that's designed to depend on language models less over time, not more. Most agent products get smarter by switching to a bigger model; Sylphie gets smarter by learning which decisions it no longer needs to ask a model to make. The architecture is shaped so that share is the headline metric — instrumenting it as a live signal is the next phase of the build.",
         "engineerSummary": "A multi-process TypeScript / Python system: a NestJS backend, an isolated Node drive engine over Zod-validated WebSocket, a FastAPI tensor sidecar (~2.2M params, TF + NumPy), four Neo4j knowledge graphs, and a TimescaleDB event bus with a compile-time ownership map. Reward function lives in a Postgres table with row-level security that the runtime user can't write to — startup aborts if RLS verification fails."
       },
       "memory-pkg": {
@@ -116,7 +117,7 @@
     "trajectory": {
       "eyebrow": "From",
       "title": "Eight years of frontend, then the model showed up.",
-      "body": "I spent eight years shipping production frontend — four of them at Mediavine, where I built Mediavine Journey end-to-end with a small team and was primary dev on the analytics dashboard. The last two years of that, I led internal AI tooling adoption across the engineering org. Evaluation, rollout, training, and the harder part: moving the engineers who weren't going to come along on their own. The team's ceiling rose as a result. I watched it happen. That's the work I want to do for other companies' engineering orgs now, not just my own."
+      "body": "I spent eight years shipping production frontend — four of them at Mediavine, where I built Mediavine Journey end-to-end with a small team and was primary dev on the analytics dashboard. The last two years of that, AI tooling showed up. I was one of four engineers on an eleven-person team who took it seriously early. I went deeper on the Anthropic-specific surface — features, hooks, MCP, the workflow ergonomics nobody else was reading the changelog for — than the rest of the cohort, and became the de facto lead by the time other ICs were routing their tooling questions to me. The team's ceiling rose as a result. I watched it happen. That's the work I want to do for other companies' engineering orgs now, not just my own."
     },
     "frontier": {
       "eyebrow": "Cutting Edge Tech",
@@ -126,7 +127,7 @@
     "next": {
       "eyebrow": "Next",
       "title": "Forward Deployed Engineer, specifically.",
-      "body": "The home page lists three roles I'm open to. Forward Deployed is the one I'm pointing at. The job is taking Claude into other companies' engineering orgs and getting it into production — which is the same shape as the work I led at Mediavine, except with a better model and a wider audience. Anthropic Tokyo would be the version I'd reach for first. Remote and the Bay Area are equally on the table."
+      "body": "The job is taking Claude into other companies' engineering orgs and getting it into production — same play I ran on a smaller scale at Mediavine, where I went from one of four AI-curious engineers to the one the team came to for tooling questions. Tokyo is the version I'd reach for first. Remote and the Bay Area are equally on the table. AI Product and Agent Engineer roles are open too; they're versions of the same job from a different angle."
     },
     "curiosity": {
       "eyebrow": "Off-hours",
@@ -137,7 +138,7 @@
   "contact": {
     "eyebrow": "Contact",
     "title": "Contact.",
-    "lede": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo. The fastest channel is email.",
+    "lede": "Pointing at Forward Deployed Engineer. AI Product and Agent Engineer roles welcome — versions of the same job from a different angle. Tokyo first; Bay Area or remote also open. The fastest channel is email.",
     "emailLabel": "Email"
   },
   "footer": {
@@ -154,6 +155,6 @@
     "work": "Four case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates.",
     "career": "Eight years senior frontend, four at Mediavine, pivoting into AI engineering.",
     "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
-    "contact": "Open to AI Product, Agent Engineer, and Forward Deployed roles. Remote, Bay Area, or Tokyo."
+    "contact": "Forward Deployed Engineer, AI Product, or Agent Engineer roles. Tokyo first, Bay Area or remote also open."
   }
 }

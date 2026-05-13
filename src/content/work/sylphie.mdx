@@ -1,6 +1,6 @@
 ## The thesis, stated as a metric
 
-Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. Type 1 / Type 2 ratio is a tracked health metric; over time, it should rise.
+Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. The Type 1 / Type 2 ratio is the metric the architecture is shaped to surface — live instrumentation of it is a Phase 2 deliverable, not currently broadcast. The case for the design is the trajectory, not today's reading.
 
 ## The drive engine, isolated by process and by Postgres
 
@@ -86,11 +86,11 @@ Phase 1.5. The spec calls out its own scaffolding:
 
 The system flags its own stubs in the spec and in code rather than papering over them. That is itself a Phase 1.5 commitment: the next phase begins by making each of those a yes.
 
-The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the headline metric (share of decisions made without calling a language model) finishes climbing.
+The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the share-of-decisions-without-an-LLM number — once it's instrumented to report live (Phase 2) — has somewhere to actually land.
 
 ## Why it matters
 
-Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure — drives, predictions, evaluations, and graduated procedures are the load-bearing structure. The metric the system reports on itself is **the share of decisions made without calling a language model**, and it is supposed to climb. Today it climbs slowly because most paths still route through deliberation; the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
+Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure — drives, predictions, evaluations, and graduated procedures are the load-bearing structure. The metric the architecture is built to surface is **the share of decisions made without calling a language model**, and it's supposed to climb. Live instrumentation of that number is on the Phase 2 list, not on a dashboard yet — but the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
 
 The shorter version: an agent that watches itself, predicts the consequences of its own actions, measures how wrong those predictions were, and can only graduate a behavior after the measurement says it earned it — that's a different category of system than one that prompts a frontier model harder.
 
