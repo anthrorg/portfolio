@@ -13,8 +13,15 @@ export type CaseMeta = {
   /**
    * Public repo URL surfaced on the engineer card. `null` renders a
    * "Repo coming soon" placeholder; wire a real URL once the repo is public.
+   * Ignored when `noRepo` is true.
    */
   repoUrl?: string | null;
+  /**
+   * Case studies that intentionally have no standalone repo to ship — the
+   * write-up is informational. When true, the engineer card omits the
+   * repo CTA and the "coming soon" placeholder entirely.
+   */
+  noRepo?: boolean;
 };
 
 export const cases: readonly CaseMeta[] = [
@@ -44,7 +51,7 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["Bash", "Claude Code hooks", "Sonnet", "Playwright"],
-    repoUrl: null,
+    noRepo: true,
   },
 ] as const;
 

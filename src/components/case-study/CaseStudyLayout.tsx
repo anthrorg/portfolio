@@ -109,9 +109,11 @@ export function CaseStudyLayout({
        * description and a repo CTA. Audience: a senior engineer skimming
        * who wants to skip the long write-up and jump to the code.
        *
-       * `repoUrl` may be `null` for cases whose repos aren't public yet —
-       * the placeholder branch renders an "Repo going public soon" line
-       * in the same slot the CTA occupies when a URL is wired.
+       * Three states:
+       * - `repoUrl` set → "View repo" CTA.
+       * - `noRepo: true` → no repo line at all (case study is informational;
+       *   the work doesn't ship as a separate repo).
+       * - otherwise → "Repo going public soon" placeholder.
        */}
       <motion.section
         aria-label="For engineers"
@@ -137,7 +139,7 @@ export function CaseStudyLayout({
               <span>{t("work.viewRepo")}</span>
               <span aria-hidden>→</span>
             </a>
-          ) : (
+          ) : meta.noRepo ? null : (
             <p className="mt-6 font-mono text-xs uppercase tracking-widest text-ink-muted">
               {t("work.repoComingSoon")}
             </p>
