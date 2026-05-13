@@ -28,7 +28,7 @@ function About() {
   return (
     <Container className="py-24 md:py-32">
       <motion.header
-        className="text-plate max-w-3xl"
+        className="text-plate max-w-3xl p-8 md:p-12"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
@@ -71,7 +71,7 @@ function AboutSection({ sectionKey, reduced, delay }: AboutSectionProps) {
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay, ease: EASE_OUT }}
-      className="text-plate max-w-3xl border-t border-border pt-12"
+      className="text-plate max-w-3xl p-8 md:p-12"
       aria-labelledby={`about-${sectionKey}-heading`}
     >
       <p className="font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">

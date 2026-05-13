@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 const NAV_ITEMS = [
-  { to: "/frontier" as const, key: "nav.work" },
+  { to: "/cutting-edge-tech" as const, key: "nav.work" },
   { to: "/about" as const, key: "nav.about" },
   { to: "/career" as const, key: "nav.career" },
   { to: "/contact" as const, key: "nav.contact" },

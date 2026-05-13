@@ -87,7 +87,7 @@ export function Hero() {
           className="mt-10"
         >
           <Link
-            to="/frontier"
+            to="/cutting-edge-tech"
             className="group inline-flex items-center gap-3 rounded-full border border-border bg-bg px-5 py-3 text-sm uppercase tracking-widest transition-colors hover:border-accent hover:text-accent"
           >
             <span>{t("hero.cta")}</span>

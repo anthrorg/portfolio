@@ -1,6 +1,6 @@
 {
   "nav": {
-    "work": "Frontier",
+    "work": "Cutting Edge Tech",
     "career": "Career",
     "contact": "Contact",
     "openMenu": "Open menu",
@@ -31,16 +31,16 @@
     "openEmail": "jctisdale1988@gmail.com"
   },
   "work": {
-    "title": "Frontier",
+    "title": "Cutting Edge Tech",
     "intro": "What I build so coding agents stay oriented, honest, and on task.",
     "featuredLabel": "Featured",
     "comingSoonLabel": "Coming 2026",
     "viewCase": "Read the case study",
-    "backToWork": "Back to Frontier",
+    "backToWork": "Back to Cutting Edge Tech",
     "next": "Next",
     "previous": "Previous",
     "caseNavLabel": "Case study navigation",
-    "relatedHeading": "More on the Frontier",
+    "relatedHeading": "More on the Cutting Edge",
     "relatedNavLabel": "Related work",
     "tocLabel": "Contents",
     "tocNavLabel": "Article contents",
@@ -116,7 +116,7 @@
       "body": "I spent eight years shipping production frontend — four of them at Mediavine, where I built Mediavine Journey end-to-end with a small team and was primary dev on the analytics dashboard. The last two years of that, I led internal AI tooling adoption across the engineering org. Evaluation, rollout, training, and the harder part: moving the engineers who weren't going to come along on their own. The team's ceiling rose as a result. I watched it happen. That's the work I want to do for other companies' engineering orgs now, not just my own."
     },
     "frontier": {
-      "eyebrow": "Frontier",
+      "eyebrow": "Cutting Edge Tech",
       "title": "Four projects on the same instinct.",
       "body": "The case studies are not portfolio pieces. memory-pkg started because I got tired of being my own agent's notebook between sessions. sylphie-pkg started because the agent kept re-reading the same files to orient. The enforcement hooks started because reviewing the agent's work after it claimed done was costing me more time than the work itself. Sylphie, the cognitive architecture they all feed into, is a longer answer to a related question — what would an agent look like if depending on the language model less were the goal, not the constraint. The instinct underneath all four is the same. Reach for the system mechanism before reaching for prior art."
     },

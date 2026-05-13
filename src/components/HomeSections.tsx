@@ -44,13 +44,14 @@ type ProseSectionProps = {
 
 function ProseSection({ eyebrow, title, body, reduced }: ProseSectionProps) {
   return (
-    <section className="border-t border-border py-24 md:py-32">
+    <section className="py-16 md:py-24">
       <Container>
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10% 0px" }}
           transition={{ duration: 0.7, ease: EASE_OUT }}
+          className="text-plate max-w-4xl p-8 md:p-12"
         >
           <p className="mb-6 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
             {eyebrow}
@@ -85,13 +86,14 @@ function OpenSection({
   reduced,
 }: OpenSectionProps) {
   return (
-    <section className="border-t border-border py-24 md:py-32">
+    <section className="py-16 md:py-24">
       <Container>
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10% 0px" }}
           transition={{ duration: 0.7, ease: EASE_OUT }}
+          className="text-plate max-w-4xl p-8 md:p-12"
         >
           <p className="mb-6 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
             {eyebrow}

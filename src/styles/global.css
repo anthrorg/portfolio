@@ -313,40 +313,30 @@
 }
 
 /*
- * Frosted backdrop plate for text-heavy containers.
+ * Translucent surface plate — the site-wide "blocking area" treatment.
  *
- * The bg-text grid's cursor spotlight lights up indigo→pink keyword text
- * behind page content, which interferes with paragraph readability when
- * the cursor parks over a reading area. `.text-plate` renders a soft
- * blurred backdrop just behind the container via a ::before pseudo —
- * negative inset so the plate scales out from the visible content edge
- * without touching the box model, `isolation: isolate` so the z-index: -1
- * resolves inside the parent's stacking context (above the fixed -z-10
- * BackgroundText, below the prose itself).
+ * Applied directly to any container that holds prose or a content card:
+ * About sections, Career sections, case-study header / TL;DR /
+ * engineer card / related card, Cutting Edge index cards, Skills
+ * clusters, Home sections, Contact email panel. Replaces the older
+ * opaque `bg-surface` cards so the bg-text grid's spotlight reads as a
+ * soft wash *through* content rather than a hard cut-off behind it.
  *
- * Hidden on touch and on narrow viewports — matches the @media gates on
- * the grid itself, so the plate only paints where the spotlight actually
- * fires.
+ * Two values doing the work:
+ *   - `color-mix(... var(--color-surface) 70%, transparent)` — same gray
+ *     the prior opaque cards used, just translucent enough to feel
+ *     continuous with the spotlight underneath.
+ *   - `backdrop-filter: blur(16px)` — frosts the indigo→pink keyword
+ *     wash behind the plate so paragraphs stay readable when the
+ *     cursor's spotlight parks over the reading area.
+ *
+ * Callers supply their own padding + (optional) border via Tailwind
+ * utilities. The radius is bundled in so every plate reads as the same
+ * primitive without each caller having to remember `rounded-3xl`.
  */
 .text-plate {
-  position: relative;
-  isolation: isolate;
-}
-
-.text-plate::before {
-  content: "";
-  position: absolute;
-  inset: -1.25rem -1.5rem;
-  z-index: -1;
-  background-color: color-mix(in srgb, var(--color-bg) 75%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-3xl);
-  pointer-events: none;
-}
-
-@media (hover: none), (max-width: 768px) {
-  .text-plate::before {
-    display: none;
-  }
 }

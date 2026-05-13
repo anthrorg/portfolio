@@ -10,15 +10,16 @@ import { useViewTransitionEnabled } from "@/lib/use-view-transition";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-// HISTORICAL: i18n keys keep work.* naming; the URL renamed to /frontier
-// 2026-05. Renaming the keys would touch every locale + every consumer
-// for no UX win — the keys are internal-only.
-function FrontierIndex() {
+// HISTORICAL: i18n keys keep work.* naming; the URL renamed to /work →
+// /frontier (2026-05) → /cutting-edge-tech (2026-05). Renaming the keys
+// would touch every locale + every consumer for no UX win — the keys
+// are internal-only.
+function CuttingEdgeTechIndex() {
   const { t } = useTranslation();
   useHead({
     title: t("nav.work"),
     description: t("meta.work"),
-    path: "/frontier",
+    path: "/cutting-edge-tech",
   });
   const reduced = useReducedMotion();
   const viewTransition = useViewTransitionEnabled();
@@ -122,10 +123,10 @@ function FeaturedCase({
       className="mt-20"
     >
       <Link
-        to="/frontier/$slug"
+        to="/cutting-edge-tech/$slug"
         params={{ slug: meta.slug }}
         viewTransition={viewTransition}
-        className="group relative block overflow-hidden rounded-3xl border border-border bg-surface p-8 md:p-14"
+        className="group text-plate relative block overflow-hidden p-8 md:p-14"
       >
         <div
           aria-hidden
@@ -180,13 +181,13 @@ function SupportingCase({
         delay: reduced ? 0 : 0.4 + 0.1 * index,
         ease: EASE_OUT,
       }}
-      className="border-b border-border md:border-b-0 md:px-1 md:[&:not(:last-child)]:border-r"
+      className="md:px-2"
     >
       <Link
-        to="/frontier/$slug"
+        to="/cutting-edge-tech/$slug"
         params={{ slug: meta.slug }}
         viewTransition={viewTransition}
-        className="group relative block h-full rounded-3xl py-10 transition-colors hover:bg-surface md:px-8 md:py-12"
+        className="group text-plate relative block h-full p-8 transition-colors md:p-10"
       >
         <div className="flex items-baseline justify-between gap-4">
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
@@ -232,9 +233,9 @@ function ComingSoonCase({ meta, index, reduced }: ComingSoonCaseProps) {
         delay: reduced ? 0 : 0.4 + 0.1 * index,
         ease: EASE_OUT,
       }}
-      className="border-b border-border md:border-b-0 md:px-1 md:[&:not(:last-child)]:border-r"
+      className="md:px-2"
     >
-      <div className="block h-full py-10 md:px-8 md:py-12">
+      <div className="text-plate block h-full p-8 md:p-10">
         <div className="flex items-baseline justify-between gap-4">
           <span className="rounded-full border border-border bg-bg px-3 py-1 font-mono text-[0.65rem] uppercase tracking-widest text-ink-muted">
             {t("work.comingSoonLabel")}
@@ -254,6 +255,6 @@ function ComingSoonCase({ meta, index, reduced }: ComingSoonCaseProps) {
   );
 }
 
-export const Route = createFileRoute("/frontier/")({
-  component: FrontierIndex,
+export const Route = createFileRoute("/cutting-edge-tech/")({
+  component: CuttingEdgeTechIndex,
 });

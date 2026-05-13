@@ -15,7 +15,7 @@ function Contact() {
   });
   return (
     <Container className="py-24 md:py-32">
-      <header className="text-plate max-w-3xl">
+      <header className="text-plate max-w-3xl p-8 md:p-12">
         <p className="mb-6 font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
           {t("contact.eyebrow")}
         </p>
@@ -27,8 +27,8 @@ function Contact() {
         </p>
       </header>
 
-      <ul className="mt-16 max-w-2xl divide-y divide-border border-y border-border bg-bg">
-        <li className="grid gap-2 py-6 md:grid-cols-[10rem_1fr] md:items-baseline md:gap-8">
+      <ul className="text-plate mt-16 max-w-2xl divide-y divide-border p-2 md:p-4">
+        <li className="grid gap-2 px-6 py-6 md:grid-cols-[10rem_1fr] md:items-baseline md:gap-8">
           <p className="font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
             {t("contact.emailLabel")}
           </p>

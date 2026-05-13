@@ -3,8 +3,8 @@ import AxeBuilder from "@axe-core/playwright";
 
 const ROUTES: { path: string; label: string }[] = [
   { path: "/", label: "homepage" },
-  { path: "/frontier", label: "frontier index" },
-  { path: "/frontier/sylphie", label: "case study (Sylphie)" },
+  { path: "/cutting-edge-tech", label: "cutting-edge-tech index" },
+  { path: "/cutting-edge-tech/sylphie", label: "case study (Sylphie)" },
   { path: "/about", label: "about" },
   { path: "/career", label: "career" },
   { path: "/contact", label: "contact" },

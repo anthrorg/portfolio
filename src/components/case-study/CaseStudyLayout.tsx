@@ -36,7 +36,7 @@ export function CaseStudyLayout({
   return (
     <Container className="py-16 md:py-24">
       <Link
-        to="/frontier"
+        to="/cutting-edge-tech"
         viewTransition={viewTransition}
         className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-ink-muted transition-colors hover:text-accent"
       >
@@ -45,7 +45,7 @@ export function CaseStudyLayout({
       </Link>
 
       <motion.header
-        className="text-plate mt-12 border-b border-border pb-12 md:pb-20"
+        className="text-plate mt-12 p-8 md:p-12"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
@@ -91,7 +91,7 @@ export function CaseStudyLayout({
        */}
       <motion.section
         aria-label="TL;DR"
-        className="text-plate mt-12 max-w-3xl md:mt-16"
+        className="text-plate mt-8 max-w-3xl p-8 md:mt-10 md:p-12"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: reduced ? 0 : 0.1, ease: EASE_OUT }}
@@ -120,7 +120,7 @@ export function CaseStudyLayout({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: reduced ? 0 : 0.2, ease: EASE_OUT }}
       >
-        <div className="rounded-3xl border border-border bg-surface p-6 md:p-10">
+        <div className="text-plate p-6 md:p-10">
           <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
             {t("work.engineerCardLabel")}
           </p>
@@ -164,7 +164,7 @@ export function CaseStudyLayout({
        * breakpoints. See CaseTOC.tsx for the mechanics.
        */}
       <article className="mt-12 md:mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start lg:gap-12">
-        <div className="text-plate contents lg:block">
+        <div className="text-plate contents p-8 md:p-12 lg:block">
           <MDXProvider components={mdxComponents}>{children}</MDXProvider>
         </div>
         <CaseTOC />
@@ -245,7 +245,7 @@ function CaseNavLink({
 
   return (
     <Link
-      to="/frontier/$slug"
+      to="/cutting-edge-tech/$slug"
       params={{ slug: target.slug }}
       viewTransition={viewTransition}
       className={`group block py-6 transition-colors hover:text-accent ${
@@ -329,10 +329,10 @@ function RelatedCard({
 
   return (
     <Link
-      to="/frontier/$slug"
+      to="/cutting-edge-tech/$slug"
       params={{ slug: meta.slug }}
       viewTransition={viewTransition}
-      className="group relative block h-full rounded-3xl border border-border p-6 transition-colors hover:bg-surface md:p-8"
+      className="group text-plate relative block h-full p-6 transition-colors hover:bg-surface/90 md:p-8"
     >
       <div className="flex items-baseline justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">

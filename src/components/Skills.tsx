@@ -53,7 +53,7 @@ export function Skills({ delay = 0 }: SkillsProps) {
       transition={{ duration: 0.7, delay, ease: EASE_OUT }}
       className="border-t border-border pt-10"
     >
-      <div className="text-plate max-w-3xl">
+      <div className="text-plate max-w-3xl p-8 md:p-10">
         <p className="font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
           {t("career.skills.eyebrow")}
         </p>
@@ -72,7 +72,7 @@ export function Skills({ delay = 0 }: SkillsProps) {
         {skillClusters.map((cluster) => (
           <article
             key={cluster.key}
-            className="rounded-3xl border border-border bg-bg p-6 md:p-8"
+            className="text-plate p-6 md:p-8"
           >
             <h3 className="font-mono text-xs uppercase tracking-widest text-ink-muted">
               {t(`career.skills.clusters.${cluster.key}`)}
@@ -105,7 +105,7 @@ export function Skills({ delay = 0 }: SkillsProps) {
               {active.slugs.map((slug) => (
                 <Link
                   key={slug}
-                  to="/frontier/$slug"
+                  to="/cutting-edge-tech/$slug"
                   params={{ slug }}
                   viewTransition={viewTransition}
                   className="font-display text-lg tracking-tight transition-colors hover:text-accent md:text-xl"

@@ -35,7 +35,7 @@ function Career() {
   return (
     <Container className="py-24 md:py-32">
       <motion.header
-        className="text-plate max-w-3xl"
+        className="text-plate max-w-3xl p-8 md:p-12"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
@@ -97,12 +97,12 @@ function CareerSection({
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay, ease: EASE_OUT }}
-      className="border-t border-border pt-10"
+      className="text-plate p-8 md:p-10"
     >
       <h2 className="font-mono text-xs uppercase tracking-widest text-ink-muted md:text-sm">
         {heading}
       </h2>
-      <ul className="mt-6 divide-y divide-border border-y border-border bg-bg">
+      <ul className="mt-6 divide-y divide-border">
         {entries.map((entry, i) => (
           <CareerRow key={i} entry={entry} lang={lang} />
         ))}

@@ -18,7 +18,7 @@ export function Nav() {
           <ul className="flex items-center gap-6 text-sm">
             <li>
               <Link
-                to="/frontier"
+                to="/cutting-edge-tech"
                 className="transition-colors hover:text-accent"
                 activeProps={{ className: "text-accent" }}
               >
