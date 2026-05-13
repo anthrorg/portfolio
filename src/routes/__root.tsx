@@ -5,11 +5,9 @@ import { useTranslation } from "react-i18next";
 import { BackgroundText } from "@/components/BackgroundText";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { useLenis } from "@/lib/lenis";
 import { useThemeFollowsOS } from "@/lib/use-theme";
 
 function RootLayout() {
-  useLenis();
   useThemeFollowsOS();
   const { t } = useTranslation();
 
