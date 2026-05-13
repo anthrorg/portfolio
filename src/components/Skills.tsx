@@ -264,7 +264,7 @@ export function Skills({ delay = 0 }: SkillsProps) {
         ))}
       </ul>
 
-      <div className="relative mt-10">
+      <div className="text-plate relative mt-10 p-6 md:p-8">
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           width="100%"
