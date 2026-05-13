@@ -6,7 +6,7 @@
     },
     "railway": {
       "command": "npx",
-      "args": ["-y", "dotenv-cli", "-e", ".env", "--", "npx", "-y", "@railway/mcp-server"]
+      "args": ["-y", "@railway/mcp-server"]
     }
   }
 }

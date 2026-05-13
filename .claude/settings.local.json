@@ -26,7 +26,8 @@
       "PowerShell(Get-CimInstance *)",
       "PowerShell(npm run *)",
       "PowerShell(Get-NetTCPConnection *)",
-      "Bash(railway logs *)"
+      "Bash(railway logs *)",
+      "mcp__railway__list-deployments"
     ]
   },
   "enableAllProjectMcpServers": true

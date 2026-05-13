@@ -34,3 +34,43 @@ The reviewers are stateless `claude -p` invocations — each call is a fresh con
 
 - **`.claude/review-overrides.md`** (committed) — a curated list of intentional choices the reviewer should not re-flag. Both hooks include this in every prompt. When you reject a flagged issue, add a one-line entry here so future reviews don't repeat the noise. Keep entries terse; if the reasoning needs a paragraph, the override probably isn't sound.
 - **`.claude/review-log/YYYY-MM-DD.md`** (gitignored) — auto-appended record of every review (APPROVED or ISSUES) the hooks produce. Use it to skim what's been flagged today; not consumed by the reviewer itself.
+
+# Deploy (Railway)
+
+The site is hosted on Railway. Project: `portfolio`, environment: `production`, service: `portfolio`. Auto-deploys on push to `main`.
+
+**Railway auth — where the creds live:**
+
+- The Railway CLI session token is at `~/.railway/config.json` (on this box: `C:\Users\Jim\.railway\config.json`). It's a long-lived user session, refreshed by `railway login`. Run `railway whoami` to confirm — current account: `andythrorg@gmail.com`.
+- The `railway` CLI in PATH (Git Bash: `/c/nvm4w/nodejs/railway`) reads this config automatically — no env vars needed.
+- The **Railway MCP server** uses the same CLI under the hood, so it inherits the same auth — *unless* something overrides `RAILWAY_API_TOKEN` in its environment.
+
+**The `.env` gotcha (don't wrap Railway MCP in dotenv):**
+
+`.env` contains `RAILWAY_API_TOKEN=` (empty). If `.mcp.json` wraps the Railway server in `dotenv-cli -e .env --`, that empty string gets injected into the subprocess and shadows the CLI config, making every Railway MCP call fail with "Not logged in." Keep the Railway entry in `.mcp.json` as a plain `npx -y @railway/mcp-server` invocation. If a project token is ever actually needed, export `RAILWAY_API_TOKEN` in the shell instead of via `.env`.
+
+**Build / lockfile hazard (node version pinning):**
+
+The Railway build runs `npm ci`, which requires `package.json` and `package-lock.json` to be perfectly in sync. Railway resolves `engines.node: ">=20"` to **node 20.20.2 / npm 10.8.2**. If you regenerate the lockfile under a newer npm (e.g. node 24 / npm 11), the resulting `lockfileVersion 3` file encodes platform-specific transitive deps in a form npm 10 rejects with `Missing: @emnapi/core@... from lock file` (or similar). The lockfile parses fine locally but Railway's `npm ci` fails.
+
+When that happens, regenerate with the exact npm Railway uses. On this box (nvm-windows):
+
+```
+$LOCALAPPDATA/nvm/v20.20.2/npm.cmd install --no-audit --no-fund
+```
+
+Or install node 20 if missing: `nvm install 20.20.2`. Then commit the regenerated lockfile alongside any package.json change in the same commit. Never push a `package.json` edit without a lockfile produced by node 20's npm. (Long-term, bumping `engines.node` to `^24` would let local npm 11 match Railway, but that is a separate decision.)
+
+The build is also slow (~5–10 min) because `package.json`'s `build` script runs `npx playwright install chromium --with-deps` for the prerender step. That is intentional and currently required — see commits `d78d091` / `dc24f32`.
+
+**Verifying a deploy:**
+
+After `git push origin main`, check status with the CLI (preferred — instant) or the Railway MCP tools (after restart):
+
+```
+railway status                     # confirm linked project + env
+railway list                       # list recent deployments and statuses
+railway logs <deployment-id> -b -n 200   # build logs, last 200 lines
+```
+
+The MCP equivalents: `mcp__railway__list-deployments`, `mcp__railway__get-logs`. They only work once Claude Code has been restarted with a fixed `.mcp.json`.
