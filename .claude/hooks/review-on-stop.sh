@@ -156,6 +156,15 @@ mkdir -p "$LOG_DIR"
   printf '%s\n' "$REVIEW_OUTPUT"
 } >> "$LOG_FILE"
 
+# Mirror non-APPROVED verdicts to a pushbacks-only daily file for easy skim.
+if ! printf '%s' "$REVIEW_OUTPUT" | grep -q '^APPROVED'; then
+  PUSHBACK_FILE="$LOG_DIR/pushbacks-$(date -u +%Y-%m-%d).md"
+  {
+    printf '\n## %s — review-on-stop — session: %s\n\n' "$(date -u +%H:%M:%SZ)" "$SESSION_ID"
+    printf '%s\n' "$REVIEW_OUTPUT"
+  } >> "$PUSHBACK_FILE"
+fi
+
 # Surface the review back to the parent session as a JSON system message.
 # Use node to JSON-escape correctly (handles newlines, quotes, etc.).
 # Only persist the hash AFTER the review is successfully emitted — otherwise

@@ -1,0 +1,224 @@
+## The problem
+
+Working on a non-trivial TypeScript codebase with a coding agent has a quiet, recurring failure mode: the agent reads files to figure out what's going on. Every *"where is X called from?"* or *"what types does this depend on?"* turns into a `Grep`, then a `Read`, then another `Read`, then another `Grep`. The transcript fills up with code excerpts. The context window gets crowded. The agent's answers get shallower as it runs out of room to think.
+
+You can see the cost both ways: the developer is paying for tokens that consist mostly of file contents the agent will throw away, and the agent is paying attention to noise instead of structure.
+
+The fix is to give the agent a map instead of a flashlight.
+
+> `sylphie-pkg` addresses the structural side of agent forgetting — the agent's lack of a map of the codebase. For the episodic side — the agent's lack of memory for the work itself, the decisions and false starts and constraints that shape the next session — see [memory-pkg](/work/memory-pkg), the complementary piece.
+
+## Why this exists
+
+[Sylphie](/work/sylphie) is an ambitious system — a multi-subsystem cognitive architecture with seven CANON panels (decision-making, communication, learning, drive-engine, planning, knowledge-graph, infrastructure) spanning thousands of TypeScript files across an NX-style monorepo. Working on it with a coding agent, the agent kept getting lost in its own architecture. It would forget which subsystem a function belonged to, miss that a type was used across three packages, or re-derive call graphs it had already seen earlier in the session. Reading files faster wasn't the answer. *Reading fewer files was.*
+
+`sylphie-pkg` was built to solve that specific problem in that specific repo. The abstraction turned out to be more general than the use case — once the code was working, porting it to a second project (drift-detector) took about **thirty minutes**.
+
+What was portable: the AST parser, the sync pipeline, the graph differ, the mutation builder, the integrity checker, the MCP server, and the three skill markdown files all transferred without code changes. The shape was the same; only the configuration moved. What needed reconfiguration was the surface — Neo4j Bolt port (`7691` → `7688` so the two graphs could coexist if both projects were checked out), workspace import scope (`@sylphie` → `@drift`), the watched-directory list, and the `DOMAIN_LABELS` enum (sylphie's subsystem-specific labels swapped for drift-detector's product-specific ones). Container password, image tag, env var prefix — surface details. The architecture didn't move.
+
+That kind of accidental portability is the signal that says the abstraction is right.
+
+## What `sylphie-pkg` is
+
+`sylphie-pkg` is a small monorepo package that maintains a Neo4j knowledge graph of the codebase. (`sylphie/packages/sylphie-pkg/package.json` — `@sylphie/sylphie-pkg`, version `0.1.0`) The package's own `package.json` describes it succinctly: *"Codebase Personal Knowledge Graph — queryable map of the entire codebase for Claude Code agents."* (`packages/sylphie-pkg/package.json:6`)
+
+Three jobs:
+
+1. **Parse the source tree** with ts-morph and extract structured metadata about every function, type, import, class hierarchy, and constructor injection. (`packages/sylphie-pkg/src/sync/ast-parser.ts`)
+2. **Maintain the graph incrementally** by diffing against the last synced git commit, hashing function/type bodies for change detection, and applying only the deltas under one atomic transaction. (`packages/sylphie-pkg/src/sync/sync-pipeline.ts`)
+3. **Expose the graph to Claude Code as an MCP server** — seven query tools over stdio, registered in `sylphie/.mcp.json` so Claude Code spawns it as a child process at session start. (`packages/sylphie-pkg/src/mcp-server/index.ts:43-198`)
+
+## Architecture at a glance
+
+```
+┌─ Your source tree ─────────────────────────────────┐
+│   apps/, packages/, frontend/  (TypeScript/TSX)    │
+└──────────────────────┬─────────────────────────────┘
+                       │ git diff (since .last-sync-commit)
+                       ▼
+┌─ ts-morph AST parser ──────────────────────────────┐
+│  Function / Type / Import / Class / Decorator …   │
+│  + SHA-256 content hash per entity                 │
+└──────────────────────┬─────────────────────────────┘
+                       │ graph-differ
+                       ▼
+┌─ Cypher mutation builder ──────────────────────────┐
+│  MERGE on (filePath, name) — idempotent            │
+│  DETACH DELETE for removals                        │
+│  Single write transaction per sync                 │
+└──────────────────────┬─────────────────────────────┘
+                       ▼
+┌─ Neo4j ────────────────────────────────────────────┐
+│  Nodes:  File · Function · Type · Module ·         │
+│          Service · CodeBlock · Change              │
+│  Edges:  CONTAINS · DEFINES · BELONGS_TO ·         │
+│          IMPORTS · USES_TYPE · CALLS · HAS_CODE ·  │
+│          EXTENDS · IMPLEMENTS · INJECTS · CHANGED_IN│
+└──────────────────────┬─────────────────────────────┘
+                       │ MCP stdio  (7 query tools)
+                       │ wired by .mcp.json
+                       ▼
+                  Claude Code
+```
+
+The graph runs on a dedicated Neo4j instance (Bolt port `7691` in sylphie, `7688` in drift-detector) so it doesn't collide with any application database. (`packages/sylphie-pkg/src/mcp-server/neo4j-client.ts:9-18`)
+
+## How the compilation actually works
+
+Eight steps in the code, four conceptual beats for a reader.
+
+**Beat 1 — Parse what changed.** Read `.last-sync-commit`, run `git diff --name-only <last> HEAD`, filter to watched directories, exclude `node_modules`/`dist`/`.d.ts`/test files. On the first run or after history rewrites, fall back to a full walk. Each changed file goes through ts-morph's `parseFiles()`, which walks function declarations, arrow functions assigned to variables, class methods, interfaces, type aliases, enums, classes, and import declarations. Every entity gets its body text (truncated to 8 KB), JSDoc, parameter types, return type, decorators (with HTTP route extraction for NestJS controllers), call-site names, and type references captured. (`git-diff.ts:29-71, 118-161`, `ast-parser.ts:270-524`)
+
+**Beat 2 — Diff against the graph.** Every function and type gets a SHA-256 content hash truncated to 16 hex chars. (`ast-parser.ts:103-105`) The differ pulls the current `(filePath, name, contentHash)` triples from Neo4j for the changed files, compares against the freshly parsed set, and produces a structured changeset: nodes to create, update, delete; edges to add, remove. (`graph-differ.ts:159-275`)
+
+**Beat 3 — Mutate.** The changeset compiles to parameterized Cypher. Function and type nodes use `MERGE` on `(filePath, name)` for idempotency. Type nodes carry `EXTENDS`, `IMPLEMENTS`, and `INJECTS` edges from extracted class hierarchies and constructor parameters. Bodies live in attached `CodeBlock` nodes via `HAS_CODE` so function metadata stays light. All mutations run inside a single write transaction; failure rolls back the entire batch. (`mutation-builder.ts:31-213, 441-462`)
+
+**Beat 4 — Verify, then advance.** This is the move that matters most over time. A `Change` node is recorded with the commit's hash, author, ISO date, and message, plus `CHANGED_IN` edges to every `Function`, `Type`, and `Module` in the touched files. (`change-logger.ts:55-147`) Then six integrity checks run in parallel: no duplicate `Function` nodes on `(filePath, name)`, every `Function` has the required `name`/`filePath`/`lineNumber` properties, no orphaned `IMPORTS` edges, every `CONTAINS` points to a `Function` or `Type`, every `Function` chains to a `Service` via `[:CONTAINS]<-[:BELONGS_TO*1..3]->`, no duplicate `Type` nodes. (`integrity-checker.ts:39-219`) **Errors block cursor advancement.** Warnings log and the pipeline continues. Only after the integrity pass does `.last-sync-commit` get written. (`sync-pipeline.ts:138-146`)
+
+### Why beat 4 matters more than it looks
+
+Graph-backed systems fail silently. If a stale node sticks around because a partial sync left the cursor in an inconsistent place, no one notices until the agent gives a wrong answer based on stale data — usually weeks later, far from the failure. The fix isn't to make the sync never fail; it's to ensure that *when* it fails, the failure surfaces and the next sync re-runs the same diff instead of skipping over the corruption.
+
+That's what integrity-gated cursor advancement does. If a check errors, the cursor stays put. The next sync sees the same diff. The developer sees the warning in CI or stdout, not in mysteriously-incorrect agent behavior six weeks later.
+
+Alternatives I considered:
+
+- **Just trust it.** Cheap, fast, will bite you in three months.
+- **Re-run the diff next sync regardless.** Hides the failure mode — each sync looks fine on its own; the cumulative drift is invisible.
+- **Alert and abort.** Loud, but offers no recovery path for the next sync.
+
+Integrity-gated cursor is the cheaper option that recovers automatically: errors block, warnings continue, the cursor only moves forward on a clean pass.
+
+The initial seed is the same pipeline run with an empty graph and a watch-all file scan, with explicit schema setup creating 4 uniqueness constraints and 11 indexes. (`initial-seed.ts:146-164`)
+
+## In-session inference — the pattern worth naming
+
+A codebase graph isn't just a structural mirror — it benefits from semantic annotations on top. Domain classifications. Hub-and-pipeline analysis. Dead-code detection. Architectural-layer inference. The natural design is to have a microservice or scheduled job that calls an LLM API to do this work. `sylphie-pkg` doesn't.
+
+The skill files that drive these annotations specify *"No LLM API calls — YOU are the classifier"* / *"YOU are the analyzer"* (`classify-pkg-domains/SKILL.md:101`, `infer-pkg-connections/SKILL.md:255`). What that means concretely: the skills never spawn a Haiku or Sonnet call, never consume an `ANTHROPIC_API_KEY`, never run a separate inference job. Classification, hub detection, pipeline discovery, dead-code analysis — all of it gets done by the Claude Code session the developer is *already running*.
+
+I'll call this **in-session inference**: the host session is the model. One auth path, one billing surface, one place to monitor latency. No second LLM infrastructure to provision, deploy, debug, or budget for. Token cost folds into the existing session — invisible on Max's flat-rate subscription, visible on pay-as-you-go API use, but always *exactly one session's worth of cost.*
+
+This is most of why the maintenance story stays cheap. The graph stays accurate not because an external pipeline keeps it accurate, but because the developer's existing session does that work as a normal use of the system. There's no microservice to wake up, no key to rotate, no second LLM endpoint to leak credentials from. The skill is a markdown file telling the active model how to do the job.
+
+The trade: classifications and inferences are subject to the same probabilistic judgment as anything else the host session does. You won't get bit-identical results across runs. For a codebase graph that's regenerated on every sync, that's fine; for use cases that need determinism, it wouldn't be.
+
+## Three skills (three instances of the pattern)
+
+Three Claude Code slash commands are the in-session inference pattern made concrete. They turn graph maintenance into normal session work.
+
+**`/sync-pkg`** — user-facing entry point. Runs `yarn sync-pkg`, then `/classify-pkg-domains`, then `/infer-pkg-connections`. Each step gates on the previous one's success. (`.claude/skills/sync-pkg/SKILL.md`)
+
+**`/classify-pkg-domains`** — assigns each `Function` node a domain label from a fourteen-value taxonomy. Sylphie's labels reflect its subsystem structure — `decision-making`, `drive-engine`, `web-api`, `shared-utilities`, and so on; full list in `domain-classifier.ts:17-32`. One of the fourteen, `unclassified`, is the default state set on every new `Function` node via `coalesce(f.domain, 'unclassified')` (`mutation-builder.ts:44`); the skill assigns one of the other thirteen, using directory location, JSDoc, and signature as inputs. (`.claude/skills/classify-pkg-domains/SKILL.md`)
+
+**`/infer-pkg-connections`** — runs six analytical Cypher queries: hub detection (highly connected functions/types), pipeline discovery (3+ hop CALLS chains across files), cross-package bridge detection, circular-dependency detection at module and function level, dead-code detection (with explicit caveats for decorator-driven entry points), architectural-layer inference. (`.claude/skills/infer-pkg-connections/SKILL.md`) Results write back as new graph properties and edges (`DATA_FLOWS_TO`, `BRIDGES`, `hubScore`, `possiblyDead`, `architecturalLayer`).
+
+After these run, the graph isn't a structural mirror; it's a structural mirror *annotated with semantic groupings and architectural metadata* that the MCP tools return alongside the raw structure.
+
+## What Claude Code sees
+
+The MCP server exposes seven tools over stdio. Wiring is one stanza of `sylphie/.mcp.json`:
+
+```json
+"sylphie-pkg": {
+  "command": "node",
+  "args": ["./packages/sylphie-pkg/dist/mcp-server/index.js"],
+  "env": {
+    "SYLPHIE_PKG_NEO4J_URI": "bolt://localhost:7691",
+    "SYLPHIE_PKG_NEO4J_USER": "neo4j",
+    "SYLPHIE_PKG_NEO4J_PASSWORD": "sylphie-pkg-local"
+  }
+}
+```
+
+That's all Claude Code needs to discover the server and call its tools.
+
+Three of the seven tools carry most of the daily weight:
+
+- **`getModuleContext(query)`** — first query when entering a new area. Returns functions, types, files, and constraints for a feature scope. Does *not* return function bodies; those come from `getFunctionDetail`.
+- **`getFunctionDetail(functionName, filePath?)`** — full body, signature, JSDoc, test locations, and recent changes for one function in a single structured response. Eliminates the Read-and-skim cycle.
+- **`searchContent(pattern, fileFilter?, maxResults?)`** — the punchline. Raw `Grep` tells you *"this string appears at line 47 of foo.ts."* `searchContent` tells you *"this string appears inside the body of `MyService.processRequest()` at `apps/sylphie/src/my.service.ts:47`; the function takes `(req: Request) => Promise<Response>` and is decorated `@Post('/process')`."* It's grep that returns code entities instead of byte offsets. (`mcp-server/index.ts:173-197`)
+
+The other four — `getDataFlow`, `getRecentChanges`, `getConstraints`, `getLogContext` — handle graph traversal, git history cross-reference, architectural-invariant lookup, and log queries respectively. Full list and citations: `packages/sylphie-pkg/src/mcp-server/index.ts:43-198`.
+
+### A worked query
+
+`getDataFlow({startNode: "evaluateDriveOpportunity", direction: "upstream", depth: 2})` returns something shaped roughly like this (exact format depends on the response shape; values are illustrative):
+
+```
+upstream callers of evaluateDriveOpportunity (depth 2):
+  hop 1:
+    - DriveEngine.tick
+      packages/drive-engine/src/services/drive-engine.ts:142
+    - DriveScheduler.runCycle
+      packages/drive-engine/src/scheduler.ts:88
+  hop 2:
+    - AppOrchestrator.runMainLoop
+      apps/sylphie/src/orchestrator/main.ts:54
+      └─ calls DriveEngine.tick
+    - CronJob.execute
+      apps/sylphie/src/cron/drive-cron.ts:23
+      └─ calls DriveScheduler.runCycle
+```
+
+To get the same information without the graph: grep for `evaluateDriveOpportunity`, then for each hit, Read the file, find the enclosing function, grep again for *that* function's callers, recurse. Several turns of tool calls, hundreds of lines of code excerpts crowding the context, possibly missed call sites if the function is referenced indirectly. The graph version is one tool call returning a structured chain.
+
+## Impact on development
+
+Two effects are visible from the code.
+
+**Effect 1 — fewer file reads, smaller context.** `getFunctionDetail` returns the body, signature, JSDoc, and recent changes in one structured response. The same information via flashlight-style exploration takes a `Grep`, a `Read` for the file, and a separate `git log` invocation. When the answer to *"what does this function look like and has it changed lately?"* lives in one response, the developer pays for one tool call's worth of tokens instead of three.
+
+**Effect 2 — questions you can't ask with grep.** Hub detection, pipeline discovery, and cross-package bridge analysis are not searches over text. They're graph queries. The pipeline-detection query in `/infer-pkg-connections` is something like `MATCH (a:Function)-[:CALLS]->(b:Function)-[:CALLS]->(c:Function)-[:CALLS]->(d:Function)` — one Cypher line. (`infer-pkg-connections/SKILL.md:74-83`) The equivalent through file-reading would be many turns, with the agent re-discovering the same call graph each time.
+
+## What this costs
+
+The honest answer is: less than the alternative, but not zero.
+
+**Compute.** The sync pipeline runs `git diff`, parses changed files with ts-morph, writes Cypher. The initial seed reports its parse-time and relationship-pass time explicitly. (`initial-seed.ts:521-525, 630-634`) Files process in batches of 50 with the ts-morph project cache cleared every 5 batches to keep memory bounded. (`initial-seed.ts:44, 515`) Incremental syncs are dominated by Neo4j round-trips, not parsing.
+
+**LLM.** No *separate* LLM bill — but the work is still LLM work, routed through the active Claude Code session rather than a side channel (see the in-session inference section above). The architectural win is that there's no second LLM infrastructure to provision, authenticate, monitor, or budget; the cost stays folded into the existing session. The graph itself is a Neo4j Community container running on localhost — no cloud spend.
+
+**Storage.** Neo4j Community on Docker. Function bodies are truncated to 8 KB. (`ast-parser.ts:147`) The indexes created in `initial-seed.ts` cover the common lookup paths — `(filePath, name)` composite on Function and Type, plus single-column indexes on `domain`, `name`, `kind`, content hash, and file extension. Typical queries on a graph of this size should be fast, though I haven't formally benchmarked them.
+
+**Token cost of *using* the graph.** Compare two flows for *"what calls `evaluateDriveOpportunity`?"*:
+
+- **Without the graph:** `Grep("evaluateDriveOpportunity")` returns N matches. `Read` each match file to find the calling function. Total: 1 tool call + N reads, easily thousands of tokens in just file contents (illustrative — exact count depends on file size and match density).
+- **With the graph:** `getDataFlow({startNode: "evaluateDriveOpportunity", direction: "upstream", depth: 2})` returns a structured chain with file locations at each hop. Total: 1 tool call, response measured in hundreds of tokens.
+
+The structural shape (one structured response vs. N unstructured reads) is the durable fact; the exact ratio depends on the codebase.
+
+## What this doesn't do (yet)
+
+- **Multi-language.** Today it's TypeScript and TSX only. The `ast-parser.ts` is ts-morph-bound. Drift-detector's roadmap explicitly mentions tree-sitter integration for Python, Go, Rust as the next step. (`drift-detector/packages/codebase-pkg/README.md:82`)
+- **Test coverage.** Integrity checks substitute for unit tests on the sync pipeline. The drift-detector port carries that forward as known tech debt. (`drift-detector/packages/codebase-pkg/README.md:81`)
+- **Single-binary distribution.** The Neo4j dependency means Docker today. Kuzu (embedded graph DB) is a future option for shipping this as a self-contained CLI.
+- **A public NPM package.** Next milestone. Once it ships the install story becomes one command, and the hands-on tutorial version of this article gets written.
+
+## Why it matters
+
+`sylphie-pkg` doesn't make the agent smarter. It hands the agent a map instead of a flashlight. The developer stops being the agent's index, and the agent stops being a tourist with a flashlight.
+
+That's the whole pitch.
+
+## Code map
+
+| Component | Path | Repo |
+|---|---|---|
+| Package root | `packages/sylphie-pkg/` | sylphie |
+| AST parser | `packages/sylphie-pkg/src/sync/ast-parser.ts` | sylphie |
+| Incremental pipeline | `packages/sylphie-pkg/src/sync/sync-pipeline.ts` | sylphie |
+| Git diff | `packages/sylphie-pkg/src/sync/git-diff.ts` | sylphie |
+| Graph differ | `packages/sylphie-pkg/src/sync/graph-differ.ts` | sylphie |
+| Cypher builder | `packages/sylphie-pkg/src/sync/mutation-builder.ts` | sylphie |
+| Domain labels | `packages/sylphie-pkg/src/sync/domain-classifier.ts` | sylphie |
+| Integrity checker | `packages/sylphie-pkg/src/sync/integrity-checker.ts` | sylphie |
+| Change logger | `packages/sylphie-pkg/src/sync/change-logger.ts` | sylphie |
+| Initial seed | `packages/sylphie-pkg/src/ingestion/initial-seed.ts` | sylphie |
+| MCP server | `packages/sylphie-pkg/src/mcp-server/index.ts` | sylphie |
+| Neo4j client | `packages/sylphie-pkg/src/mcp-server/neo4j-client.ts` | sylphie |
+| MCP wiring | `.mcp.json` | sylphie |
+| Sync skill | `.claude/skills/sync-pkg/SKILL.md` | sylphie |
+| Classification skill | `.claude/skills/classify-pkg-domains/SKILL.md` | sylphie |
+| Inference skill | `.claude/skills/infer-pkg-connections/SKILL.md` | sylphie |
+| Ported version | `packages/codebase-pkg/` | drift-detector |

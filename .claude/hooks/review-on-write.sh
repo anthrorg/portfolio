@@ -84,4 +84,11 @@ if printf '%s' "$REVIEW_OUTPUT" | grep -q '^APPROVED'; then
   exit 0
 fi
 
+# Mirror non-APPROVED verdicts to a pushbacks-only daily file for easy skim.
+PUSHBACK_FILE="$LOG_DIR/pushbacks-$(date -u +%Y-%m-%d).md"
+{
+  printf '\n## %s — review-on-write — %s\n\n' "$(date -u +%H:%M:%SZ)" "$FILE_PATH"
+  printf '%s\n' "$REVIEW_OUTPUT"
+} >> "$PUSHBACK_FILE"
+
 REVIEW_OUTPUT="$REVIEW_OUTPUT" FILE_PATH="$FILE_PATH" node -e 'process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:"PostToolUse",additionalContext:"Senior-engineer review of "+process.env.FILE_PATH+":\n\n"+(process.env.REVIEW_OUTPUT||"")}}))'

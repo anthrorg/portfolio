@@ -89,3 +89,40 @@ Phase 1.5. The spec calls out its own scaffolding:
 The system flags its own stubs in the spec and in code rather than papering over them. That is itself a Phase 1.5 commitment: the next phase begins by making each of those a yes.
 
 The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the headline metric (share of decisions made without calling a language model) finishes climbing.
+
+## Why it matters
+
+Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure — drives, predictions, evaluations, and graduated procedures are the load-bearing structure. The metric the system reports on itself is **the share of decisions made without calling a language model**, and it is supposed to climb. Today it climbs slowly because most paths still route through deliberation; the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
+
+The shorter version: an agent that watches itself, predicts the consequences of its own actions, measures how wrong those predictions were, and can only graduate a behavior after the measurement says it earned it — that's a different category of system than one that prompts a frontier model harder. This page is the architectural commitments that make the difference real.
+
+## Code map
+
+| Component | Path |
+|---|---|
+| Main backend (NestJS) | `apps/sylphie/` |
+| Drive engine (isolated process) | `apps/drive-server/` |
+| Drive rules table + RLS policy | `apps/drive-server/src/db/drive_rules.sql`? |
+| Drive engine package | `@sylphie/drive-engine` |
+| Decision-making package (Cortex) | `@sylphie/decision-making` |
+| Dual-process arbitration (Type 1 / Type 2 / SHRUG) | `@sylphie/decision-making/src/arbitration/`? |
+| Predict step (expected drive deltas) | `@sylphie/decision-making/src/predict/`? |
+| Evaluate step (MAE computation) | `@sylphie/decision-making/src/evaluate/`? |
+| Working memory selector (5-signal activation) | `@sylphie/decision-making/src/working-memory/`? |
+| Episodic memory ring buffer | `@sylphie/decision-making/src/episodic/`? |
+| Pathology detectors (5 attractors) | `@sylphie/decision-making/src/attractors/`? |
+| Tensor cognition sidecar (Python FastAPI) | `services/cognition/` (port 8431)? |
+| Learning package (consolidation, reflection) | `@sylphie/learning` |
+| Planning package (opportunity → procedure) | `@sylphie/planning` |
+| Communication package | `@sylphie/communication` |
+| Supervisor (DeepSeek meta-evaluator) | `@sylphie/supervisor` |
+| World Knowledge Graph (WKG) | Neo4j `bolt://localhost:7687` |
+| Self Knowledge Graph (SKG) | Neo4j `bolt://localhost:7690` |
+| Other Knowledge Graph (OKG) | Neo4j `bolt://localhost:7689` |
+| Codebase-as-graph (PKG) | Neo4j `bolt://localhost:7691` (see [sylphie-pkg](/work/sylphie-pkg)) |
+| Event bus types + boundary map | `@sylphie/events/src/EVENT_BOUNDARY_MAP.ts`? |
+| TimescaleDB events hypertable | postgres `timescaledb` port 5433, table `events` |
+| Postgres (auth, drive_rules) | postgres port 5434 |
+| Perception sidecar (YOLO + MediaPipe + Moondream2) | `services/perception/` (port 8430)? |
+| Frontend dashboard | `apps/frontend/`? (Vite + React 18 + Zustand + MUI) |
+| Inner Monologue panel (verbatim event reader) | `apps/frontend/src/routes/dashboard/inner-monologue/`? |

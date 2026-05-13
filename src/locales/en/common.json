@@ -39,12 +39,32 @@
     "backToWork": "Back to work",
     "next": "Next",
     "previous": "Previous",
+    "caseNavLabel": "Case study navigation",
+    "relatedHeading": "More on the Frontier",
+    "relatedNavLabel": "Related work",
+    "tocLabel": "Contents",
+    "tocNavLabel": "Article contents",
     "caseComingSoon": "Case study in progress. Outline lives in the wiki; the full write-up lands soon.",
     "cases": {
       "sylphie": {
         "title": "Sylphie",
         "role": "Cognitive architecture",
         "summary": "A non-LLM-in-the-runtime-path cognitive architecture. Dual-process reasoning, drive-driven attention, language as voice box rather than thinker."
+      },
+      "memory-pkg": {
+        "title": "memory-pkg",
+        "role": "Agent long-term memory",
+        "summary": "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path."
+      },
+      "sylphie-pkg": {
+        "title": "sylphie-pkg",
+        "role": "Codebase knowledge graph",
+        "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight."
+      },
+      "enforcement-hooks": {
+        "title": "Enforcement Hooks",
+        "role": "Self-review gates for agents",
+        "summary": "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards."
       }
     }
   },

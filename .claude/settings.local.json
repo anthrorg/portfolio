@@ -23,7 +23,9 @@
       "WebFetch(domain:docs.railway.com)",
       "mcp__railway__check-railway-status",
       "mcp__playwright__browser_press_key",
-      "PowerShell(Get-CimInstance *)"
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(npm run *)",
+      "PowerShell(Get-NetTCPConnection *)"
     ]
   },
   "enableAllProjectMcpServers": true

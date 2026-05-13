@@ -1,0 +1,999 @@
+version: 1
+generated_by: content-creator
+generated_for: ux-dev
+generated_at: "2026-05-12"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Index intro review
+# ─────────────────────────────────────────────────────────────────────────────
+intro_review:
+  current_en: "Systems thinking applied to messy AI problems."
+  verdict: keep
+  proposed_en: ~
+  rationale: |
+    All three featured cases (sylphie, memory-pkg, sylphie-pkg) are
+    systems-level builds answering messy agent-shaped problems. The intro
+    line covers them without picking favorites. No change needed.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Locale strategy
+# ─────────────────────────────────────────────────────────────────────────────
+locale_strategy:
+  en: "Full editorial copy below."
+  ja: "Stubs — JA values mirror EN strings 1:1 for now so the JA toggle does not crash on missing keys. Translation is a deliberate later pass; do not machine-translate now."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Title voice note
+# ─────────────────────────────────────────────────────────────────────────────
+title_voice_note: |
+  Existing case (`Sylphie`) uses Title Case proper-noun naming.
+  The two new cases use the lowercase-hyphenated package-name form
+  (`memory-pkg`, `sylphie-pkg`). This is deliberate — they ARE package
+  names, the articles refer to them as code identifiers throughout, and
+  the form differentiates the case-study artifact (`sylphie-pkg`, the
+  graph tool) from the larger product it lives inside (`Sylphie`, the
+  cognitive architecture). The two read as cousins, not duplicates.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cases
+# ─────────────────────────────────────────────────────────────────────────────
+cases:
+  # ───────────────────────────────────────────────────────────────────────────
+  - slug: memory-pkg
+    featured: true
+    year: "2026"
+    stack: ["TypeScript", "TimescaleDB", "Postgres trigram", "MCP"]
+    stack_rationale: |
+      TypeScript is the implementation language. TimescaleDB is the
+      headline store and the only DB on the hot path. "Postgres trigram"
+      earns its pill because the article's whole punchline is that the
+      fast path is plain SQL trigram against a GIN index — burying that
+      under "Postgres" would lose the signal. MCP is the surface the
+      agent actually talks to. Intentionally did NOT list pgvector: the
+      embedding tier is dormant in live config and the article goes out
+      of its way to say so. Listing it would be marketing.
+
+    locale_en:
+      title: "memory-pkg"
+      role: "Agent long-term memory"
+      summary: "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path."
+
+    locale_ja:
+      title: "memory-pkg"
+      role: "Agent long-term memory"
+      summary: "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path."
+
+    mdx_path: "src/content/work/memory-pkg.mdx"
+
+    mdx_notes:
+      - "Dropped the H1 (`# Long-Term Memory For Claude Code`); the layout supplies it from i18n via `cases.memory-pkg.title`."
+      - "Dropped the bolded subtitle line (`How memory-pkg turns every coding session…`) — the index summary already carries that thesis."
+      - "Dropped the italic 'Design and implementation walkthrough, not an install tutorial…' meta-framing line — reads as note-to-self in the markdown; in the case study it's redundant."
+      - "Dropped the horizontal rule that sat under the meta lines."
+      - "Rewrote the cross-link to sylphie-pkg from `./sylphie-pkg-article.md` to `/work/sylphie-pkg` — site-relative route. The italic cross-link paragraph at the top of `## The problem` is preserved verbatim except for the link target."
+      - "Stripped all `https://github.com/` placeholder links. Where the article wrapped a path in a link (e.g. `[`packages/memory-pkg/src/schema.ts`](https://github.com/)`), the link was removed and the backticked path was kept inline. Where a parenthetical citation `([`path:lines`](https://github.com/))` was used, the link was removed and the backticked path+lines was kept inside the parens. Every real file path is preserved as inline code."
+      - "Preserved both ASCII architecture diagrams verbatim — they render through the MDX `Pre` component."
+      - "Preserved all tables (multi-resolution storage, worked example, MCP tools, code map) — GFM remark plugin renders them."
+      - "Kept the footnote paragraph at the very end (`memory-pkg is original to drift-detector…`); adjusted nothing in it since it doesn't contain a cross-article link, just naming context."
+      - "Did NOT add transitions, summaries, or recap prose. Body is a tight edit of the 0.2 source."
+
+    mdx_body: |
+      ## The problem
+
+      There are two kinds of forgetting that hurt a coding agent.
+
+      The first is **structural forgetting**: the agent doesn't know what your codebase looks like. It re-greps and re-reads files every session to reconstruct who calls whom, what types live where, which functions are entry points. That's what graph-backed codebase tools — `sylphie-pkg` and its drift-detector port `codebase-pkg` — solve. Encode the codebase's structure once; let the agent query it.
+
+      The second is **episodic forgetting**: the agent doesn't remember the *work*. Two weeks ago you and the agent worked out why TimescaleDB beat plain Postgres for your use case. Today you're asking "should I add pgvector or use Pinecone for embeddings?" and the agent will not consult that prior reasoning. It will re-derive an answer from scratch, sometimes contradicting itself, often hedging.
+
+      Claude Code's `MEMORY.md` auto-memory file partly addresses this, but it's hand-curated — you decide what to remember. That's the right tool for stable preferences and user facts. It's the wrong tool for *"what did we try last Thursday and why did it not work?"* That kind of recall needs the full transcript, indexed and searchable.
+
+      `memory-pkg` fills that second gap. It reads the official Claude Code transcript JSONL files, extracts events, persists them to TimescaleDB, and injects relevant historical events into every new user prompt — automatically, transparently, without the developer doing anything.
+
+      One thing worth flagging up front: the fast path is plain SQL trigram search against a Postgres GIN index. For well-formed prompts it short-circuits the rest of the pipeline at score ≥ 0.7 — which surprised me, and may surprise you. The semantic-embedding tier exists in the code but is dormant in the live config. Trigram lexical retrieval, plus an entity tier that reads the last 20 lines of the active transcript, is enough most of the time. The next sections explain why.
+
+      *`memory-pkg` addresses the episodic side of agent forgetting — the agent's lack of memory for the work itself. For the structural side — the agent's lack of a map of the codebase — see [sylphie-pkg](/work/sylphie-pkg), the complementary piece.*
+
+      ## What `memory-pkg` is
+
+      `memory-pkg` is a TimescaleDB-backed long-term session memory store under `drift-detector/packages/memory-pkg/`. Its own description: *"Long-term session memory for Claude Code work on drift-detector. JSONL buffer + TimescaleDB hypertable + fuzzy search + temporal windowing and unwind."* (`packages/memory-pkg/package.json:6`)
+
+      Six pieces hold it together:
+
+      1. **A capture hook** on `Stop` that reads the official transcript tail and appends new events to a local JSONL buffer. (`drift-detector/.claude/hooks/memory-capture.cjs`)
+      2. **An ingester** that rotates the buffer atomically and bulk-inserts into a Timescale hypertable. (`packages/memory-pkg/src/ingest/ingester.ts`)
+      3. **An injection hook** on `UserPromptSubmit` — a ~30-line wrapper that spawns the retrieval CLI, captures its stdout, and emits the result as `additionalContext` for the model's turn. **The hook never blocks the user's message.** If the CLI isn't built, if the DB is unreachable, if the pipeline times out, if anything errors at any layer — the hook silently exits and the user's prompt proceeds untouched. Fails open by design. (`drift-detector/.claude/hooks/memory-inject.cjs`)
+      4. **A multi-tier retrieval pipeline** behind that hook. It includes an **entity tier that reads the last 20 lines of the active transcript** so pronoun-shaped prompts like *"ok let's do that"* still find the right history. (`packages/memory-pkg/src/inject/generate.ts`, `packages/memory-pkg/src/inject/tiers/entity.ts`)
+      5. **An MCP server** with four tools — `searchMemory`, `getMemoryContext`, `unwindFromEvent`, `getSessionTimeline` — registered in `drift-detector/.mcp.json` so the agent can deliberately drill in when auto-injection isn't enough. (`packages/memory-pkg/src/mcp-server/index.ts:29-92`)
+      6. **A rationale-synthesis job** that compresses each turn into a 2-3 sentence "why" event at ingest time, so future searches for "why did we…" match the reasoning instead of the actions. (`packages/memory-pkg/src/rationale/synthesize.ts`)
+
+      It lives in the `drift-detector` monorepo. Unlike `codebase-pkg` — which was ported into drift-detector from sylphie's `sylphie-pkg` — `memory-pkg` was written fresh for drift-detector. There is no ancestor of it in the sylphie repo.
+
+      ## Architecture at a glance
+
+      Two views worth showing. The first is the system as designed — every retrieval tier engaged. The second is the live configuration today, which intentionally runs only the cheap tiers.
+
+      ### Designed flow
+
+      ```
+      ┌─ Claude Code session ──────────────────────────────────┐
+      │   ~/.claude/projects/<sanitized-path>/<sess>.jsonl    │  ← source of truth
+      └─────┬──────────────────────────────────────────┬───────┘
+            │ Stop hook reads tail via byte cursor     │ UserPromptSubmit
+            ▼                                          │ hook (fails open)
+      ┌─ .claude/memory/ ──────────────────────────┐   │
+      │  buffer.jsonl       (append-only)          │   │
+      │  cursors/<sess>.json (lastUuid, byteOffset)│   │
+      └─────┬──────────────────────────────────────┘   │
+            │ Ingester (async after Stop)              │
+            ▼                                          │
+      ┌─ TimescaleDB ──────────────────────────────────┴───────┐
+      │  memory_events hypertable                              │
+      │  ├─ GIN trigram index on search_text                   │
+      │  ├─ HNSW index on embedding vector(384)                │
+      │  ├─ subsystem column + index                           │
+      │  └─ unique (session_id, transcript_uuid, ts)           │
+      └─────┬───────────────────────────────────┬──────────────┘
+            │ Multi-tier retrieval (parallel)   │ MCP stdio
+            ▼                                   │ (4 tools)
+      ┌─ Inject pipeline ──────────────────────┐│
+      │  Fast path:    trigram + entity        ││ ┌─ Claude Code ─┐
+      │  Rescue:       embedding + classifier  ││ │  deliberate   │
+      │                + kg                    ││ │  recall via   │
+      │  Optional rerank (Haiku, off-default)  ││ │  MCP tools    │
+      │  Format <memory-context> markdown      ││ └───────────────┘
+      └─────┬──────────────────────────────────┘│
+            │ additionalContext (up to 4 kB)    │
+            ▼                                   │
+         Next user prompt arrives with memory pre-loaded
+      ```
+
+      ### Live config today
+
+      ```
+      ┌─ Inject pipeline (live registry) ──────────────────────┐
+      │  Fast path:   trigram + entity            ← active     │
+      │  Rescue:      (empty array)               ← dormant    │
+      │  Optional rerank:  disabled by default                 │
+      └────────────────────────────────────────────────────────┘
+      ```
+
+      `embedding`, `classifier`, and `kg` tiers are imported into the registry but explicitly dormant — `void embeddingTier; void classifierTier; void kgTier;` (`packages/memory-pkg/src/inject/tiers/index.ts:20-31`). The orchestration plumbing, the schema columns (`embedding`, `subsystem`), and the per-tier code are intact. Flipping any rescue tier back on is a one-line registry edit.
+
+      Two databases sit underneath: TimescaleDB for the time-series memory store, and Neo4j (shared with `codebase-pkg`) for the optional knowledge-graph retrieval tier. Both come up via `docker compose`.
+
+      ## The capture path and multi-resolution event storage
+
+      When a session ends, Claude Code fires its `Stop` event. The hook reads the official transcript JSONL at `~/.claude/projects/<sanitized-path>/<sessionId>.jsonl`, advancing a per-session cursor that tracks both byte offset and last-seen UUID — partial-line writes during reads are safely re-read on the next turn, and crash recovery is idempotent. (`memory-capture.cjs:258-314`) Five event types are emitted: `user_prompt`, `assistant_thinking`, `assistant_text`, `tool_call`, `tool_result`.
+
+      Each event is stored at **four resolutions** — a pattern I'll call **multi-resolution event storage**:
+
+      | Resolution | Field | Cap | Used by |
+      |---|---|---|---|
+      | Display | `summary` | ~160 chars | CLI listings, MCP tool output headers |
+      | Injection | `excerpt` | 300–600 chars (per type) | The `<memory-context>` block injected into prompts |
+      | Search | `search_text` | up to 2000 chars | GIN trigram index, fuzzy lookup |
+      | Replay | `payload` | full JSONB | `unwindFromEvent`, full-detail recall |
+
+      Different consumers — display, injection, search, replay — each pick the cheapest representation sufficient for their job. The hot retrieval path never has to scan full event bodies; the fuzzy search only touches a 2 KB column; the injection block only pulls a 600 char excerpt. The same content stored four ways is what makes the cost story work. (`memory-capture.cjs:111-145`)
+
+      The buffer rotates atomically before ingest; failed batches move to `buffer.failed.jsonl` rather than being silently dropped. (`ingester.ts:120-146`) Deduplication is enforced by a unique index on `(session_id, transcript_uuid, ts)`. (`schema.ts:91-94`)
+
+      ## The schema
+
+      The `memory_events` hypertable partitions on `ts`. The shape worth knowing:
+
+      ```
+      memory_events  (hypertable, partition by ts)
+        search_text   TEXT          ← GIN trigram index
+        embedding     vector(384)   ← HNSW cosine index  (bge-small-en-v1.5)
+        subsystem     TEXT          ← partial index (subsystem, ts)
+        payload       JSONB         ← full event detail
+        (+ event_id, ts, session_id, event_type, tool_name, tool_use_id,
+           file_path, summary, excerpt, transcript_uuid)
+      ```
+
+      The schema script is idempotent — safe to re-run on every deploy. Full DDL: `packages/memory-pkg/src/schema.ts:31-95`.
+
+      ## The retrieval pipeline
+
+      Every new user prompt fires the injection hook (`memory-inject.cjs`), which spawns the compiled CLI with a 30-second timeout (`DRIFT_MEMORY_HOOK_TIMEOUT_MS`-overridable) and emits the CLI's stdout as `additionalContext` on a `UserPromptSubmit` event. The hook fails open at every layer — if anything errors, the user's prompt proceeds untouched. (`memory-inject.cjs:42-71`)
+
+      Inside the CLI, `generateInjection()` runs a tiered retrieval system. Five tiers are implemented; the live registry returns `[trigramTier, entityTier]` for the fast path and an empty rescue array. (`tiers/index.ts:20-31`)
+
+      ### The two live tiers
+
+      **Trigram lexical** (`tiers/trigram.ts`). Pure SQL. Postgres `word_similarity(query, search_text)` against the GIN trigram index. `word_similarity` finds the query's best-matching extent inside a longer document — the right metric for short prompts against longer event records. Pulls top 20 above 0.2 similarity, ordered by score then recency. Zero LLM cost.
+
+      **Entity-aware lexical** (`tiers/entity.ts`). Same trigram engine, different inputs. Pure trigram fails when the prompt is a pronoun — *"ok let's do that"* contains no extractable concept. The entity tier extracts identifiers — backticked terms, double-quoted phrases, file paths, CamelCase, snake_case — from both the current prompt *and the last 20 lines of the active transcript*. Identifiers from the prompt are weighted double over transcript mentions; the top-ranked entities get one `word_similarity` query each, in parallel. (`entity.ts:91-268`) Metadata is surfaced — queried entities, dropped ones, overflow counts — so the orchestrator can hint *"more matches exist for `<entity>`; call `searchMemory` to widen."* (`generate.ts:198-214`)
+
+      ### The three dormant tiers
+
+      **Embedding** (`tiers/embedding.ts`). Would embed the query locally via `Xenova/bge-small-en-v1.5` (384-dim, ONNX, no API cost) and run an HNSW-accelerated cosine KNN against the `embedding` column. Off by default because the live data shows trigram + entity already meets the strong threshold for well-formed prompts, and the embedding tier adds 30–80 ms per call after a 1–2 s cold-load on first use. Schema and per-event embeddings are still maintained so this can be flipped on by editing the registry.
+
+      **Classifier-driven** (`tiers/classifier.ts`, `inject/classify.ts`). Would shell out to a local `claude` CLI (Haiku via Max OAuth) for strict-JSON classification `{intent, subsystems, files, entities, confidence}`, validate the results against the filesystem and a subsystem whitelist, then query by subsystem tag and file-path suffix with classifications cached on disk for 24 hours. Off because it adds 6–10 s on a cold call and the trigram + entity path covers the same ground for most prompts. Available when you need entity-aware retrieval that goes beyond what regex-extraction can catch.
+
+      **Knowledge graph** (`tiers/kg.ts`). Would read the classifier's cached file list, expand each file by one hop through `codebase-pkg`'s Neo4j `IMPORTS` edges, and query `memory_events` for events touching those files. Off because it depends on the classifier (also dormant) and the two-DB coordination is expensive for a tier whose contribution is by construction discounted (`× 0.7`). Useful for cross-module retrieval — "find memory events on files structurally related to the one we're discussing." Reactivating it is two registry edits.
+
+      ### The merger
+
+      Each tier returns `{event_id, score, source_tier}` candidates. The merger (`merger.ts`) combines them by weighted average (default strategy; alternatives: `union`, `intersection`). Default weights: trigram 0.2, entity 0.3, embedding 0.3, classifier 0.4, kg 0.1. Only the first two weights are active in the live config; the others describe what the merger would do if the rescue tiers were re-enabled. An event surfaced by multiple tiers wins on agreement, not just raw score.
+
+      **Fast-path short-circuit.** If trigram + entity produce a merged candidate at score ≥ 0.7, the rescue phase is skipped entirely — no Haiku call, no graph expansion. (`generate.ts:99-114`) For well-formed prompts the answer comes back as pure SQL.
+
+      **Output.** Up to 3 candidates (default; configurable 1–10; capped at 4 KB total chars) are formatted into a `<memory-context>` markdown block. Each entry shows score, event type, tool name, file path, date, and source tiers (`[trigram+entity]`). The block is wrapped: *"These are from previous sessions, not the current conversation. Use them as reference, not as current state."* (`generate.ts:188-194, 246`)
+
+      ### A worked example
+
+      Real prompt: *"what did we decide about the classifier cache TTL?"*
+
+      | Stage | What happens |
+      |---|---|
+      | **Trigram** | `word_similarity` against `search_text`. Hits past `assistant_text` and `turn_rationale` events containing "classifier" and "cache". Top hits in the ~0.35–0.45 range. |
+      | **Entity** | Extracts `classifier`, `cache`, `TTL`. Queries each as a separate `word_similarity` lookup in parallel. The `classifier` and `TTL` queries hit focused content; `cache` returns noisier matches. Top merged entity score ~0.5. |
+      | **Merger** (weighted, trigram 0.2 / entity 0.3) | An event surfaced by *both* tiers — say, a prior `turn_rationale` that explained the 24h TTL choice — wins on agreement. Top merged candidate ~0.47, below the 0.7 strong threshold but above the 0.2 floor. |
+      | **Output** | Up to 3 candidates formatted into the `<memory-context>` block. The prompt arrives at the model with the prior decision pre-loaded. |
+      | **Cost** | ~600 ms of SQL. Zero LLM tokens during retrieval. |
+
+      (Score ranges are illustrative — actual values depend on what's in your store. The pipeline shape is faithful to the code in `generate.ts`.)
+
+      ## Surfacing memory deliberately — the MCP path
+
+      Auto-injection is the primary path; every user prompt fires it. But the model can also reach for memory deliberately via four MCP tools exposed over stdio and registered in `.mcp.json`:
+
+      | Tool | What it does |
+      |---|---|
+      | `searchMemory(query, limit?, sessionId?, eventType?, since?)` | Trigram fuzzy search ranked by similarity and recency |
+      | `getMemoryContext(eventId, before?, after?)` | Scale forward/backward in time around an event |
+      | `unwindFromEvent(eventId, limit?)` | Replay every event in the session from start up to the anchor |
+      | `getSessionTimeline(sessionId, eventType?, limit?)` | Full chronological dump of one session |
+
+      The pattern: auto-injection surfaces a hit; the model decides it wants more; the model calls `getMemoryContext` to scale around it, or `unwindFromEvent` to replay how the session got there. This is what the project's `temporal-recall` skill is for (`drift-detector/CLAUDE.md:68`).
+
+      The MCP wiring itself is one stanza of `drift-detector/.mcp.json`:
+
+      ```json
+      "memory-pkg": {
+        "command": "node",
+        "args": ["packages/memory-pkg/dist/mcp-server/index.js"],
+        "env": {}
+      }
+      ```
+
+      That's all Claude Code needs to discover the server, spawn it as a child process, and call its tools.
+
+      ## Rationale synthesis — the original idea
+
+      The transcript captures *what happened*. It does not, by default, capture *why*. A `tool_call` event with summary `Edit packages/foo/bar.ts` will not match a future fuzzy search for *"why did we change the timeout?"* The event doesn't contain the word "timeout" or "why" anywhere. It just shows that an edit happened.
+
+      This is what rationale synthesis fixes. A separate post-ingest job walks through turns and synthesizes a 2-3 sentence "why" summary, inserting it as a `turn_rationale` event in the same searchable hypertable. (`packages/memory-pkg/src/rationale/synthesize.ts`)
+
+      ### Before and after
+
+      **Without rationale**, the only persisted record of a timeout change looks like this:
+      ```
+      event_type:   tool_call
+      summary:      Edit packages/memory-pkg/src/inject/classify.ts
+      search_text:  tool_call Edit packages/memory-pkg/src/inject/classify.ts
+      ```
+      A future trigram search for *"why did we change the timeout"* matches **none** of those tokens.
+
+      **With rationale**, the same turn produces an additional event synthesized at ingest:
+      ```
+      event_type:   turn_rationale
+      summary:      We bumped the classify.ts CLI timeout from 5s to 12s because
+                    the Haiku call's P95 was around 8s and the prior 5s timeout
+                    was silently failing the classifier tier on cold runs.
+      search_text:  turn_rationale We bumped the classify.ts CLI timeout from 5s
+                    to 12s because the Haiku call's P95 was around 8s and the
+                    prior 5s timeout was silently failing the classifier…
+      ```
+      A future trigram search for *"why did we change the timeout"* now matches on `bumped`, `timeout`, `because`, `silently failing` — high overlap on the reasoning vocabulary, not just the edit vocabulary.
+
+      ### Cost model
+
+      One Haiku call per turn, paid once at ingest time, amortized across every future retrieval. (`synthesize.ts:156-205`) The call uses the local `claude` CLI without the `--bare` flag, which keeps Max-subscription OAuth as the auth path; no `ANTHROPIC_API_KEY` is consumed in the default setup. Synthesis is idempotent — turns that already have a rationale are skipped via the `transcript_uuid` of `rationale:<session>:<userPromptId>` — and the job runs on demand (`pnpm memory:rationale`) or on a cron, not on every `Stop`. So the cost ceiling is bounded by how often you choose to run it.
+
+      ### Episodic compression at write time
+
+      The framing that makes this work: **episodic compression at write time**. The expensive part of recall — extracting narrative meaning from a turn's worth of prompts, replies, and tool calls — happens once, when the events are fresh and the model that wrote them is the right model to summarize them. After that, the rationale lives as a normal indexed row, searchable by the same SQL trigram tier that handles everything else. The first search costs the same as the millionth.
+
+      Run this for six months and the memory store accumulates a searchable archive of *decisions*, not just *actions*. Git already has the actions. The rationale layer is what makes the store worth more than `git log -p`.
+
+      ## What this costs
+
+      **What you pay.** Storage is cheap — Postgres on Docker, hypertable chunking keeps old chunks compressible, multi-resolution event storage keeps the indexed columns small. Embedding inference is zero in dollars — `bge-small-en-v1.5` is local CPU; the embed module documents ~30–80 ms per call after warmup with a ~1–2 s cold-load on the first call (`embed.ts:6-7` — values stated in source, not independently measured). LLM retrieval cost in the live config is **zero**: trigram and entity tiers are pure SQL. If you enable the classifier or rerank tier, both use Haiku via the local `claude` CLI under Max OAuth, no API key consumed, classifications cache for 24 hours. Rationale synthesis is the same pattern — Haiku via Max, one call per turn at ingest, amortized forever after.
+
+      Latency budget (documented in `memory-inject.cjs:13-18` as a design target, not measured here):
+
+      - Fast path (trigram + entity, SQL only): ~600 ms – 1.5 s
+      - Warm classifier cache hit: ~1–2 s
+      - Cold classifier (Haiku call): ~6–10 s
+      - Rerank: +4–8 s (default-disabled)
+
+      The fast-path short-circuit at score ≥ 0.7 is intended to keep the typical prompt in the first bucket.
+
+      **What you save.** Without injection, the developer either re-explains context every session — expensive in human time and tokens — or the agent operates without it: poorer decisions, more clarifying questions, more tokens spent re-deriving prior reasoning. With injection, every turn gets up to 4 KB of pre-fetched targeted history for free; injection cost is fixed per turn, while the cost of *not* having it grows with project complexity. I don't have a calibrated token-saved benchmark, and it depends heavily on what work is being done. The structural argument: 4 KB of pre-targeted history retrieved by a ~600 ms SQL pipeline replaces ad-hoc re-explanation and re-derivation that costs both wall time and tokens. The ratio favors injection by a wide margin.
+
+      ## What this doesn't do (yet)
+
+      - **Cross-project memory federation.** Memory is per-project. Two repos with related work don't share a store.
+      - **Continuous aggregates and compression.** Timescale supports both; the README's roadmap notes them as future work. (`packages/memory-pkg/README.md:166-168`) Today the table grows linearly.
+      - **Vector embedding backfill at scale.** The `backfillEmbeddings()` helper exists (`embed.ts:69-108`) but is meant to be run deliberately; nothing automatically enforces that every event gets embedded.
+      - **Public NPM distribution.** That's the next milestone, and it's why this isn't an install tutorial.
+
+      ## Why it matters
+
+      Git remembers what changed. `memory-pkg` remembers *why* — and surfaces it back automatically, on the next prompt, without anyone asking. The agent gets continuity; the developer stops being the agent's notebook.
+
+      That's worth more than the disk it takes up.
+
+      ## Code map
+
+      | Component | Path | Repo |
+      |---|---|---|
+      | Package root | `packages/memory-pkg/` | drift-detector |
+      | Schema | `packages/memory-pkg/src/schema.ts` | drift-detector |
+      | Capture hook | `.claude/hooks/memory-capture.cjs` | drift-detector |
+      | Injection hook | `.claude/hooks/memory-inject.cjs` | drift-detector |
+      | Hook config | `.claude/settings.json` (hooks block) | drift-detector |
+      | Ingester | `packages/memory-pkg/src/ingest/ingester.ts` | drift-detector |
+      | Injection orchestrator | `packages/memory-pkg/src/inject/generate.ts` | drift-detector |
+      | Tier registry | `packages/memory-pkg/src/inject/tiers/index.ts` | drift-detector |
+      | Trigram tier | `packages/memory-pkg/src/inject/tiers/trigram.ts` | drift-detector |
+      | Entity tier | `packages/memory-pkg/src/inject/tiers/entity.ts` | drift-detector |
+      | Embedding tier | `packages/memory-pkg/src/inject/tiers/embedding.ts` | drift-detector |
+      | Classifier tier | `packages/memory-pkg/src/inject/tiers/classifier.ts` | drift-detector |
+      | Merger | `packages/memory-pkg/src/inject/merger.ts` | drift-detector |
+      | Embedder | `packages/memory-pkg/src/embed.ts` | drift-detector |
+      | Rationale synthesis | `packages/memory-pkg/src/rationale/synthesize.ts` | drift-detector |
+      | MCP server | `packages/memory-pkg/src/mcp-server/index.ts` | drift-detector |
+      | MCP wiring | `.mcp.json` | drift-detector |
+      | README | `packages/memory-pkg/README.md` | drift-detector |
+
+      `memory-pkg` is original to drift-detector — no earlier version exists in the sylphie repo. The complementary `codebase-pkg` package in the same monorepo *was* ported from sylphie's [`sylphie-pkg`](/work/sylphie-pkg), and is what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`. Once `memory-pkg` is published as an NPM package, any other project — sylphie included — can pull it in as a workspace dependency.
+
+  # ───────────────────────────────────────────────────────────────────────────
+  - slug: sylphie-pkg
+    featured: true
+    year: "2026"
+    stack: ["TypeScript", "Neo4j", "ts-morph", "MCP"]
+    stack_rationale: |
+      TypeScript is the implementation language and also the only language
+      the parser handles today — listing it does double duty. Neo4j is
+      the store. ts-morph is the parser doing the actual AST work; the
+      article spends a whole "Beat 1" on it, so it earns a pill. MCP is
+      what the agent talks to. Did NOT list Cypher (subset of Neo4j) or
+      Docker (deployment detail, not identity).
+
+    locale_en:
+      title: "sylphie-pkg"
+      role: "Codebase knowledge graph"
+      summary: "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight."
+
+    locale_ja:
+      title: "sylphie-pkg"
+      role: "Codebase knowledge graph"
+      summary: "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight."
+
+    mdx_path: "src/content/work/sylphie-pkg.mdx"
+
+    mdx_notes:
+      - "Dropped the H1 (`# A Knowledge Graph Of Your Own Codebase`); the layout supplies it from i18n via `cases.sylphie-pkg.title`."
+      - "Dropped the bolded subtitle line (`How sylphie-pkg turned a monorepo into a queryable graph…`) — the index summary already carries that thesis."
+      - "Dropped the italic 'Design and implementation walkthrough…' meta-framing line."
+      - "Dropped the horizontal rule under the meta lines."
+      - "Rewrote the cross-link to memory-pkg from `./long-term-memory-article.md` to `/work/memory-pkg` — site-relative route. The italic cross-link paragraph at the top of `## The problem` is preserved verbatim except for the link target."
+      - "Stripped all `https://github.com/` placeholder links. Where the article wrapped a path in a link, the link was removed and the backticked path was kept inline. Parenthetical citation links (`([`path:lines`](https://github.com/))`) became `(`path:lines`)`. Every real file path is preserved as inline code."
+      - "Preserved the ASCII architecture diagram verbatim."
+      - "Preserved all tables and code blocks — including the `.mcp.json` JSON sample and the worked-query ASCII output."
+      - "Kept the cross-reference to the existing Sylphie case implicit (the second paragraph mentions Sylphie the system in passing). Considered adding a `/work/sylphie` link there but did not — the case study is about the package, not the cognitive architecture, and over-linking would muddy the boundary. Flagging for the dev: if they want a See-also block at the bottom linking to both `/work/sylphie` and `/work/memory-pkg`, that's a UI affordance decision, not an editorial one."
+      - "No new prose, no transitions, no recap. Body is a tight edit of the 0.2 source."
+
+    mdx_body: |
+      ## The problem
+
+      Working on a non-trivial TypeScript codebase with a coding agent has a quiet, recurring failure mode: the agent reads files to figure out what's going on. Every *"where is X called from?"* or *"what types does this depend on?"* turns into a `Grep`, then a `Read`, then another `Read`, then another `Grep`. The transcript fills up with code excerpts. The context window gets crowded. The agent's answers get shallower as it runs out of room to think.
+
+      You can see the cost both ways: the developer is paying for tokens that consist mostly of file contents the agent will throw away, and the agent is paying attention to noise instead of structure.
+
+      The fix is to give the agent a map instead of a flashlight.
+
+      *`sylphie-pkg` addresses the structural side of agent forgetting — the agent's lack of a map of the codebase. For the episodic side — the agent's lack of memory for the work itself, the decisions and false starts and constraints that shape the next session — see [memory-pkg](/work/memory-pkg), the complementary piece.*
+
+      ## Why this exists
+
+      Sylphie is an ambitious system — a multi-subsystem cognitive architecture with seven CANON panels (decision-making, communication, learning, drive-engine, planning, knowledge-graph, infrastructure) spanning thousands of TypeScript files across an NX-style monorepo. Working on it with a coding agent, the agent kept getting lost in its own architecture. It would forget which subsystem a function belonged to, miss that a type was used across three packages, or re-derive call graphs it had already seen earlier in the session. Reading files faster wasn't the answer. *Reading fewer files was.*
+
+      `sylphie-pkg` was built to solve that specific problem in that specific repo. The abstraction turned out to be more general than the use case — once the code was working, porting it to a second project (drift-detector) took about **thirty minutes**.
+
+      What was portable: the AST parser, the sync pipeline, the graph differ, the mutation builder, the integrity checker, the MCP server, and the three skill markdown files all transferred without code changes. The shape was the same; only the configuration moved. What needed reconfiguration was the surface — Neo4j Bolt port (`7691` → `7688` so the two graphs could coexist if both projects were checked out), workspace import scope (`@sylphie` → `@drift`), the watched-directory list, and the `DOMAIN_LABELS` enum (sylphie's subsystem-specific labels swapped for drift-detector's product-specific ones). Container password, image tag, env var prefix — surface details. The architecture didn't move.
+
+      That kind of accidental portability is the signal that says the abstraction is right.
+
+      ## What `sylphie-pkg` is
+
+      `sylphie-pkg` is a small monorepo package that maintains a Neo4j knowledge graph of the codebase. (`sylphie/packages/sylphie-pkg/package.json` — `@sylphie/sylphie-pkg`, version `0.1.0`) The package's own `package.json` describes it succinctly: *"Codebase Personal Knowledge Graph — queryable map of the entire codebase for Claude Code agents."* (`packages/sylphie-pkg/package.json:6`)
+
+      Three jobs:
+
+      1. **Parse the source tree** with ts-morph and extract structured metadata about every function, type, import, class hierarchy, and constructor injection. (`packages/sylphie-pkg/src/sync/ast-parser.ts`)
+      2. **Maintain the graph incrementally** by diffing against the last synced git commit, hashing function/type bodies for change detection, and applying only the deltas under one atomic transaction. (`packages/sylphie-pkg/src/sync/sync-pipeline.ts`)
+      3. **Expose the graph to Claude Code as an MCP server** — seven query tools over stdio, registered in `sylphie/.mcp.json` so Claude Code spawns it as a child process at session start. (`packages/sylphie-pkg/src/mcp-server/index.ts:43-198`)
+
+      ## Architecture at a glance
+
+      ```
+      ┌─ Your source tree ─────────────────────────────────┐
+      │   apps/, packages/, frontend/  (TypeScript/TSX)    │
+      └──────────────────────┬─────────────────────────────┘
+                             │ git diff (since .last-sync-commit)
+                             ▼
+      ┌─ ts-morph AST parser ──────────────────────────────┐
+      │  Function / Type / Import / Class / Decorator …   │
+      │  + SHA-256 content hash per entity                 │
+      └──────────────────────┬─────────────────────────────┘
+                             │ graph-differ
+                             ▼
+      ┌─ Cypher mutation builder ──────────────────────────┐
+      │  MERGE on (filePath, name) — idempotent            │
+      │  DETACH DELETE for removals                        │
+      │  Single write transaction per sync                 │
+      └──────────────────────┬─────────────────────────────┘
+                             ▼
+      ┌─ Neo4j ────────────────────────────────────────────┐
+      │  Nodes:  File · Function · Type · Module ·         │
+      │          Service · CodeBlock · Change              │
+      │  Edges:  CONTAINS · DEFINES · BELONGS_TO ·         │
+      │          IMPORTS · USES_TYPE · CALLS · HAS_CODE ·  │
+      │          EXTENDS · IMPLEMENTS · INJECTS · CHANGED_IN│
+      └──────────────────────┬─────────────────────────────┘
+                             │ MCP stdio  (7 query tools)
+                             │ wired by .mcp.json
+                             ▼
+                        Claude Code
+      ```
+
+      The graph runs on a dedicated Neo4j instance (Bolt port `7691` in sylphie, `7688` in drift-detector) so it doesn't collide with any application database. (`packages/sylphie-pkg/src/mcp-server/neo4j-client.ts:9-18`)
+
+      ## How the compilation actually works
+
+      Eight steps in the code, four conceptual beats for a reader.
+
+      **Beat 1 — Parse what changed.** Read `.last-sync-commit`, run `git diff --name-only <last> HEAD`, filter to watched directories, exclude `node_modules`/`dist`/`.d.ts`/test files. On the first run or after history rewrites, fall back to a full walk. Each changed file goes through ts-morph's `parseFiles()`, which walks function declarations, arrow functions assigned to variables, class methods, interfaces, type aliases, enums, classes, and import declarations. Every entity gets its body text (truncated to 8 KB), JSDoc, parameter types, return type, decorators (with HTTP route extraction for NestJS controllers), call-site names, and type references captured. (`git-diff.ts:29-71, 118-161`, `ast-parser.ts:270-524`)
+
+      **Beat 2 — Diff against the graph.** Every function and type gets a SHA-256 content hash truncated to 16 hex chars. (`ast-parser.ts:103-105`) The differ pulls the current `(filePath, name, contentHash)` triples from Neo4j for the changed files, compares against the freshly parsed set, and produces a structured changeset: nodes to create, update, delete; edges to add, remove. (`graph-differ.ts:159-275`)
+
+      **Beat 3 — Mutate.** The changeset compiles to parameterized Cypher. Function and type nodes use `MERGE` on `(filePath, name)` for idempotency. Type nodes carry `EXTENDS`, `IMPLEMENTS`, and `INJECTS` edges from extracted class hierarchies and constructor parameters. Bodies live in attached `CodeBlock` nodes via `HAS_CODE` so function metadata stays light. All mutations run inside a single write transaction; failure rolls back the entire batch. (`mutation-builder.ts:31-213, 441-462`)
+
+      **Beat 4 — Verify, then advance.** This is the move that matters most over time. A `Change` node is recorded with the commit's hash, author, ISO date, and message, plus `CHANGED_IN` edges to every `Function`, `Type`, and `Module` in the touched files. (`change-logger.ts:55-147`) Then six integrity checks run in parallel: no duplicate `Function` nodes on `(filePath, name)`, every `Function` has the required `name`/`filePath`/`lineNumber` properties, no orphaned `IMPORTS` edges, every `CONTAINS` points to a `Function` or `Type`, every `Function` chains to a `Service` via `[:CONTAINS]<-[:BELONGS_TO*1..3]->`, no duplicate `Type` nodes. (`integrity-checker.ts:39-219`) **Errors block cursor advancement.** Warnings log and the pipeline continues. Only after the integrity pass does `.last-sync-commit` get written. (`sync-pipeline.ts:138-146`)
+
+      ### Why beat 4 matters more than it looks
+
+      Graph-backed systems fail silently. If a stale node sticks around because a partial sync left the cursor in an inconsistent place, no one notices until the agent gives a wrong answer based on stale data — usually weeks later, far from the failure. The fix isn't to make the sync never fail; it's to ensure that *when* it fails, the failure surfaces and the next sync re-runs the same diff instead of skipping over the corruption.
+
+      That's what integrity-gated cursor advancement does. If a check errors, the cursor stays put. The next sync sees the same diff. The developer sees the warning in CI or stdout, not in mysteriously-incorrect agent behavior six weeks later.
+
+      Alternatives I considered:
+
+      - **Just trust it.** Cheap, fast, will bite you in three months.
+      - **Re-run the diff next sync regardless.** Hides the failure mode — each sync looks fine on its own; the cumulative drift is invisible.
+      - **Alert and abort.** Loud, but offers no recovery path for the next sync.
+
+      Integrity-gated cursor is the cheaper option that recovers automatically: errors block, warnings continue, the cursor only moves forward on a clean pass.
+
+      The initial seed is the same pipeline run with an empty graph and a watch-all file scan, with explicit schema setup creating 4 uniqueness constraints and 11 indexes. (`initial-seed.ts:146-164`)
+
+      ## In-session inference — the pattern worth naming
+
+      A codebase graph isn't just a structural mirror — it benefits from semantic annotations on top. Domain classifications. Hub-and-pipeline analysis. Dead-code detection. Architectural-layer inference. The natural design is to have a microservice or scheduled job that calls an LLM API to do this work. `sylphie-pkg` doesn't.
+
+      The skill files that drive these annotations specify *"No LLM API calls — YOU are the classifier"* / *"YOU are the analyzer"* (`classify-pkg-domains/SKILL.md:101`, `infer-pkg-connections/SKILL.md:255`). What that means concretely: the skills never spawn a Haiku or Sonnet call, never consume an `ANTHROPIC_API_KEY`, never run a separate inference job. Classification, hub detection, pipeline discovery, dead-code analysis — all of it gets done by the Claude Code session the developer is *already running*.
+
+      I'll call this **in-session inference**: the host session is the model. One auth path, one billing surface, one place to monitor latency. No second LLM infrastructure to provision, deploy, debug, or budget for. Token cost folds into the existing session — invisible on Max's flat-rate subscription, visible on pay-as-you-go API use, but always *exactly one session's worth of cost.*
+
+      This is most of why the maintenance story stays cheap. The graph stays accurate not because an external pipeline keeps it accurate, but because the developer's existing session does that work as a normal use of the system. There's no microservice to wake up, no key to rotate, no second LLM endpoint to leak credentials from. The skill is a markdown file telling the active model how to do the job.
+
+      The trade: classifications and inferences are subject to the same probabilistic judgment as anything else the host session does. You won't get bit-identical results across runs. For a codebase graph that's regenerated on every sync, that's fine; for use cases that need determinism, it wouldn't be.
+
+      ## Three skills (three instances of the pattern)
+
+      Three Claude Code slash commands are the in-session inference pattern made concrete. They turn graph maintenance into normal session work.
+
+      **`/sync-pkg`** — user-facing entry point. Runs `yarn sync-pkg`, then `/classify-pkg-domains`, then `/infer-pkg-connections`. Each step gates on the previous one's success. (`.claude/skills/sync-pkg/SKILL.md`)
+
+      **`/classify-pkg-domains`** — assigns each `Function` node a domain label from a fourteen-value taxonomy. Sylphie's labels reflect its subsystem structure — `decision-making`, `drive-engine`, `web-api`, `shared-utilities`, and so on; full list in `domain-classifier.ts:17-32`. One of the fourteen, `unclassified`, is the default state set on every new `Function` node via `coalesce(f.domain, 'unclassified')` (`mutation-builder.ts:44`); the skill assigns one of the other thirteen, using directory location, JSDoc, and signature as inputs. (`.claude/skills/classify-pkg-domains/SKILL.md`)
+
+      **`/infer-pkg-connections`** — runs six analytical Cypher queries: hub detection (highly connected functions/types), pipeline discovery (3+ hop CALLS chains across files), cross-package bridge detection, circular-dependency detection at module and function level, dead-code detection (with explicit caveats for decorator-driven entry points), architectural-layer inference. (`.claude/skills/infer-pkg-connections/SKILL.md`) Results write back as new graph properties and edges (`DATA_FLOWS_TO`, `BRIDGES`, `hubScore`, `possiblyDead`, `architecturalLayer`).
+
+      After these run, the graph isn't a structural mirror; it's a structural mirror *annotated with semantic groupings and architectural metadata* that the MCP tools return alongside the raw structure.
+
+      ## What Claude Code sees
+
+      The MCP server exposes seven tools over stdio. Wiring is one stanza of `sylphie/.mcp.json`:
+
+      ```json
+      "sylphie-pkg": {
+        "command": "node",
+        "args": ["./packages/sylphie-pkg/dist/mcp-server/index.js"],
+        "env": {
+          "SYLPHIE_PKG_NEO4J_URI": "bolt://localhost:7691",
+          "SYLPHIE_PKG_NEO4J_USER": "neo4j",
+          "SYLPHIE_PKG_NEO4J_PASSWORD": "sylphie-pkg-local"
+        }
+      }
+      ```
+
+      That's all Claude Code needs to discover the server and call its tools.
+
+      Three of the seven tools carry most of the daily weight:
+
+      - **`getModuleContext(query)`** — first query when entering a new area. Returns functions, types, files, and constraints for a feature scope. Does *not* return function bodies; those come from `getFunctionDetail`.
+      - **`getFunctionDetail(functionName, filePath?)`** — full body, signature, JSDoc, test locations, and recent changes for one function in a single structured response. Eliminates the Read-and-skim cycle.
+      - **`searchContent(pattern, fileFilter?, maxResults?)`** — the punchline. Raw `Grep` tells you *"this string appears at line 47 of foo.ts."* `searchContent` tells you *"this string appears inside the body of `MyService.processRequest()` at `apps/sylphie/src/my.service.ts:47`; the function takes `(req: Request) => Promise<Response>` and is decorated `@Post('/process')`."* It's grep that returns code entities instead of byte offsets. (`mcp-server/index.ts:173-197`)
+
+      The other four — `getDataFlow`, `getRecentChanges`, `getConstraints`, `getLogContext` — handle graph traversal, git history cross-reference, architectural-invariant lookup, and log queries respectively. Full list and citations: `packages/sylphie-pkg/src/mcp-server/index.ts:43-198`.
+
+      ### A worked query
+
+      `getDataFlow({startNode: "evaluateDriveOpportunity", direction: "upstream", depth: 2})` returns something shaped roughly like this (exact format depends on the response shape; values are illustrative):
+
+      ```
+      upstream callers of evaluateDriveOpportunity (depth 2):
+        hop 1:
+          - DriveEngine.tick
+            packages/drive-engine/src/services/drive-engine.ts:142
+          - DriveScheduler.runCycle
+            packages/drive-engine/src/scheduler.ts:88
+        hop 2:
+          - AppOrchestrator.runMainLoop
+            apps/sylphie/src/orchestrator/main.ts:54
+            └─ calls DriveEngine.tick
+          - CronJob.execute
+            apps/sylphie/src/cron/drive-cron.ts:23
+            └─ calls DriveScheduler.runCycle
+      ```
+
+      To get the same information without the graph: grep for `evaluateDriveOpportunity`, then for each hit, Read the file, find the enclosing function, grep again for *that* function's callers, recurse. Several turns of tool calls, hundreds of lines of code excerpts crowding the context, possibly missed call sites if the function is referenced indirectly. The graph version is one tool call returning a structured chain.
+
+      ## Impact on development
+
+      Two effects are visible from the code.
+
+      **Effect 1 — fewer file reads, smaller context.** `getFunctionDetail` returns the body, signature, JSDoc, and recent changes in one structured response. The same information via flashlight-style exploration takes a `Grep`, a `Read` for the file, and a separate `git log` invocation. When the answer to *"what does this function look like and has it changed lately?"* lives in one response, the developer pays for one tool call's worth of tokens instead of three.
+
+      **Effect 2 — questions you can't ask with grep.** Hub detection, pipeline discovery, and cross-package bridge analysis are not searches over text. They're graph queries. The pipeline-detection query in `/infer-pkg-connections` is something like `MATCH (a:Function)-[:CALLS]->(b:Function)-[:CALLS]->(c:Function)-[:CALLS]->(d:Function)` — one Cypher line. (`infer-pkg-connections/SKILL.md:74-83`) The equivalent through file-reading would be many turns, with the agent re-discovering the same call graph each time.
+
+      ## What this costs
+
+      The honest answer is: less than the alternative, but not zero.
+
+      **Compute.** The sync pipeline runs `git diff`, parses changed files with ts-morph, writes Cypher. The initial seed reports its parse-time and relationship-pass time explicitly. (`initial-seed.ts:521-525, 630-634`) Files process in batches of 50 with the ts-morph project cache cleared every 5 batches to keep memory bounded. (`initial-seed.ts:44, 515`) Incremental syncs are dominated by Neo4j round-trips, not parsing.
+
+      **LLM.** No *separate* LLM bill — but the work is still LLM work, routed through the active Claude Code session rather than a side channel (see the in-session inference section above). The architectural win is that there's no second LLM infrastructure to provision, authenticate, monitor, or budget; the cost stays folded into the existing session. The graph itself is a Neo4j Community container running on localhost — no cloud spend.
+
+      **Storage.** Neo4j Community on Docker. Function bodies are truncated to 8 KB. (`ast-parser.ts:147`) The indexes created in `initial-seed.ts` cover the common lookup paths — `(filePath, name)` composite on Function and Type, plus single-column indexes on `domain`, `name`, `kind`, content hash, and file extension. Typical queries on a graph of this size should be fast, though I haven't formally benchmarked them.
+
+      **Token cost of *using* the graph.** Compare two flows for *"what calls `evaluateDriveOpportunity`?"*:
+
+      - **Without the graph:** `Grep("evaluateDriveOpportunity")` returns N matches. `Read` each match file to find the calling function. Total: 1 tool call + N reads, easily thousands of tokens in just file contents (illustrative — exact count depends on file size and match density).
+      - **With the graph:** `getDataFlow({startNode: "evaluateDriveOpportunity", direction: "upstream", depth: 2})` returns a structured chain with file locations at each hop. Total: 1 tool call, response measured in hundreds of tokens.
+
+      The structural shape (one structured response vs. N unstructured reads) is the durable fact; the exact ratio depends on the codebase.
+
+      ## What this doesn't do (yet)
+
+      - **Multi-language.** Today it's TypeScript and TSX only. The `ast-parser.ts` is ts-morph-bound. Drift-detector's roadmap explicitly mentions tree-sitter integration for Python, Go, Rust as the next step. (`drift-detector/packages/codebase-pkg/README.md:82`)
+      - **Test coverage.** Integrity checks substitute for unit tests on the sync pipeline. The drift-detector port carries that forward as known tech debt. (`drift-detector/packages/codebase-pkg/README.md:81`)
+      - **Single-binary distribution.** The Neo4j dependency means Docker today. Kuzu (embedded graph DB) is a future option for shipping this as a self-contained CLI.
+      - **A public NPM package.** Next milestone. Once it ships the install story becomes one command, and the hands-on tutorial version of this article gets written.
+
+      ## Why it matters
+
+      `sylphie-pkg` doesn't make the agent smarter. It hands the agent a map instead of a flashlight. The developer stops being the agent's index, and the agent stops being a tourist with a flashlight.
+
+      That's the whole pitch.
+
+      ## Code map
+
+      | Component | Path | Repo |
+      |---|---|---|
+      | Package root | `packages/sylphie-pkg/` | sylphie |
+      | AST parser | `packages/sylphie-pkg/src/sync/ast-parser.ts` | sylphie |
+      | Incremental pipeline | `packages/sylphie-pkg/src/sync/sync-pipeline.ts` | sylphie |
+      | Git diff | `packages/sylphie-pkg/src/sync/git-diff.ts` | sylphie |
+      | Graph differ | `packages/sylphie-pkg/src/sync/graph-differ.ts` | sylphie |
+      | Cypher builder | `packages/sylphie-pkg/src/sync/mutation-builder.ts` | sylphie |
+      | Domain labels | `packages/sylphie-pkg/src/sync/domain-classifier.ts` | sylphie |
+      | Integrity checker | `packages/sylphie-pkg/src/sync/integrity-checker.ts` | sylphie |
+      | Change logger | `packages/sylphie-pkg/src/sync/change-logger.ts` | sylphie |
+      | Initial seed | `packages/sylphie-pkg/src/ingestion/initial-seed.ts` | sylphie |
+      | MCP server | `packages/sylphie-pkg/src/mcp-server/index.ts` | sylphie |
+      | Neo4j client | `packages/sylphie-pkg/src/mcp-server/neo4j-client.ts` | sylphie |
+      | MCP wiring | `.mcp.json` | sylphie |
+      | Sync skill | `.claude/skills/sync-pkg/SKILL.md` | sylphie |
+      | Classification skill | `.claude/skills/classify-pkg-domains/SKILL.md` | sylphie |
+      | Inference skill | `.claude/skills/infer-pkg-connections/SKILL.md` | sylphie |
+      | Ported version | `packages/codebase-pkg/` | drift-detector |
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Developer questions / flags
+# ─────────────────────────────────────────────────────────────────────────────
+developer_questions:
+  - id: title-rendering
+    note: |
+      The two new titles are lowercase-hyphenated package names
+      (`memory-pkg`, `sylphie-pkg`). The existing case title `Sylphie` is
+      plain proper-noun text. Confirm that the case-card and case-hero
+      components render the title string verbatim with no
+      auto-capitalization, auto-title-casing, or CSS `text-transform`
+      tweaks. If anything in the layout uppercases the first letter or
+      Title-Cases the string, those would need to be exempted for these
+      two slugs.
+
+  - id: featured-rotation
+    note: |
+      All three featured cases are marked `featured: true`. The dev
+      picked random hero rotation across the featured pool — that
+      randomizer lives in the dev's domain, not mine. If the rotation
+      should weight one case higher (e.g. show Sylphie 50% of the time
+      since it's the longer-running build), that's a product call to
+      make explicitly rather than letting the order in this YAML imply
+      a ranking.
+
+  - id: see-also-affordance
+    note: |
+      The two new MDX bodies cross-link each other in their opening
+      sections (the italic paragraphs that begin with *"`memory-pkg`
+      addresses…"* / *"`sylphie-pkg` addresses…"*). They do NOT link to
+      `/work/sylphie` — keeping the cognitive-architecture case
+      separate from the two package cases. If the dev wants a uniform
+      "Related work" block at the bottom of every case study linking to
+      the other two, that's a layout-level affordance, not editorial.
+      No copy needed from me for that block; it would just be three
+      title strings already in i18n.
+
+  - id: mdx-code-fence-renderer
+    note: |
+      Both MDX bodies have a lot of fenced code blocks — ASCII
+      diagrams, a JSON snippet for `.mcp.json`, schema-shape pseudo-DDL,
+      and one fake-shell-output block in the worked query. Existing
+      `sylphie.mdx` doesn't use any. Confirm the case-study layout's
+      `Pre` / code-block component handles wide ASCII art without
+      forcing a horizontal scrollbar that crops content — these
+      diagrams are wider than typical code. If overflow-x is a problem,
+      either the component needs `overflow-x: auto` with a soft minimum
+      font-size, or the body needs a wrapper-class hint from the dev.
+
+  - id: long-pages-toc
+    note: |
+      Both case studies are substantially longer than the existing
+      `sylphie.mdx`. If the layout doesn't have an in-page TOC or
+      reading-progress affordance, these will read as long-scroll
+      walls. Not asking for one — that's a UX call — but flagging that
+      the editorial decision was to keep the source articles' depth
+      rather than amputate sections.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Developer responses (ux-dev → content-creator)
+# ─────────────────────────────────────────────────────────────────────────────
+developer_responses:
+  - id: title-rendering
+    verdict: confirmed-ok
+    note: |
+      Verified by grep over `src/` and by computed-style check in the
+      MCP browser pass. The case-study H1 is
+      `<h1 className="font-display tracking-tight leading-[1.02]
+      text-[clamp(2.5rem,8vw,6rem)]">` in
+      `src/components/case-study/CaseStudyLayout.tsx:56`; computed
+      `text-transform: none` on the live page. The work-index featured
+      card H2 and supporting H3 also carry no `capitalize` /
+      `uppercase` / `text-transform` utilities. Only the small
+      eyebrow/meta spans (role, year, "Featured", "Read the case
+      study") use `uppercase`, which is correct — those are mono small
+      caps. `memory-pkg` and `sylphie-pkg` render verbatim,
+      lowercase-hyphenated, on both the index card and the case-study
+      hero. Screenshots captured in `memory-pkg-page.png` and
+      `sylphie-pkg-page.png`.
+
+  - id: featured-rotation
+    verdict: addressed
+    note: |
+      Implemented as uniform random across the full `featured: true`
+      pool in `src/routes/work/index.tsx`. The pool is computed via
+      `cases.filter((c) => c.featured)` and an index is picked via
+      `Math.floor(Math.random() * featuredPool.length)`. No weighting
+      — every featured case has equal probability per reload. The pick
+      is deferred to a `useEffect` so the initial render is
+      deterministic (first entry in the cases array) and the
+      prerendered HTML doesn't mismatch with the first client paint;
+      see the call-site comment for the SSR/hydration rationale.
+      Verified by reloading the page three times against the running
+      dev server: featured rotated between `Sylphie`, `memory-pkg`,
+      and `sylphie-pkg`. Brief flash on first paint as the randomizer
+      swaps in a non-first card; acceptable trade for zero hydration
+      warnings.
+
+  - id: see-also-affordance
+    verdict: deferred
+    note: |
+      No "Related work" block added. The two new case studies already
+      cross-link each other inline (the italic paragraph near the top
+      of each `## The problem` section pointing at `/work/memory-pkg`
+      or `/work/sylphie-pkg`), and that's where the link earns its
+      keep — the editorial framing makes the relationship explicit.
+      Adding a generic block at the bottom would grow scope past the
+      brief, duplicate signal that's already in place, and pull
+      attention away from the prev/next nav that already exists at
+      the page footer. If the user later wants a uniform see-also
+      block, it's a separate UX call and a small layout change in
+      `CaseStudyLayout.tsx`. Leaving it out for now.
+
+  - id: mdx-code-fence-renderer
+    verdict: confirmed-ok
+    note: |
+      Verified the existing `Pre` component in
+      `src/components/case-study/mdx-components.tsx:106-116` already
+      has `overflow-x-auto` plus the surrounding padding and
+      border-radius. No per-diagram fix needed. Confirmed in the MCP
+      browser pass at two viewport widths: at 1280px the diagrams fit
+      inside the prose column without horizontal scroll
+      (`scrollWidth ≈ clientWidth`); at 375px every `<pre>` shows
+      `scrollWidth > clientWidth` and `overflow-x: auto` kicks in,
+      giving the user horizontal scroll instead of cropping. Tested
+      across all six `<pre>` blocks in `memory-pkg.mdx` — the two
+      ASCII architecture diagrams, the schema-shape pseudo-DDL, the
+      `.mcp.json` JSON snippet, and the two before/after rationale
+      blocks all behave the same way.
+
+  - id: long-pages-toc
+    verdict: deferred
+    note: |
+      No in-page TOC, no reading-progress bar, no anchor index added.
+      Out of scope for this turn — the user didn't ask for one and
+      the brief is explicit that scope creep is not welcome. The
+      existing layout's anchored `## H2` and `### H3` headings
+      (`scroll-mt-24` is already set on both in `mdx-components.tsx`)
+      keep deep-linking and "find on page" working; the prev/next nav
+      at the bottom handles cross-case discovery. If the user later
+      wants a TOC, the natural shape is a sidebar `<aside>` populated
+      from a remark plugin that emits `{depth, value, id}` from the
+      MDX tree — a one-PR addition that doesn't need editorial input.
+      Leaving it out for now.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sylphie alignment pass — append Why it matters + Code map
+# ─────────────────────────────────────────────────────────────────────────────
+sylphie_alignment:
+  generated_at: "2026-05-12"
+  rationale: |
+    `sylphie.mdx` predates the two newer case studies and lacks their
+    closing rhythm — a short thesis-crystallizing paragraph followed by
+    a Code map reference table. Adding both lands Sylphie in the same
+    family-of-articles shape without restructuring the body. The
+    article's own opener already committed to a metric ("the share of
+    decisions made without calling a language model"); the closing
+    paragraph circles back to that metric in human terms — what it
+    means for a reader rather than for the system — so the page ends
+    where the page started. The Code map mirrors memory-pkg / sylphie-pkg
+    in column shape, dropping the `Repo` column (every row is `sylphie`,
+    which would add zero signal) and surfacing the architectural beats
+    a reader of this article actually wants to find on disk: drive
+    isolation, the cognitive-cycle steps with measurable triggers, the
+    tensor sidecar, the four-graph memory layout, pathology detectors,
+    Theater Prohibition machinery, the event bus.
+
+    File-path policy: the Sylphie tech spec gives explicit workspace
+    package names (`@sylphie/decision-making`, `@sylphie/drive-engine`,
+    `@sylphie/communication`, etc.) and explicit container layout
+    (`apps/sylphie`, `apps/drive-server`, the Python `cognition`
+    sidecar), but does NOT give file paths inside those packages for
+    individual subsystems. Rather than fabricate plausible-looking
+    paths, I've kept package-level paths where the spec licenses them
+    and marked any deeper path with a `?` suffix. The developer should
+    treat `?`-marked rows as honest placeholders to verify against the
+    real Sylphie repo — not as guesses to refine into a different guess.
+
+  why_it_matters_mdx: |
+    ## Why it matters
+
+    Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure — drives, predictions, evaluations, and graduated procedures are the load-bearing structure. The metric the system reports on itself is **the share of decisions made without calling a language model**, and it is supposed to climb. Today it climbs slowly because most paths still route through deliberation; the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
+
+    The shorter version: an agent that watches itself, predicts the consequences of its own actions, measures how wrong those predictions were, and can only graduate a behavior after the measurement says it earned it — that's a different category of system than one that prompts a frontier model harder. This page is the architectural commitments that make the difference real.
+
+  code_map_mdx: |
+    ## Code map
+
+    | Component | Path |
+    |---|---|
+    | Main backend (NestJS) | `apps/sylphie/` |
+    | Drive engine (isolated process) | `apps/drive-server/` |
+    | Drive rules table + RLS policy | `apps/drive-server/src/db/drive_rules.sql`? |
+    | Drive engine package | `@sylphie/drive-engine` |
+    | Decision-making package (Cortex) | `@sylphie/decision-making` |
+    | Dual-process arbitration (Type 1 / Type 2 / SHRUG) | `@sylphie/decision-making/src/arbitration/`? |
+    | Predict step (expected drive deltas) | `@sylphie/decision-making/src/predict/`? |
+    | Evaluate step (MAE computation) | `@sylphie/decision-making/src/evaluate/`? |
+    | Working memory selector (5-signal activation) | `@sylphie/decision-making/src/working-memory/`? |
+    | Episodic memory ring buffer | `@sylphie/decision-making/src/episodic/`? |
+    | Pathology detectors (5 attractors) | `@sylphie/decision-making/src/attractors/`? |
+    | Tensor cognition sidecar (Python FastAPI) | `services/cognition/` (port 8431)? |
+    | Learning package (consolidation, reflection) | `@sylphie/learning` |
+    | Planning package (opportunity → procedure) | `@sylphie/planning` |
+    | Communication package | `@sylphie/communication` |
+    | Supervisor (DeepSeek meta-evaluator) | `@sylphie/supervisor` |
+    | World Knowledge Graph (WKG) | Neo4j `bolt://localhost:7687` |
+    | Self Knowledge Graph (SKG) | Neo4j `bolt://localhost:7690` |
+    | Other Knowledge Graph (OKG) | Neo4j `bolt://localhost:7689` |
+    | Codebase-as-graph (PKG) | Neo4j `bolt://localhost:7691` (see [sylphie-pkg](/work/sylphie-pkg)) |
+    | Event bus types + boundary map | `@sylphie/events/src/EVENT_BOUNDARY_MAP.ts`? |
+    | TimescaleDB events hypertable | postgres `timescaledb` port 5433, table `events` |
+    | Postgres (auth, drive_rules) | postgres port 5434 |
+    | Perception sidecar (YOLO + MediaPipe + Moondream2) | `services/perception/` (port 8430)? |
+    | Frontend dashboard | `apps/frontend/`? (Vite + React 18 + Zustand + MUI) |
+    | Inner Monologue panel (verbatim event reader) | `apps/frontend/src/routes/dashboard/inner-monologue/`? |
+
+  mdx_notes:
+    - "Append both sections to the end of sylphie.mdx, in the order: Why it matters, then Code map (matching the order in memory-pkg and sylphie-pkg)."
+    - "No other edits to sylphie.mdx. Existing sections stay verbatim — the existing `## What is honestly not yet real` section stays in place directly above the new `## Why it matters` section."
+    - "Any path marked with `?` is an inference from the article body or package name, not a path the tech spec actually gives. Developer should not 'fix' those by guessing further; they should be left as-is until verified against the real Sylphie repo. The `?` is part of the editorial honesty of this case — Sylphie's whole pitch is that it flags its own stubs and uncertainties rather than papering over them."
+    - "The `Repo` column from memory-pkg / sylphie-pkg is intentionally dropped — every row here would read `sylphie` and add no signal."
+    - "Bolt URLs are the dev-mode ports from the tech spec's container table (§2). These are real, not inferred; no `?` suffix."
+    - "The cross-link to /work/sylphie-pkg in the PKG row is the only outbound link in the table and matches the pattern memory-pkg and sylphie-pkg use to cross-reference each other."
+
+  developer_questions:
+    - id: code-map-path-verification
+      note: |
+        Eleven of the rows in the Code map are marked with `?` because
+        the tech spec doesn't ground them to a file path. If you have
+        repo-level visibility into the real Sylphie source tree (the
+        portfolio repo doesn't), it would be worth a single verification
+        pass to turn `?` rows into confirmed paths. Don't guess —
+        leaving `?` is the right call until the path is checked. The
+        `?` rows are: drive rules SQL, arbitration module, predict
+        step, evaluate step, working memory, episodic memory,
+        attractors, cognition sidecar, perception sidecar, event
+        boundary map, frontend root, and inner monologue route.
+
+    - id: closing-paragraph-length
+      note: |
+        Drafted at two short paragraphs (~110 words) rather than the
+        tighter single-paragraph close used by memory-pkg and
+        sylphie-pkg. Sylphie's body is longer and more
+        architecturally-loaded than the two package articles, and a
+        single-sentence reframing felt like it would shrink-wrap the
+        thesis. If the user prefers a single-paragraph close to match
+        the cousins more strictly, the second paragraph can be cut
+        cleanly without rewriting the first.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Enforcement Hooks — editorial metadata for the 4th Frontier case
+# ─────────────────────────────────────────────────────────────────────────────
+enforcement_hooks_alignment:
+  generated_at: "2026-05-12"
+
+  title_voice_note: |
+    Picked `Enforcement Hooks` (Title Case) over `enforcement-hooks`
+    (slug form) and over `Lock Step` (metaphor form).
+
+    The lowercase-hyphenated form is the package-name convention used
+    by memory-pkg and sylphie-pkg, and it works there because those
+    articles are literally about packages with those names. This
+    article isn't naming a package — `enforcement-hooks` is just the
+    slug the user picked. The article's own register refers to "this
+    hook system," "the review hooks," "two gates." Using the slug as
+    a visible title would imply a package that doesn't exist and
+    over-claim the artifact's scope.
+
+    Title Case `Enforcement Hooks` follows the precedent set by
+    `Sylphie` (proper noun, concept-level title) rather than the
+    package-name precedent. It signals "this is a system, not a
+    package," matches the article's own language, and keeps the word
+    `hooks` in the title so a reader skimming the index card sees
+    what surface it lives on (Claude Code hook lifecycle).
+
+    `Lock Step` was the prettier headline — it picks up the article's
+    central metaphor and would read well in isolation — but on an
+    index card flanked by three sibling cards, the reader benefits
+    more from the concrete handle than the metaphor. Save the
+    lock-step line for the body, where it's already doing real work.
+
+  case_entry:
+    slug: enforcement-hooks
+    featured: true
+    year: "2026"
+    stack: ["Bash", "Claude Code hooks", "Sonnet", "Playwright"]
+    stack_rationale: |
+      Four pills, each pointing at a layer of the system as the
+      article actually describes it — no marketing, no aspirational
+      additions.
+
+      - `Bash`: the three hook scripts are pure bash (snapshot-baseline.sh,
+        review-on-write.sh, review-on-stop.sh). This is the artifact's
+        body, not its scaffolding. Calling it out signals "shell scripts,
+        not a framework."
+      - `Claude Code hooks`: the load-bearing primitive. The article's
+        whole structural claim — that *where* the gates fire matters
+        more than *what* they do — depends on Claude Code's
+        UserPromptSubmit / PostToolUse / Stop lifecycle. Without this
+        pill the system reads as generic git-hook style automation.
+      - `Sonnet`: the reviewer model. Worth surfacing because this
+        case is the LLM-in-the-hot-path counterpoint to memory-pkg
+        (zero LLM in retrieval) and sylphie-pkg (no separate LLM
+        infra). The contrast across the three cases is a feature.
+      - `Playwright`: the Stop reviewer's verification arm. Article
+        treats "Playwright not configured" as a fail, not a pass —
+        Playwright isn't optional infrastructure here, it's part of
+        what the hook enforces. Earns the pill.
+
+      Considered and rejected: `git` (used but plumbing, not identity),
+      `MCP` (only present as a transcript-grep target, not an
+      interface the hooks expose), `Node` (used only as a `jq`
+      substitute on Windows — incidental).
+
+  locale_en:
+    title: "Enforcement Hooks"
+    role: "Self-review gates for agents"
+    summary: "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards."
+
+  locale_ja:
+    title: "Enforcement Hooks"
+    role: "Self-review gates for agents"
+    summary: "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards."
+
+  locale_ja_note: |
+    JA fields are EN stubs per the established strategy. Once the
+    JA pass happens, the role tag will need care: "self-review
+    gates" carries a specific connotation in English (the agent
+    can't bypass its own judgment) that doesn't map word-for-word.
+    `自己レビュー・ゲート` is the literal but reads stiff. Worth
+    flagging in the JA pass for a copywriter's call rather than a
+    translator's call.
+
+  editorial_picks_summary: |
+    - title:   "Enforcement Hooks"        (Title Case, concept-level)
+    - role:    "Self-review gates for agents"   (4 words, sentence case)
+    - summary: "Agents that grade their own work ship drift. Two hooks —
+                line-level on every write, intent-level at every Stop —
+                keep the agent in lock step with the project's standards."
+                (28 words, 169 chars)
+    - stack:   ["Bash", "Claude Code hooks", "Sonnet", "Playwright"]
+    - featured: true
+    - year:    "2026"
+
+  summary_rationale: |
+    Diagnosis → mechanism, matching the rhythm of memory-pkg
+    ("Agents forget the work between sessions. memory-pkg
+    indexes…") and sylphie-pkg ("Coding agents waste context
+    re-reading files. sylphie-pkg compiles…"). The diagnosis here
+    is the article's opening claim: an agent grading its own work
+    declares done early. The mechanism is the two-gate structure.
+    "Lock step" pulls the article's own central metaphor into the
+    card so the body has a thread to pick up. Under 30 words and
+    under ~180 chars, same envelope as the other two summaries.
+
+  role_rationale: |
+    Three candidates considered:
+      - "Agent review hooks" — accurate but generic; doesn't
+        differentiate the gating idea from any other review tool.
+      - "Per-write & per-turn gates" — descriptively crisp but
+        reads as implementation detail, not as a thesis.
+      - "Self-review gates for agents" — names what the system
+        IS (gates the agent can't bypass) and signals WHY it
+        exists (because agent self-review fails). Differentiates
+        at a glance from "Agent long-term memory" and "Codebase
+        knowledge graph."
+    Picked the third. 4 words, sentence case, no trailing period —
+    same shape as the sibling role tags.
+
+  mdx_body_status: ready
+  mdx_body_note: |
+    Body matches the family-of-articles template end to end:
+    problem → what the system is → architecture at a glance → five
+    deep-dive sections (fail-safe axis, per-write reviewer, per-turn
+    reviewer, idempotency via two hash files, reviewer memory) →
+    what this costs → what this doesn't do (yet) → why it matters →
+    code map. The opening blockquote cross-links to memory-pkg and
+    sylphie-pkg in the established pattern. No edits needed.
+
+  developer_questions: []

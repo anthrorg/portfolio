@@ -37,6 +37,10 @@ line: the rule, then a `—`, then the reason that justifies the override.
 - `src/content/career.ts` empty `roles`, `education`, `certifications` arrays — intentional; the route renders an `Updating soon.` empty state under each section heading until Jim authors entries. The `languages` section ships with real EN/JA values.
 - `src/routes/about.tsx` short lede copy — intentional; the long-form bio ships once Jim writes it. The page header pattern matches every other route.
 
+## Comment style
+
+- Multi-paragraph JSDoc and multi-line block comments in `src/components/case-study/CaseTOC.tsx` and `src/components/case-study/CaseStudyLayout.tsx` — intentional; CLAUDE.md does not impose a one-line comment rule, and these blocks explain non-obvious layout/observer mechanics future readers need.
+
 ## How to add a new override
 
 When you reject a reviewer flag, add it here in the form:

@@ -1,4 +1,8 @@
-export type CaseSlug = "sylphie";
+export type CaseSlug =
+  | "sylphie"
+  | "memory-pkg"
+  | "sylphie-pkg"
+  | "enforcement-hooks";
 
 export type CaseMeta = {
   slug: CaseSlug;
@@ -14,6 +18,24 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["TypeScript", "Node", "CANON"],
+  },
+  {
+    slug: "memory-pkg",
+    featured: true,
+    year: "2026",
+    stack: ["TypeScript", "TimescaleDB", "Postgres trigram", "MCP"],
+  },
+  {
+    slug: "sylphie-pkg",
+    featured: true,
+    year: "2026",
+    stack: ["TypeScript", "Neo4j", "ts-morph", "MCP"],
+  },
+  {
+    slug: "enforcement-hooks",
+    featured: true,
+    year: "2026",
+    stack: ["Bash", "Claude Code hooks", "Sonnet", "Playwright"],
   },
 ] as const;
 

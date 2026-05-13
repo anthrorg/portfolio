@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
@@ -16,10 +17,36 @@ function WorkIndex() {
     description: t("meta.work"),
     path: "/work",
   });
-  const featured = cases.find((c) => c.featured);
-  const supporting = cases.filter((c) => !c.featured);
   const reduced = useReducedMotion();
   const viewTransition = useViewTransitionEnabled();
+
+  // Featured-case rotation.
+  //
+  // The site is prerendered (scripts/prerender.mjs snapshots each route via a
+  // headless Chromium). If we picked a random featured case during the first
+  // synchronous render, the prerendered HTML would lock in one slug and the
+  // client's first render (after hydration) could pick another — causing a
+  // visible re-paint of the hero card AND, more importantly, a mismatch
+  // between captured SSR HTML and the React tree.
+  //
+  // The pattern below avoids that: on first render (both during prerender and
+  // when a fresh client loads the prerendered snapshot) the featured case is
+  // deterministic — the first `featured: true` entry in the cases array. Once
+  // mounted on the client, a useEffect re-picks uniformly across the entire
+  // featured pool. The trade is a brief flash on initial paint as the
+  // randomizer swaps in a different card; in exchange we get zero hydration
+  // mismatch warnings and a re-pick on every navigation/refresh.
+  const featuredPool = useMemo(() => cases.filter((c) => c.featured), []);
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  useEffect(() => {
+    if (featuredPool.length <= 1) return;
+    // Uniform random across the full featured pool (including the
+    // deterministic-first entry — over enough reloads every featured case
+    // shows equally often).
+    setFeaturedIndex(Math.floor(Math.random() * featuredPool.length));
+  }, [featuredPool.length]);
+  const featured = featuredPool[featuredIndex];
+  const supporting = cases.filter((c) => c.slug !== featured?.slug);
 
   return (
     <Container className="py-24 md:py-32">
