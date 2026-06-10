@@ -109,28 +109,41 @@ export function HomeBento() {
               className="text-plate flex flex-col items-start gap-4 p-6 md:p-8 lg:col-span-5"
             >
               <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-                {t("home.openEyebrow")}
-              </p>
-              <h2 className="font-display text-2xl leading-tight tracking-tight">
                 <span aria-hidden className="text-accent">
                   ●{" "}
                 </span>
+                {t("home.openEyebrow")}
+              </p>
+              <h2 className="font-display text-2xl leading-tight tracking-tight">
                 {t("home.openTitle")}
               </h2>
-              {/* Fallback ladder: roles in priority order below the primary. */}
-              <ol className="space-y-1 font-display text-lg leading-snug text-ink-muted">
-                {(["home.openRole2", "home.openRole3"] as const).map((key) => (
-                  <li key={key}>
-                    <span aria-hidden className="mr-2 font-mono text-xs">
-                      ↳
-                    </span>
-                    {t(key)}
-                  </li>
-                ))}
-              </ol>
-              <p className="hidden text-sm text-ink-muted min-[480px]:block">
-                {t("home.openShort")}
-              </p>
+              <div>
+                <p
+                  id="open-also-label"
+                  className="mb-1.5 font-mono text-xs uppercase tracking-widest text-ink-muted"
+                >
+                  {t("home.openAlsoLabel")}
+                </p>
+                {/* Fallback roles in priority order below the primary. */}
+                <ol
+                  aria-labelledby="open-also-label"
+                  className="space-y-1 font-display text-lg leading-snug text-ink-muted"
+                >
+                  {(["home.openRole2", "home.openRole3"] as const).map((key) => (
+                    <li key={key}>{t(key)}</li>
+                  ))}
+                </ol>
+              </div>
+              <dl className="hidden grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1 min-[480px]:grid">
+                <dt className="font-mono text-xs uppercase tracking-widest text-ink-muted">
+                  {t("home.openLocationLabel")}
+                </dt>
+                <dd className="text-sm">{t("home.openLocation")}</dd>
+                <dt className="font-mono text-xs uppercase tracking-widest text-ink-muted">
+                  {t("home.openReloLabel")}
+                </dt>
+                <dd className="text-sm">{t("home.openRelo")}</dd>
+              </dl>
               <a
                 href={`mailto:${t("home.openEmail")}`}
                 className="mt-auto inline-flex items-center gap-2 rounded-full border border-border bg-bg px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:border-accent hover:text-accent"
