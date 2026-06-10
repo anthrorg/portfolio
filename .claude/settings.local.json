@@ -30,7 +30,8 @@
       "mcp__railway__list-deployments",
       "mcp__playwright__browser_hover",
       "WebFetch(domain:www.indeed.com)",
-      "PowerShell(Stop-Process *)"
+      "PowerShell(Stop-Process *)",
+      "WebFetch(domain:github.com)"
     ]
   },
   "enableAllProjectMcpServers": true

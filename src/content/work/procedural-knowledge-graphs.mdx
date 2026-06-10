@@ -1,0 +1,61 @@
+## The problem
+
+The model is fine. The wall every team building seriously with AI is hitting right now isn't "the model isn't smart enough" — it's that we're letting the model make every decision about how code gets written, then acting surprised when those decisions drift.
+
+Three weeks into production with an agentic system, the cracks appear in a specific pattern. The agent invented a database column. Or it duplicated a helper that already existed two directories over. Or it solved the problem by introducing a pattern your team explicitly stopped using eighteen months ago for reasons documented in a Notion page no LLM has ever read. The model that generated this code is sharper than the median engineer it's replacing. The problem isn't intelligence. The problem is anchor.
+
+## TL;DR
+
+Procedural knowledge graphs separate the decisions a model should make (what to build, how to decompose it) from the ones it shouldn't (what the actual code looks like). A PKG encodes how your team writes code — the steps, the order, the constraints, the slots where specifics get filled in — and the model's role at the code layer becomes narrow: walk the graph, fill in the slots, produce the output. The result is less hallucination, faster token-to-output, and code that stays aligned with what your team actually decided to do.
+
+## Where the non-determinism actually lives
+
+The conversation around LLM reliability is stuck on the wrong layer.
+
+One camp says bigger models, more reasoning, better training data — wait six months and the problem resolves. The other says LLMs are fundamentally stochastic, so symbolic AI or neurosymbolic hybrids or academic flavor-of-the-month is the real answer. Both are arguing about the model. Neither is looking at where non-determinism is actually causing damage.
+
+When an LLM writes code, it's making decisions at several different levels. It's deciding what you want. It's deciding how to decompose the problem. It's deciding what approach to take. And then it's deciding, token by token, what the actual code should look like — variable names, which library function to call, whether to use a map or a for loop, where to put the early return.
+
+The first three levels are where you want the model deciding. That's where flexibility is good. A request like "add rate limiting to the checkout endpoint" is fuzzy, and you want the model to interpret it. The last level is where everything goes wrong.
+
+Token-by-token code generation is the model pattern-matching against everything it saw in training, and your codebase is one signal among millions. It invents the database column. It duplicates the helper. It reaches for a pattern you abandoned not because it's stupid, but because at that level it has no anchor. That last layer — the one causing damage — is the one we don't have to leave in the model's hands.
+
+## What a procedural knowledge graph actually is
+
+A procedural knowledge graph is not a knowledge graph that happens to contain procedures. It's a structured record of how things get done in your codebase, written in an abstracted form that generalizes across cases.
+
+Write procedures once. Not code. Procedures. "How we add a new endpoint." "How we introduce a feature flag." "How we migrate a table without taking the service down." Each captures the shape of the work — the steps, the order, the constraints, the slots where specifics get filled in. The graph part matters because procedures connect. Adding an endpoint touches routing, validation, auth, logging. A real PKG isn't a list of recipes. It's a network, with edges that say "when you do this, you also do that, in this order, under these conditions."
+
+The model's job changes completely once the graph exists.
+
+The model still figures out what you want. It still decomposes the problem. It still writes pseudocode describing what needs to happen. These are the parts it's actually good at. But when it's time to turn pseudocode into real code, it doesn't invent the code. It reads the graph.
+
+The graph already knows how this team adds an endpoint. The graph already knows which helper to use. The graph already knows the abandoned pattern is abandoned. The model's role at the code layer becomes narrow: walk the graph, fill in the slots, produce the output. The model decides what to build. The graph decides how it gets built. Non-determinism stays where it belongs — in interpretation and planning — and the deterministic part becomes deterministic.
+
+## Why this should also be faster
+
+Right now, when an agent writes a non-trivial change, most of its time and tokens go to the code-writing itself. Re-reading files to figure out conventions. Generating, second-guessing, regenerating. Running tests that fail because it guessed wrong about an import path. Looping back to fix what it just wrote. A serious agent run on a real codebase burns enormous compute on the code-decision layer, and most of that work is the model rediscovering, badly, things someone on the team already knows.
+
+When the graph holds the code decisions, that loop collapses.
+
+Reading a graph and filling in slots is cheap. It's structured retrieval, not generation. The model doesn't consider a thousand possible ways to write this function — there's one way, encoded in the procedure, with the variables marked. Output gets produced in something closer to a single pass. The agent stops thrashing. It stops second-guessing itself because there's nothing to second-guess. The decisions were already made. Tokens that used to go to "what should this code look like" go to nothing at all, because the question doesn't exist anymore.
+
+Faster, cheaper, more consistent — not because the model got better, but because we stopped asking it to do the part it's bad at.
+
+## The objection that actually lands
+
+If procedures are abstract enough to generalize, isn't writing them at the right level of abstraction harder than just writing the code?
+
+Yes. Sometimes. The first time you try to write a procedure, you'll probably overfit it to the case in front of you, and it will be useless for the next case, and you'll throw it out and try again. This is a real cost.
+
+This is also the cost of every abstraction that ever ended up being worth it. The first object-oriented codebases were a disaster. The first microservice architectures were a disaster. The first design systems were a disaster. We don't throw out abstractions because they're hard to get right the first time. We throw them out only if, when we do get them right, they don't pay back the cost.
+
+Procedures will pay back the cost, because the alternative is what you're doing now: explaining the same context to the model over and over, watching it fail in the same ways, accumulating technical debt at machine speed. The work of writing procedures is the work of writing down what your team already knows. That work is going to get done somewhere. The question is whether it gets done once, in a form a machine can execute, or a thousand times, in tribal memory until the person who knows it leaves.
+
+## Where this goes
+
+The teams that figure this out first won't look like they're winning. They'll look slow. They'll be writing procedures while competitors ship features. They'll be arguing about graph granularity while other teams demo impressive agent runs that quietly fail in production.
+
+Then the curve bends. Their agents stop hallucinating database columns. Their PRs stop introducing patterns the team abandoned. New engineers ramp up faster because the codebase finally contains a machine-readable record of how it's supposed to work.
+
+The bet I'm making is that the next two years of serious AI engineering work isn't about better models. It's about building the layer that tells the model what not to decide. Every team is trying to make the model smarter at writing code. The teams that win will be the ones who realized the model shouldn't be deciding how to write code at all.

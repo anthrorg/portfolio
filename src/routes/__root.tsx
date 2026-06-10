@@ -2,7 +2,6 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useTranslation } from "react-i18next";
 
-import { BackgroundText } from "@/components/BackgroundText";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { useThemeFollowsOS } from "@/lib/use-theme";
@@ -16,7 +15,6 @@ function RootLayout() {
       <a href="#main" className="skip-link">
         {t("nav.skipToContent")}
       </a>
-      <BackgroundText />
       <Nav />
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Outlet />

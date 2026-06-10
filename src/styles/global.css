@@ -206,118 +206,21 @@
 }
 
 /*
- * Background text grid — a tiled keyword pattern behind page content,
- * with a cursor-following spotlight that illuminates a small radius in
- * the indigo→pink gradient. Driven by --mx / --my custom properties
- * written from JS (see src/components/BackgroundText.tsx).
- *
- * Two layers: a static dim base always visible, plus a bright gradient
- * layer revealed only inside the spotlight mask. On no-hover devices
- * the whole effect is hidden; under reduced motion the spotlight is
- * dropped and the dim base stays.
- */
-.bg-text-grid {
-  font-family: var(--font-mono);
-  font-size: var(--bg-text-size);
-  font-weight: var(--font-weight-bold);
-  line-height: 2;
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  white-space: nowrap;
-  /* Promote each grid layer onto its own GPU layer so the shimmer animation
-     and cursor mask updates composite cheaply instead of triggering
-     full-document repaints. */
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.bg-text-dim {
-  color: var(--color-ink);
-  opacity: var(--bg-text-dim-opacity);
-}
-
-.bg-text-bright {
-  opacity: var(--bg-text-bright-opacity);
-  -webkit-mask-image: radial-gradient(
-    circle var(--bg-text-spotlight-size) at var(--mx, -1000px) var(--my, -1000px),
-    black,
-    transparent 70%
-  );
-  mask-image: radial-gradient(
-    circle var(--bg-text-spotlight-size) at var(--mx, -1000px) var(--my, -1000px),
-    black,
-    transparent 70%
-  );
-}
-
-/*
- * Each row in the bright layer paints two stacked backgrounds clipped
- * to its text shape: a base indigo→pink gradient (always visible inside
- * the spotlight) and a moving white shimmer stripe on top. The shimmer
- * is offscreen for most of the cycle and sweeps left-to-right in the
- * final ~8 %; per-row random animation-delays scatter the timing so
- * shimmers don't fire in unison. The bright layer's spotlight mask
- * means shimmer is only visible inside the cursor circle.
- */
-.bg-text-bright > div {
-  background-image:
-    linear-gradient(90deg, transparent 47%, var(--bg-text-shimmer-color) 50%, transparent 53%),
-    linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-end));
-  background-size: 200% 100%, 100% 100%;
-  background-position: -50% 0, 0 0;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: bg-text-shimmer var(--bg-text-shimmer-cycle, 14s) linear infinite;
-  /* Hint the compositor that bg-position changes per frame, and contain
-     each row so its animation tick can't invalidate ancestors' layout. */
-  will-change: background-position;
-  contain: layout style paint;
-}
-
-@keyframes bg-text-shimmer {
-  0%, 75% { background-position: -50% 0, 0 0; }
-  100%    { background-position: 250% 0, 0 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bg-text-bright > div {
-    animation: none;
-  }
-}
-
-/* Hide entirely on touch devices and on narrow viewports — matches the
-   md breakpoint where MobileNav takes over from the desktop nav. */
-@media (hover: none), (max-width: 768px) {
-  .bg-text-grid {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bg-text-bright {
-    display: none;
-  }
-}
-
-/*
  * Translucent surface plate — the site-wide "blocking area" treatment.
  *
  * Applied directly to any container that holds prose or a content card:
  * About sections, Career sections, case-study header / TL;DR /
  * engineer card / related card, Cutting Edge index cards, Skills
  * clusters, Home sections, Contact email panel. Replaces the older
- * opaque `bg-surface` cards so the bg-text grid's spotlight reads as a
- * soft wash *through* content rather than a hard cut-off behind it.
+ * opaque `bg-surface` cards with a translucent surface that feels
+ * continuous with the page background.
  *
  * Two values doing the work:
  *   - `color-mix(... var(--color-surface) 70%, transparent)` — same gray
  *     the prior opaque cards used, just translucent enough to feel
- *     continuous with the spotlight underneath.
- *   - `backdrop-filter: blur(16px)` — frosts the indigo→pink keyword
- *     wash behind the plate so paragraphs stay readable when the
- *     cursor's spotlight parks over the reading area.
+ *     continuous with the page behind it.
+ *   - `backdrop-filter: blur(16px)` — frosts whatever sits behind the
+ *     plate so paragraphs stay readable.
  *
  * Callers supply their own padding + (optional) border via Tailwind
  * utilities. The radius is bundled in so every plate reads as the same

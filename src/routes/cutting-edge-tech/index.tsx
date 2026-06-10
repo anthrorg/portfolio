@@ -191,7 +191,7 @@ function SupportingCase({
       >
         {/*
          * Card typography flip: category (role) is the visual hero so a
-         * scan-reader can sort the four cases by *type of work* in two
+         * scan-reader can sort the cases by *type of work* in two
          * seconds — "agent long-term memory" vs "codebase knowledge graph"
          * — instead of by project name. The project name moves into the
          * small mono eyebrow alongside the year.

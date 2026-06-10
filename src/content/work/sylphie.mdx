@@ -2,6 +2,8 @@
 
 Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. The Type 1 / Type 2 ratio is the metric the architecture is shaped to surface — live instrumentation of it is a Phase 2 deliverable, not currently broadcast. The case for the design is the trajectory, not today's reading.
 
+Sylphie runs live at [sylphie.live](https://sylphie.live).
+
 ## The drive engine, isolated by process and by Postgres
 
 The 12-drive substrate is the only motivational signal in the system. Every action is reinforced or punished by drive deltas; there is no other reward channel. Three of the drives are composite (SystemHealth, MoralValence, Integrity, CognitiveAwareness); the other eight accumulate or decay at hand-tuned rates per 1 Hz tick. Curiosity climbs at +0.0012; Boredom at +0.0015; Satisfaction decays at −0.0009. The asymmetric range `[-10.0, +1.0]` makes positive values mean *unmet need* and negative values a relief reservoir. Pressure is the sum of positive components only, capped at 12.
@@ -37,7 +39,7 @@ In partial mode the tensor takes over a category only after its agreement with t
 
 The tensor is currently in shadow / audit. The forward path is a graduated handoff from LLM-mediated deliberation to a small, locally-trained model that the system has watched succeed at scale before trusting it.
 
-## Memory: three knowledge graphs, ACT-R confidence, and a working memory that selects
+## Memory: four knowledge graphs, ACT-R confidence, and a working memory that selects
 
 Memory lives in four Neo4j instances, one per concern.
 
@@ -100,27 +102,27 @@ The shorter version: an agent that watches itself, predicts the consequences of 
 |---|---|
 | Main backend (NestJS) | `apps/sylphie/` |
 | Drive engine (isolated process) | `apps/drive-server/` |
-| Drive rules table + RLS policy | `apps/drive-server/src/db/drive_rules.sql`? |
-| Drive engine package | `@sylphie/drive-engine` |
-| Decision-making package (Cortex) | `@sylphie/decision-making` |
-| Dual-process arbitration (Type 1 / Type 2 / SHRUG) | `@sylphie/decision-making/src/arbitration/`? |
-| Predict step (expected drive deltas) | `@sylphie/decision-making/src/predict/`? |
-| Evaluate step (MAE computation) | `@sylphie/decision-making/src/evaluate/`? |
-| Working memory selector (5-signal activation) | `@sylphie/decision-making/src/working-memory/`? |
-| Episodic memory ring buffer | `@sylphie/decision-making/src/episodic/`? |
-| Pathology detectors (5 attractors) | `@sylphie/decision-making/src/attractors/`? |
-| Tensor cognition sidecar (Python FastAPI) | `services/cognition/` (port 8431)? |
-| Learning package (consolidation, reflection) | `@sylphie/learning` |
-| Planning package (opportunity → procedure) | `@sylphie/planning` |
-| Communication package | `@sylphie/communication` |
-| Supervisor (DeepSeek meta-evaluator) | `@sylphie/supervisor` |
+| Drive rules table + RLS policy (startup verification) | `apps/drive-server/src/main.ts` |
+| Drive engine package | `packages/drive-engine/` |
+| Decision-making package (Cortex) | `packages/decision-making/` |
+| Dual-process arbitration (Type 1 / Type 2 / SHRUG) | `packages/decision-making/src/arbitration/` |
+| Predict step (expected drive deltas) | `packages/decision-making/src/prediction/` |
+| Evaluate step (MAE computation) | `packages/decision-making/src/confidence/confidence-updater.service.ts` |
+| Working memory selector (5-signal activation) | `packages/decision-making/src/working-memory/` |
+| Episodic memory ring buffer | `packages/decision-making/src/episodic-memory/` |
+| Pathology detectors (5 attractors) | `packages/decision-making/src/monitoring/attractor-monitor.service.ts` |
+| Tensor cognition sidecar (Python FastAPI) | `packages/cognition-service/` (port 8431) |
+| Learning package (consolidation, reflection) | `packages/learning/` |
+| Planning package (opportunity → procedure) | `packages/planning/` |
+| Communication subsystem | `apps/sylphie/src/services/communication.service.ts` |
+| Supervisor (DeepSeek meta-evaluator) | `packages/supervisor/` |
 | World Knowledge Graph (WKG) | Neo4j `bolt://localhost:7687` |
 | Self Knowledge Graph (SKG) | Neo4j `bolt://localhost:7690` |
 | Other Knowledge Graph (OKG) | Neo4j `bolt://localhost:7689` |
 | Codebase-as-graph (PKG) | Neo4j `bolt://localhost:7691` (see [sylphie-pkg](/cutting-edge-tech/sylphie-pkg)) |
-| Event bus types + boundary map | `@sylphie/events/src/EVENT_BOUNDARY_MAP.ts`? |
+| Event bus types + boundary map | `packages/shared/src/types/event.types.ts` |
 | TimescaleDB events hypertable | postgres `timescaledb` port 5433, table `events` |
 | Postgres (auth, drive_rules) | postgres port 5434 |
-| Perception sidecar (YOLO + MediaPipe + Moondream2) | `services/perception/` (port 8430)? |
-| Frontend dashboard | `apps/frontend/`? (Vite + React 18 + Zustand + MUI) |
-| Inner Monologue panel (verbatim event reader) | `apps/frontend/src/routes/dashboard/inner-monologue/`? |
+| Perception sidecar (YOLO + MediaPipe + Moondream2) | `packages/perception-service/` (port 8430) |
+| Frontend dashboard | `frontend/` (Vite + React 18 + Zustand + MUI) |
+| Inner Monologue panel (verbatim event reader) | `frontend/src/components/InnerMonologue/` |

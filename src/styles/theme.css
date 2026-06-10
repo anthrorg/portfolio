@@ -145,18 +145,6 @@
   --duration-fast: 180ms;
   --duration-base: 300ms;
   --duration-slow: 600ms;
-
-
-  /* ===== BACKGROUND TEXT EFFECT ===== */
-  /* Tiled keyword grid behind content with cursor-following spotlight */
-  --bg-text-size:           0.6875rem;  /* ~11px — sits below --text-xs */
-  --bg-text-dim-opacity:    0.005;      /* dim base layer alpha (effectively invisible outside spotlight) */
-  --bg-text-bright-opacity: 0.55;       /* bright gradient layer alpha (inside spotlight) */
-  --bg-text-spotlight-size: 280px;      /* spotlight radius */
-
-  /* Shimmer — per-row left-to-right pulse that briefly lights up text */
-  --bg-text-shimmer-color:  #18181b;    /* light mode shimmer (matches --color-ink) */
-  --bg-text-shimmer-cycle:  50s;        /* full delay-then-sweep cycle */
 }
 
 
@@ -172,13 +160,6 @@
   --color-accent-ink:     #ffffff;
   --color-gradient-start: #6366f1;  /* indigo-500 */
   --color-gradient-end:   #ec4899;  /* pink-500   */
-
-  /* Dim layer matches light mode — at 0.005 the text is intentionally
-     near-invisible until the spotlight reveals it */
-  --bg-text-dim-opacity:    0.005;
-
-  /* Shimmer color flips to white on dark for max contrast */
-  --bg-text-shimmer-color:  #ffffff;
 }
 
 

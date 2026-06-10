@@ -2,7 +2,8 @@ export type CaseSlug =
   | "sylphie"
   | "memory-pkg"
   | "sylphie-pkg"
-  | "enforcement-hooks";
+  | "enforcement-hooks"
+  | "procedural-knowledge-graphs";
 
 export type CaseMeta = {
   slug: CaseSlug;
@@ -51,6 +52,13 @@ export const cases: readonly CaseMeta[] = [
     featured: true,
     year: "2026",
     stack: ["Bash", "Claude Code hooks", "Sonnet", "Playwright"],
+    noRepo: true,
+  },
+  {
+    slug: "procedural-knowledge-graphs",
+    featured: true,
+    year: "2026",
+    stack: ["Architecture", "AI", "Systems Design"],
     noRepo: true,
   },
 ] as const;

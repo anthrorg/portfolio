@@ -5,7 +5,7 @@ test.describe("SEO meta", () => {
     page,
   }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle("Jim Tisdale");
+    await expect(page).toHaveTitle("Jim Tisdale — Agent Engineer");
     const desc = await page
       .locator('head > meta[name="description"]')
       .getAttribute("content");
