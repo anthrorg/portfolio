@@ -58,6 +58,11 @@ test-results/
 .playwright/
 .playwright-mcp/
 
+# Stray verification screenshots (agents drop these in the repo root)
+/*.png
+/*.jpeg
+/*.jpg
+
 # TypeScript incremental build cache
 *.tsbuildinfo
 

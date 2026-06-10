@@ -35,7 +35,6 @@ line: the rule, then a `—`, then the reason that justifies the override.
 ## Phase-0 stubs awaiting real content
 
 - `src/content/career.ts` empty `roles`, `education`, `certifications` arrays — intentional; the route renders an `Updating soon.` empty state under each section heading until Jim authors entries. The `languages` section ships with real EN/JA values.
-- `src/routes/about.tsx` short lede copy — intentional; the long-form bio ships once Jim writes it. The page header pattern matches every other route.
 
 ## Comment style
 

@@ -139,33 +139,67 @@
   },
   "about": {
     "eyebrow": "About",
-    "title": "About.",
-    "body1": "Engineering teams I join tend to leave better than I found them. Half of that is patience — pairing with the engineer who hasn't found their agent workflow yet, writing the rollout doc nobody wants to own, taking the meeting where you explain to the skeptic why this isn't a fad. The other half is discipline. I review every pull request on my main project against a written architectural document before it merges, and I bring the same standard to whatever team I'm on, starting with my own code.",
-    "trajectory": {
-      "eyebrow": "From",
-      "title": "Seven-plus years of frontend, then the model showed up.",
-      "body": "I spent seven-plus years shipping production frontend — four and a half of them at Mediavine, where I built Mediavine Journey end-to-end with a small team and was primary dev on the analytics dashboard. The last two years of that, AI tooling showed up. I was one of four engineers on an eleven-person team who took it seriously early. I went deeper on the Anthropic-specific surface — features, hooks, MCP, the workflow ergonomics nobody else was reading the changelog for — than the rest of the cohort, and became the de facto lead by the time other ICs were routing their tooling questions to me. The team's ceiling rose as a result. I watched it happen. That's the work I want to do for other companies' engineering orgs now, not just my own."
+    "title": "Seven-plus years of frontend, then the model showed up.",
+    "lede": "I'm Jim Tisdale — agent engineer in Charlotte. The first seven-plus years were production frontend, four and a half of them at Mediavine building Journey — the publisher-onboarding product — and the analytics dashboards thousands of publishers work in. Since late 2025 the work has been the agent layer itself: two npm packages, a set of enforcement hooks, and a cognitive architecture running live. All of it public. All of it source-linked.",
+    "receipts": {
+      "cases": "4 case studies + 1 ideas piece"
     },
-    "frontier": {
-      "eyebrow": "Cutting Edge Tech",
-      "title": "Four projects on the same instinct.",
-      "body": "The case studies are not portfolio pieces. memory-pkg started because I got tired of being my own agent's notebook between sessions. sylphie-pkg started because the agent kept re-reading the same files to orient. The enforcement hooks started because reviewing the agent's work after it claimed done was costing me more time than the work itself. Sylphie, the cognitive architecture they all feed into, is a longer answer to a related question — what would an agent look like if depending on the language model less were the goal, not the constraint. The instinct underneath all four is the same. Reach for the system mechanism before reaching for prior art."
+    "rail": {
+      "eyebrow": "Trajectory",
+      "cta": "Full history",
+      "roles": {
+        "lam": {
+          "years": "2019 – 20",
+          "org": "Legal Associations Management",
+          "role": "Full Stack Developer → Team Lead",
+          "receipt": "Team Lead in 9 months; shipped a Node badge service that cut $22.5K/yr on a 10,000+-member platform."
+        },
+        "tek": {
+          "years": "2020 – 21",
+          "org": "TEKsystems",
+          "role": "React Developer (contract)",
+          "receipt": "React contract; built components for the shared library and gave an internal talk on generic component design."
+        },
+        "mediavine": {
+          "years": "2021 – 26",
+          "org": "Mediavine",
+          "role": "Software Engineer III",
+          "receipt": "Built the Journey onboarding product from the ground up; de facto AI-tooling lead by the end."
+        },
+        "sylphie": {
+          "years": "2025 – now",
+          "org": "Sylphie Labs",
+          "role": "AI / Agent Engineer",
+          "receipt": "memory-pkg and codebase-pkg on npm; Sylphie live at sylphie.live."
+        }
+      }
+    },
+    "method": {
+      "eyebrow": "Method",
+      "discipline": {
+        "eyebrow": "Discipline",
+        "title": "The discipline half.",
+        "body": "Every pull request on my main project merges only after review against a written architecture document — my own code first. That standard became the enforcement hooks: a line-level reviewer on every write, an intent-level check at every stop, Playwright verification required rather than optional. The agent doesn't get to grade its own work. Neither do I."
+      },
+      "patience": {
+        "eyebrow": "Patience",
+        "title": "The patience half.",
+        "body": "Adoption is people work. At Mediavine I was one of four engineers on an eleven-person team who took agent tooling seriously early; by the end, other ICs routed their tooling questions to me, and the R&D program I started made the exploration official. The unglamorous parts matter most — pairing with the engineer who hasn't found their workflow yet, writing the rollout doc nobody wants to own, taking the meeting with the skeptic."
+      }
     },
     "next": {
-      "eyebrow": "Next",
       "title": "Forward Deployed Engineer, specifically.",
-      "body": "The job is taking Claude into other companies' engineering orgs and getting it into production — same play I ran on a smaller scale at Mediavine, where I went from one of four AI-curious engineers to the one the team came to for tooling questions. Tokyo is the version I'd reach for first. Remote and the Bay Area are equally on the table. AI Product and Agent Engineer roles are open too; they're versions of the same job from a different angle."
+      "body": "The job is taking Claude into another company's engineering org and getting it into production — the play I ran for one team at Mediavine, now at org scale. Agent Engineer and AI-harnessed Frontend Developer are the same job from different angles; I'm open to all three."
     },
-    "curiosity": {
+    "offhours": {
       "eyebrow": "Off-hours",
-      "title": "The same instinct, off the clock.",
-      "body": "I study Japanese on JLPT material and read cognitive science papers for the same reason I built Sylphie — I'd rather understand a system from its mechanism than work around its surface. Tokyo is the version of that life I'd most want to live. The papers are the same curiosity I bring to architecture reviews."
+      "line": "Three kids, JLPT flashcards, and half-finished songs — the same patience, different instruments."
     }
   },
   "contact": {
     "eyebrow": "Contact",
     "title": "Contact.",
-    "lede": "Pointing at Forward Deployed Engineer. AI Product and Agent Engineer roles welcome — versions of the same job from a different angle. Tokyo first; Bay Area or remote also open. The fastest channel is email.",
+    "lede": "Pointing at Forward Deployed Engineer. Agent Engineer and AI-harnessed Frontend Developer roles welcome — the same job from different angles. Remote or Charlotte; I'd relocate for the Bay Area, New York, or Montreal. Fastest channel is email.",
     "emailLabel": "Email"
   },
   "footer": {
@@ -181,7 +215,7 @@
     "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
     "work": "Case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates, procedural knowledge.",
     "career": "Seven-plus years senior frontend, four and a half at Mediavine, pivoting into AI engineering.",
-    "about": "About Jim Tisdale — agent engineer building production AI systems with frontend craft.",
-    "contact": "Forward Deployed Engineer, AI Product, or Agent Engineer roles. Tokyo first, Bay Area or remote also open."
+    "about": "Jim Tisdale — seven-plus years of production frontend, now building the agent layer: two published npm packages, enforcement hooks, and a live cognitive architecture.",
+    "contact": "Forward Deployed Engineer, Agent Engineer, or AI-harnessed Frontend Developer roles. Remote or Charlotte; relocation open — Bay Area, New York, Montreal."
   }
 }
