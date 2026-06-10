@@ -117,6 +117,17 @@ export function HomeBento() {
                 </span>
                 {t("home.openTitle")}
               </h2>
+              {/* Fallback ladder: roles in priority order below the primary. */}
+              <ol className="space-y-1 font-display text-lg leading-snug text-ink-muted">
+                {(["home.openRole2", "home.openRole3"] as const).map((key) => (
+                  <li key={key}>
+                    <span aria-hidden className="mr-2 font-mono text-xs">
+                      ↳
+                    </span>
+                    {t(key)}
+                  </li>
+                ))}
+              </ol>
               <p className="hidden text-sm text-ink-muted min-[480px]:block">
                 {t("home.openShort")}
               </p>
