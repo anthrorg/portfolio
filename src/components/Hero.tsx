@@ -37,6 +37,23 @@ const fadeUpVariants = (delay: number) =>
     },
   }) as const;
 
+// Receipts strip: two plain facts, then four artifact links. Facts stay
+// muted so only the links read as interactive.
+const PROOF_FACTS = ["years", "mediavine"] as const;
+
+const PROOF_LINKS = [
+  {
+    key: "npmMemory",
+    href: "https://www.npmjs.com/package/@sylphie-labs/memory-pkg",
+  },
+  {
+    key: "npmCodebase",
+    href: "https://www.npmjs.com/package/@sylphie-labs/codebase-pkg",
+  },
+  { key: "live", href: "https://sylphie.live" },
+  { key: "github", href: "https://github.com/Sylphie-Labs" },
+] as const;
+
 export function Hero() {
   const { t } = useTranslation();
   const reduced = useReducedMotion();
@@ -93,6 +110,37 @@ export function Hero() {
             <span>{t("hero.cta")}</span>
             <span aria-hidden>→</span>
           </Link>
+        </motion.div>
+
+        <motion.div
+          initial={reduced ? false : "hidden"}
+          animate="visible"
+          variants={fadeUpVariants(0.7)}
+          className="mt-16"
+        >
+          <div
+            aria-hidden
+            className="h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-60"
+          />
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-widest">
+            <span className="text-ink-muted">{t("home.proof.label")}</span>
+            {PROOF_FACTS.map((key) => (
+              <span key={key} className="text-ink-muted">
+                {t(`home.proof.${key}`)}
+              </span>
+            ))}
+            {PROOF_LINKS.map(({ key, href }) => (
+              <a
+                key={key}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-accent"
+              >
+                {t(`home.proof.${key}`)}
+              </a>
+            ))}
+          </div>
         </motion.div>
       </Container>
     </section>

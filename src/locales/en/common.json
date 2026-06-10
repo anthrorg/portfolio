@@ -18,25 +18,27 @@
     "cta": "Read the work"
   },
   "home": {
-    "workEyebrow": "How I work",
     "workTitle": "With agents in the loop.",
-    "workBody": "Not a productivity hack. The way the work gets built. Years of shipping production software end-to-end mean the AI-augmented work I do becomes product, not demos. At Mediavine I went deeper on the Anthropic surface than anyone else on the team — became the engineer other ICs came to when their workflow stalled, the de facto lead by the time I left. I build at the model boundary too, including <mcpLink>production MCP tooling</mcpLink> for the agents I work with day to day.",
-    "thinkEyebrow": "How I think",
     "thinkTitle": "From the system, not the pattern.",
-    "thinkBody": "Every pull request on my main project gets reviewed against a written architectural document before it merges. The discipline isn't decorative — I'd rather study a system from its foundations than copy a shape that worked somewhere else. On my own time I read papers and build cognitive architectures from scratch, partly because I want to understand the systems I'm shipping at a layer below the API.",
+    "methodEyebrow": "Method",
+    "methodBody": "Not a productivity hack — the way the work gets built. Every pull request on my main project is reviewed against a written architecture document before it merges, and the same discipline travels to whatever team I'm on.",
+    "methodCta": "How I got here",
+    "liveBadge": "Live — sylphie.live",
+    "essay": "Also: an ideas piece on procedural knowledge graphs",
     "openEyebrow": "Open to",
     "openTitle": "Forward Deployed Engineer, specifically.",
-    "openBody": "Forward Deployed Engineer is the one I'm pointing at — taking Claude into other companies' engineering orgs the way I became the engineer my team came to for Anthropic-tooling questions at Mediavine. Tokyo first. Bay Area or remote also open. AI Product and Agent Engineer roles welcome too; they're versions of the same job from a different angle.",
+    "openBody": "Taking Claude into other companies' engineering orgs and getting it into production. Tokyo first. Bay Area or remote equally open. AI Product and Agent Engineer roles welcome too — versions of the same job from a different angle.",
     "openCta": "Email me",
     "openEmail": "jctisdale1988@gmail.com",
     "casesCta": "All case studies",
     "proof": {
       "label": "Receipts",
-      "live": "Live system — sylphie.live",
-      "npmMemory": "npm — @sylphie-labs/memory-pkg",
-      "npmCodebase": "npm — @sylphie-labs/codebase-pkg",
-      "github": "GitHub — Sylphie-Labs",
-      "cases": "Case studies"
+      "years": "7+ yrs production software",
+      "mediavine": "ex-Mediavine · 4.5 yrs",
+      "npmMemory": "npm — memory-pkg",
+      "npmCodebase": "npm — codebase-pkg",
+      "live": "Live — sylphie.live",
+      "github": "GitHub — Sylphie-Labs"
     }
   },
   "work": {
@@ -76,7 +78,7 @@
       },
       "sylphie-pkg": {
         "title": "sylphie-pkg",
-        "role": "Codebase knowledge graph — published as codebase-pkg",
+        "role": "Codebase knowledge graph",
         "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight.",
         "tldr": "sylphie-pkg gives a coding agent a map of your codebase instead of making it re-read files every time it needs to orient. The agent answers structural questions (\"where is this called from?\", \"what depends on this type?\") in one query instead of dozens of file reads, so its answers stay sharp on large projects.",
         "engineerSummary": "A monorepo package under `sylphie/packages/sylphie-pkg/` that maintains a Neo4j knowledge graph of a TypeScript codebase. ts-morph parses changed files, a differ compares content-hashed entities against the graph, mutations apply in a single Cypher transaction, and a six-check integrity pass gates the sync cursor — fail and the next sync re-runs the same diff instead of skipping over the corruption. Exposed to Claude Code as seven MCP tools over stdio. Ported clean to a second repo in about thirty minutes."

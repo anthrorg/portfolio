@@ -196,12 +196,17 @@ function SupportingCase({
          * — instead of by project name. The project name moves into the
          * small mono eyebrow alongside the year.
          */}
-        <div className="flex items-baseline justify-between gap-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
             {t(`work.cases.${meta.slug}.title`)}
           </span>
-          <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-            {meta.year}
+          <span className="flex items-baseline gap-4 font-mono text-xs uppercase tracking-widest text-ink-muted">
+            {/* The published name lives here now that the role string reverted
+                to plain "Codebase knowledge graph". */}
+            {meta.npmPackage && (
+              <span>npm — {meta.npmPackage.split("/").pop()}</span>
+            )}
+            <span>{meta.year}</span>
           </span>
         </div>
         <h3 className="mt-6 font-display text-3xl leading-[1.1] tracking-tight md:text-5xl">
