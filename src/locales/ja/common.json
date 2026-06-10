@@ -14,23 +14,26 @@
     "tagline": "Harnessing AI agents to ship production software, <highlight>predictably</highlight>.",
     "scrollCue": "スクロール",
     "tagline_plain": "Harnessing AI agents to ship production software, predictably.",
-    "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line.",
-    "cta": "Read the work"
+    "subhead": "I write production software with agents in the loop, ship developer tools at the model boundary, and bring teams that haven't gotten there yet across the line."
   },
   "home": {
     "workTitle": "With agents in the loop.",
     "thinkTitle": "From the system, not the pattern.",
-    "methodEyebrow": "Method",
-    "methodBody": "Not a productivity hack — the way the work gets built. Every pull request on my main project is reviewed against a written architecture document before it merges, and the same discipline travels to whatever team I'm on.",
+    "methodLine": "Not a productivity hack — the way the work gets built.",
     "methodCta": "How I got here",
     "liveBadge": "Live — sylphie.live",
-    "essay": "Also: an ideas piece on procedural knowledge graphs",
     "openEyebrow": "Open to",
     "openTitle": "Forward Deployed Engineer, specifically.",
-    "openBody": "Taking Claude into other companies' engineering orgs and getting it into production. Tokyo first. Bay Area or remote equally open. AI Product and Agent Engineer roles welcome too — versions of the same job from a different angle.",
+    "openShort": "Tokyo first. Bay Area or remote equally open.",
     "openCta": "Email me",
     "openEmail": "jctisdale1988@gmail.com",
-    "casesCta": "ケーススタディ一覧",
+    "tiles": {
+      "codebaseTitle": "codebase-pkg",
+      "memory-pkg": "Long-term memory for coding agents — pure SQL in the hot path.",
+      "sylphie-pkg": "The codebase as a Neo4j graph over MCP — a map, not a flashlight.",
+      "enforcement-hooks": "Fail-safe review gates that catch drift before \"done.\"",
+      "all": "All case studies + an ideas piece on procedural knowledge graphs"
+    },
     "proof": {
       "label": "Receipts",
       "years": "7+ yrs production software",
