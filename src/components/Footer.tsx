@@ -9,8 +9,14 @@ export function Footer() {
   return (
     <footer
       aria-label="Site footer"
-      className="mt-24 border-t border-border bg-bg/70 backdrop-blur-md"
+      className="mt-24 bg-bg/70 backdrop-blur-md"
     >
+      {/* Gradient hairline standing in for the old border-t — same 1px of
+          flow height, so footer layout is unchanged. */}
+      <div
+        aria-hidden
+        className="h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-40"
+      />
       <Container className="flex flex-col gap-6 py-10 text-xs text-ink-muted">
         <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-widest">
           <li>

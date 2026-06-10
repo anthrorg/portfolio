@@ -19,6 +19,11 @@
  *   --color-gradient-start  Gradient origin (name shimmer, highlights)
  *   --color-gradient-end    Gradient terminus
  *
+ *   The light/dark gradient asymmetry is intentional: dark mode carries
+ *   the unmodified Sylphie Labs logo sweep (sky #4ba7f8 → violet #8266f6);
+ *   light mode runs a contrast-corrected version of the same sweep
+ *   (AA-checked against the white background).
+ *
  * --- TYPE ---
  *   --font-display          Hero / headline face (Latin)
  *   --font-body             Paragraph / UI face (Latin)
@@ -54,11 +59,11 @@
   --color-ink-muted:      #71717a;
   --color-surface:        #f4f4f5;
   --color-border:         #e4e4e7;
-  --color-accent:         #7c3aed;
-  --color-accent-hover:   #6d28d9;
+  --color-accent:         #6a4ce6;
+  --color-accent-hover:   #5b3fd4;
   --color-accent-ink:     #ffffff;
-  --color-gradient-start: #4f46e5;  /* indigo-600 */
-  --color-gradient-end:   #db2777;  /* pink-600   */
+  --color-gradient-start: #1d76d2;  /* contrast-corrected sky  */
+  --color-gradient-end:   #6a4ce6;  /* contrast-corrected violet */
 
 
   /* ===== TYPE ===== */
@@ -155,11 +160,11 @@
   --color-ink-muted:      #a1a1aa;
   --color-surface:        #18181b;
   --color-border:         #27272a;
-  --color-accent:         #8b5cf6;
-  --color-accent-hover:   #a78bfa;
-  --color-accent-ink:     #ffffff;
-  --color-gradient-start: #6366f1;  /* indigo-500 */
-  --color-gradient-end:   #ec4899;  /* pink-500   */
+  --color-accent:         #6687f7;
+  --color-accent-hover:   #8aa3f9;
+  --color-accent-ink:     #0a0a0f;  /* dark ink — white on #6687f7 fails AA (selection text) */
+  --color-gradient-start: #4ba7f8;  /* Sylphie Labs logo sky    */
+  --color-gradient-end:   #8266f6;  /* Sylphie Labs logo violet */
 }
 
 

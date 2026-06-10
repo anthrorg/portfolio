@@ -83,7 +83,7 @@ function A({ className, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement>) {
       className={cn(
         isHeadingAnchor
           ? "no-underline"
-          : "underline decoration-border decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent",
+          : "underline decoration-accent/40 decoration-1 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent",
         className,
       )}
       {...rest}

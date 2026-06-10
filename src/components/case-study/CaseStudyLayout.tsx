@@ -45,11 +45,15 @@ export function CaseStudyLayout({
       </Link>
 
       <motion.header
-        className="text-plate mt-12 p-8 md:p-12"
+        className="text-plate relative mt-12 overflow-hidden p-8 md:p-12"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE_OUT }}
       >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-80"
+        />
         <div className="flex items-center justify-between gap-4">
           <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
             {t(`work.cases.${meta.slug}.role`)}

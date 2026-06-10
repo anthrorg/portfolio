@@ -130,7 +130,7 @@ function FeaturedCase({
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent to-transparent opacity-60"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-80"
         />
         <div className="flex items-center justify-between gap-4">
           <span className="rounded-full border border-accent/40 bg-bg px-3 py-1 font-mono text-[0.65rem] uppercase tracking-widest text-accent">

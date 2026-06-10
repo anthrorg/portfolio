@@ -232,3 +232,11 @@
   -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-3xl);
 }
+
+/*
+ * Accent dot glow — dark mode only. In light mode the dot reads fine on
+ * its own; in dark mode a soft accent halo lifts it off the plate.
+ */
+[data-theme="dark"] .accent-dot-glow {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 60%, transparent);
+}

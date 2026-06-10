@@ -85,7 +85,9 @@ export function HomeBento() {
                     <Trans
                       i18nKey="hero.tagline"
                       components={{
-                        highlight: <span className="italic" />,
+                        highlight: (
+                          <span className="italic bg-gradient-to-r from-gradient-start to-gradient-end bg-clip-text text-transparent" />
+                        ),
                       }}
                     />
                   </motion.span>
@@ -109,7 +111,7 @@ export function HomeBento() {
               className="text-plate flex flex-col items-start gap-4 p-6 md:p-8 lg:col-span-5"
             >
               <p className="font-mono text-xs uppercase tracking-widest text-ink-muted">
-                <span aria-hidden className="text-accent">
+                <span aria-hidden className="accent-dot-glow text-accent">
                   ●{" "}
                 </span>
                 {t("home.openEyebrow")}
@@ -199,7 +201,7 @@ export function HomeBento() {
           >
             <div
               aria-hidden
-              className="h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-60"
+              className="h-px bg-gradient-to-r from-gradient-start to-gradient-end"
             />
             <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-widest">
               <span className="text-ink-muted">{t("home.proof.label")}</span>
@@ -258,8 +260,12 @@ function FlagshipCell({ meta }: { meta: CaseMeta }) {
     <Link
       to="/cutting-edge-tech/$slug"
       params={{ slug: meta.slug }}
-      className="group text-plate relative flex h-full flex-col p-8 transition-colors md:p-10"
+      className="group text-plate relative flex h-full flex-col overflow-hidden p-8 transition-colors md:p-10"
     >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-gradient-start to-gradient-end opacity-80"
+      />
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <span className="font-mono text-xs uppercase tracking-widest text-ink-muted">
           {t(`work.cases.${meta.slug}.title`)} · {meta.year}
