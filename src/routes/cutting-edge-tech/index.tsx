@@ -204,7 +204,7 @@ function SupportingCase({
             {/* The published name lives here now that the role string reverted
                 to plain "Codebase knowledge graph". */}
             {meta.npmPackage && (
-              <span>npm — {meta.npmPackage.split("/").pop()}</span>
+              <span>npm · {meta.npmPackage.split("/").pop()}</span>
             )}
             <span>{meta.year}</span>
           </span>

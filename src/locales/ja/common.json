@@ -19,9 +19,9 @@
   "home": {
     "workTitle": "With agents in the loop.",
     "thinkTitle": "From the system, not the pattern.",
-    "methodLine": "Not a productivity hack — the way the work gets built.",
+    "methodLine": "Not a productivity hack: the way the work gets built.",
     "methodCta": "How I got here",
-    "liveBadge": "Live — sylphie.live",
+    "liveBadge": "Live · sylphie.live",
     "openEyebrow": "Open to",
     "openTitle": "Forward Deployed Engineer",
     "openAlsoLabel": "Also open to",
@@ -35,19 +35,19 @@
     "openEmail": "jctisdale1988@gmail.com",
     "tiles": {
       "codebaseTitle": "codebase-pkg",
-      "memory-pkg": "Long-term memory for coding agents — pure SQL in the hot path.",
-      "sylphie-pkg": "The codebase as a Neo4j graph over MCP — a map, not a flashlight.",
+      "memory-pkg": "Long-term memory for coding agents. Pure SQL in the hot path.",
+      "sylphie-pkg": "The codebase as a Neo4j graph over MCP: a map, not a flashlight.",
       "enforcement-hooks": "Fail-safe review gates that catch drift before \"done.\"",
       "all": "All case studies + an ideas piece on procedural knowledge graphs"
     },
     "proof": {
       "label": "Receipts",
       "years": "7+ yrs production software",
-      "mediavine": "ex-Mediavine · 4.5 yrs",
-      "npmMemory": "npm — memory-pkg",
-      "npmCodebase": "npm — codebase-pkg",
-      "live": "Live — sylphie.live",
-      "github": "GitHub — Sylphie-Labs"
+      "mediavine": "Mediavine · 4.5 yrs",
+      "npmMemory": "npm · memory-pkg",
+      "npmCodebase": "npm · codebase-pkg",
+      "live": "Live · sylphie.live",
+      "github": "GitHub · Sylphie-Labs"
     }
   },
   "work": {
@@ -75,36 +75,36 @@
         "title": "Sylphie",
         "role": "認知アーキテクチャ",
         "summary": "実行経路にLLMを置かない認知アーキテクチャ。二重プロセス推論、ドライブによる注意制御、思考ではなく発声装置としての言語モデル。",
-        "tldr": "Sylphie is a cognitive architecture for AI agents that's designed to depend on language models less over time, not more. Most agent products get smarter by switching to a bigger model; Sylphie gets smarter by learning which decisions it no longer needs to ask a model to make. The architecture is shaped so that share is the headline metric — instrumenting it as a live signal is the next phase of the build.",
-        "engineerSummary": "A multi-process TypeScript / Python system: a NestJS backend, an isolated Node drive engine over Zod-validated WebSocket, a FastAPI tensor sidecar (~2.2M params, TF + NumPy), four Neo4j knowledge graphs, and a TimescaleDB event bus with a compile-time ownership map. Reward function lives in a Postgres table with row-level security that the runtime user can't write to — startup aborts if RLS verification fails."
+        "tldr": "Sylphie is a cognitive architecture for AI agents that's designed to depend on language models less over time, not more. Most agent products get smarter by switching to a bigger model; Sylphie gets smarter by learning which decisions it no longer needs to ask a model to make. The architecture is shaped so that share is the headline metric. Instrumenting it as a live signal is the next phase of the build.",
+        "engineerSummary": "A multi-process TypeScript / Python system: a NestJS backend, an isolated Node drive engine over Zod-validated WebSocket, a FastAPI tensor sidecar (~2.2M params, TF + NumPy), four Neo4j knowledge graphs, and a TimescaleDB event bus with a compile-time ownership map. Reward function lives in a Postgres table with row-level security that the runtime user can't write to; startup aborts if RLS verification fails."
       },
       "memory-pkg": {
         "title": "memory-pkg",
         "role": "Agent long-term memory",
-        "summary": "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt — pure SQL, no LLM in the hot path.",
+        "summary": "Agents forget the work between sessions. memory-pkg indexes every transcript into TimescaleDB and trigram-searches the right history into the next prompt. Pure SQL, no LLM in the hot path.",
         "tldr": "memory-pkg gives a coding agent long-term memory across sessions. When the agent forgets what you decided two weeks ago and re-derives the answer, that's lost time and lost trust; memory-pkg pulls the relevant prior decision into the next prompt automatically, so the agent picks up where you left off.",
         "engineerSummary": "A TimescaleDB-backed long-term memory package under `drift-detector/packages/memory-pkg/`. A `Stop` hook tails the official Claude Code transcript JSONL into a buffer, an ingester rotates it atomically into a hypertable, and a `UserPromptSubmit` hook spawns a multi-tier retrieval CLI (trigram + entity on the fast path; embedding, classifier, graph tiers behind a one-line registry flip) and emits up to 4 KB of pre-fetched context. Fails open at every layer. MCP server exposes four tools for deliberate recall."
       },
       "sylphie-pkg": {
         "title": "sylphie-pkg",
         "role": "Codebase knowledge graph",
-        "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP — a map for the agent, not a flashlight.",
+        "summary": "Coding agents waste context re-reading files. sylphie-pkg compiles the source tree into a Neo4j graph and serves it over MCP: a map for the agent, not a flashlight.",
         "tldr": "sylphie-pkg gives a coding agent a map of your codebase instead of making it re-read files every time it needs to orient. The agent answers structural questions (\"where is this called from?\", \"what depends on this type?\") in one query instead of dozens of file reads, so its answers stay sharp on large projects.",
-        "engineerSummary": "A monorepo package under `sylphie/packages/sylphie-pkg/` that maintains a Neo4j knowledge graph of a TypeScript codebase. ts-morph parses changed files, a differ compares content-hashed entities against the graph, mutations apply in a single Cypher transaction, and a six-check integrity pass gates the sync cursor — fail and the next sync re-runs the same diff instead of skipping over the corruption. Exposed to Claude Code as seven MCP tools over stdio. Ported clean to a second repo in about thirty minutes."
+        "engineerSummary": "A monorepo package under `sylphie/packages/sylphie-pkg/` that maintains a Neo4j knowledge graph of a TypeScript codebase. ts-morph parses changed files, a differ compares content-hashed entities against the graph, mutations apply in a single Cypher transaction, and a six-check integrity pass gates the sync cursor: fail and the next sync re-runs the same diff instead of skipping over the corruption. Exposed to Claude Code as seven MCP tools over stdio. Ported clean to a second repo in about thirty minutes."
       },
       "enforcement-hooks": {
         "title": "Enforcement Hooks",
         "role": "Self-review gates for agents",
-        "summary": "Agents that grade their own work ship drift. Two hooks — line-level on every write, intent-level at every Stop — keep the agent in lock step with the project's standards.",
+        "summary": "Agents that grade their own work ship drift. Two hooks (line-level on every write, intent-level at every Stop) keep the agent in lock step with the project's standards.",
         "tldr": "A pair of automatic reviewers that catch a coding agent before it declares work done too early. One reads every file the agent writes; the other reads the cumulative work at the end of each turn and checks it against the original ask. The result is fewer surprises after the agent says \"done.\"",
-        "engineerSummary": "Three Bash scripts wired into `.claude/settings.json` against `UserPromptSubmit`, `PostToolUse(Write|Edit|MultiEdit)`, and `Stop`. Per-write spawns a single-file Sonnet reviewer with a two-state output contract; per-turn spawns a Sonnet reviewer with git, transcript, and Playwright access that verifies the cumulative diff against the user's original prompt. Two SHA-1 hash files (`.turn-baseline-hash`, `.last-review-hash`) gate the Stop reviewer so it runs exactly once per unique diff state regardless of how often Stop fires. Fail-safe rather than fail-open — a reviewer crash surfaces as visible output, not a silent pass."
+        "engineerSummary": "Three Bash scripts wired into `.claude/settings.json` against `UserPromptSubmit`, `PostToolUse(Write|Edit|MultiEdit)`, and `Stop`. Per-write spawns a single-file Sonnet reviewer with a two-state output contract; per-turn spawns a Sonnet reviewer with git, transcript, and Playwright access that verifies the cumulative diff against the user's original prompt. Two SHA-1 hash files (`.turn-baseline-hash`, `.last-review-hash`) gate the Stop reviewer so it runs exactly once per unique diff state regardless of how often Stop fires. Fail-safe rather than fail-open: a reviewer crash surfaces as visible output, not a silent pass."
       },
       "procedural-knowledge-graphs": {
         "title": "The Missing Layer: Why Procedural Knowledge Graphs Will Reshape AI Coding",
         "role": "AIエージェントのコード生成構造",
         "summary": "Procedural knowledge graphs separate what an AI model should decide from what it shouldn't. By encoding how your team writes code, a PKG lets the model focus on interpretation and planning while a deterministic graph handles code generation.",
-        "tldr": "Procedural knowledge graphs separate the decisions a model should make from the ones it shouldn't. A PKG encodes how your team writes code — the steps, order, constraints, and slots where specifics get filled in — so the model's role at the code layer becomes narrow: walk the graph, fill in the slots, produce the output. The result is less hallucination, faster token-to-output, and code that stays aligned with what your team actually decided to do.",
-        "engineerSummary": "An ideas piece on graph-backed code generation. The core thesis: agents hallucinate database columns not because models are dumb, but because token-by-token code generation is pure pattern-matching against training data with no anchor to your team's actual decisions. A PKG is a structured record of procedures with abstracted slots for specifics. The model decides what to build; the graph decides how. Non-determinism stays where it belongs — interpretation and planning — while code generation becomes deterministic and fast."
+        "tldr": "Procedural knowledge graphs separate the decisions a model should make from the ones it shouldn't. A PKG encodes how your team writes code (the steps, order, constraints, and slots where specifics get filled in), so the model's role at the code layer becomes narrow: walk the graph, fill in the slots, produce the output. The result is less hallucination, faster token-to-output, and code that stays aligned with what your team actually decided to do.",
+        "engineerSummary": "An ideas piece on graph-backed code generation. The core thesis: agents hallucinate database columns not because models are dumb, but because token-by-token code generation is pure pattern-matching against training data with no anchor to your team's actual decisions. A PKG is a structured record of procedures with abstracted slots for specifics. The model decides what to build; the graph decides how. Non-determinism stays where it belongs, in interpretation and planning, while code generation becomes deterministic and fast."
       }
     }
   },
@@ -122,7 +122,7 @@
     "skills": {
       "eyebrow": "Stack",
       "title": "What I reach for, and for what.",
-      "intro": "Grouped by what the tool is doing in the work — agent runtime, frontend craft, infra and observability, evaluation and quality — not by which logo it has.",
+      "intro": "Grouped by what the tool is doing in the work (agent runtime, frontend craft, infra and observability, evaluation and quality), not by which logo it has.",
       "clusters": {
         "agent-runtime": "Agent runtime",
         "frontend-craft": "Frontend craft",
@@ -140,7 +140,7 @@
   "about": {
     "eyebrow": "プロフィール",
     "title": "Seven-plus years of frontend, then the model showed up.",
-    "lede": "I'm Jim Tisdale — agent engineer in Charlotte. The first seven-plus years were production frontend, four and a half of them at Mediavine building Journey — the publisher-onboarding product — and the analytics dashboards thousands of publishers work in. Since late 2025 the work has been the agent layer itself: two npm packages, a set of enforcement hooks, and a cognitive architecture running live. All of it public. All of it source-linked.",
+    "lede": "I'm Jim Tisdale, agent engineer in Charlotte. The first seven-plus years were production frontend, four and a half of them at Mediavine building Journey (the publisher-onboarding product) and the analytics dashboards thousands of publishers work in. Since late 2025 the work has been the agent layer itself: two npm packages, a set of enforcement hooks, and a cognitive architecture running live. All of it public. All of it source-linked.",
     "receipts": {
       "cases": "4 case studies + 1 ideas piece"
     },
@@ -179,27 +179,27 @@
       "discipline": {
         "eyebrow": "Discipline",
         "title": "The discipline half.",
-        "body": "Every pull request on my main project merges only after review against a written architecture document — my own code first. That standard became the enforcement hooks: a line-level reviewer on every write, an intent-level check at every stop, Playwright verification required rather than optional. The agent doesn't get to grade its own work. Neither do I."
+        "body": "Every pull request on my main project merges only after review against a written architecture document. My own code first. That standard became the enforcement hooks: a line-level reviewer on every write, an intent-level check at every stop, Playwright verification required rather than optional. The agent doesn't get to grade its own work. Neither do I."
       },
       "patience": {
         "eyebrow": "Patience",
         "title": "The patience half.",
-        "body": "Adoption is people work. At Mediavine I was one of four engineers on an eleven-person team who took agent tooling seriously early; by the end, other ICs routed their tooling questions to me, and the R&D program I started made the exploration official. The unglamorous parts matter most — pairing with the engineer who hasn't found their workflow yet, writing the rollout doc nobody wants to own, taking the meeting with the skeptic."
+        "body": "Adoption is people work. At Mediavine I was one of four engineers on an eleven-person team who took agent tooling seriously early; by the end, other ICs routed their tooling questions to me, and the R&D program I started made the exploration official. The unglamorous parts matter most: pairing with the engineer who hasn't found their workflow yet, writing the rollout doc nobody wants to own, taking the meeting with the skeptic."
       }
     },
     "next": {
       "title": "Forward Deployed Engineer, specifically.",
-      "body": "The job is taking Claude into another company's engineering org and getting it into production — the play I ran for one team at Mediavine, now at org scale. Agent Engineer and AI-harnessed Frontend Developer are the same job from different angles; I'm open to all three."
+      "body": "The job is taking Claude into another company's engineering org and getting it into production. The play I ran for one team at Mediavine, now at org scale. Agent Engineer and AI-harnessed Frontend Developer are the same job from different angles; I'm open to all three."
     },
     "offhours": {
       "eyebrow": "Off-hours",
-      "line": "Three kids, JLPT flashcards, and half-finished songs — the same patience, different instruments."
+      "line": "Three kids, JLPT flashcards, and half-finished songs. Same patience, different instruments."
     }
   },
   "contact": {
     "eyebrow": "連絡",
     "title": "連絡。",
-    "lede": "Pointing at Forward Deployed Engineer. Agent Engineer and AI-harnessed Frontend Developer roles welcome — the same job from different angles. Remote or Charlotte; I'd relocate for the Bay Area, New York, or Montreal. Fastest channel is email.",
+    "lede": "Pointing at Forward Deployed Engineer. Agent Engineer and AI-harnessed Frontend Developer roles welcome. Same job, different angles. Remote or Charlotte; I'd relocate for the Bay Area, New York, or Montreal. Fastest channel is email.",
     "emailLabel": "メール"
   },
   "footer": {
@@ -213,9 +213,9 @@
   },
   "meta": {
     "home": "Engineer building AI systems with the craft of frontend. Production agents, developer tools at the model boundary, and the discipline to move teams along.",
-    "work": "Case studies on what I build so coding agents stay oriented, honest, and on task — cognitive architecture, memory, codebase graph, review gates, procedural knowledge.",
+    "work": "Case studies on what I build so coding agents stay oriented, honest, and on task: cognitive architecture, memory, codebase graph, review gates, procedural knowledge.",
     "career": "Seven-plus years senior frontend, four and a half at Mediavine, pivoting into AI engineering.",
-    "about": "Jim Tisdale — seven-plus years of production frontend, now building the agent layer: two published npm packages, enforcement hooks, and a live cognitive architecture.",
-    "contact": "Forward Deployed Engineer, Agent Engineer, or AI-harnessed Frontend Developer roles. Remote or Charlotte; relocation open — Bay Area, New York, Montreal."
+    "about": "Jim Tisdale. Seven-plus years of production frontend, now building the agent layer: two published npm packages, enforcement hooks, and a live cognitive architecture.",
+    "contact": "Forward Deployed Engineer, Agent Engineer, or AI-harnessed Frontend Developer roles. Remote or Charlotte; relocation open: Bay Area, New York, Montreal."
   }
 }

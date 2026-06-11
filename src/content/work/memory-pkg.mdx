@@ -2,17 +2,17 @@
 
 Coding agents forget two ways. Structural: they don't know what the codebase looks like. Episodic: they don't remember the work.
 
-**Structural forgetting** is the agent not knowing what your codebase looks like. It re-greps and re-reads files every session to reconstruct who calls whom, what types live where, which functions are entry points. That's what graph-backed codebase tools — `sylphie-pkg` and its drift-detector port `codebase-pkg` — solve. Encode the codebase's structure once; let the agent query it.
+**Structural forgetting** is the agent not knowing what your codebase looks like. It re-greps and re-reads files every session to reconstruct who calls whom, what types live where, which functions are entry points. That's what graph-backed codebase tools (`sylphie-pkg` and its drift-detector port `codebase-pkg`) solve. Encode the codebase's structure once; let the agent query it.
 
 **Episodic forgetting** is the agent not remembering the *work*. Two weeks ago you and the agent worked out why TimescaleDB beat plain Postgres for your use case. Today you're asking "should I add pgvector or use Pinecone for embeddings?" and the agent will not consult that prior reasoning. It will re-derive an answer from scratch, sometimes contradicting itself, often hedging.
 
-Claude Code's `MEMORY.md` auto-memory file partly addresses this, but it's hand-curated — you decide what to remember. That's the right tool for stable preferences and user facts. It's the wrong tool for *"what did we try last Thursday and why did it not work?"* That kind of recall needs the full transcript, indexed and searchable.
+Claude Code's `MEMORY.md` auto-memory file partly addresses this, but it's hand-curated: you decide what to remember. That's the right tool for stable preferences and user facts. It's the wrong tool for *"what did we try last Thursday and why did it not work?"* That kind of recall needs the full transcript, indexed and searchable.
 
-`memory-pkg` fills that second gap. It reads the official Claude Code transcript JSONL files, extracts events, persists them to TimescaleDB, and injects relevant historical events into every new user prompt — automatically, transparently, without the developer doing anything.
+`memory-pkg` fills that second gap. It reads the official Claude Code transcript JSONL files, extracts events, persists them to TimescaleDB, and injects relevant historical events into every new user prompt. Automatically, transparently, without the developer doing anything.
 
 Up front: the fast path is plain SQL trigram search against a Postgres GIN index. For well-formed prompts it short-circuits the rest of the pipeline at score ≥ 0.7. The semantic-embedding tier exists in the code but is dormant in the live config. Trigram lexical retrieval, plus an entity tier that reads the last 20 lines of the active transcript, is enough most of the time. The next sections explain why.
 
-> `memory-pkg` addresses the episodic side of agent forgetting — the agent's lack of memory for the work itself. For the structural side — the agent's lack of a map of the codebase — see [sylphie-pkg](/cutting-edge-tech/sylphie-pkg), the complementary piece.
+> `memory-pkg` addresses the episodic side of agent forgetting: the agent's lack of memory for the work itself. For the structural side (the agent's lack of a map of the codebase), see [sylphie-pkg](/cutting-edge-tech/sylphie-pkg), the complementary piece.
 
 ## What `memory-pkg` is
 
@@ -22,16 +22,16 @@ Six pieces hold it together:
 
 1. **A capture hook** on `Stop` that reads the official transcript tail and appends new events to a local JSONL buffer. ([`template/.claude/hooks/memory-capture.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-capture.cjs))
 2. **An ingester** that rotates the buffer atomically and bulk-inserts into a Timescale hypertable. ([`src/ingest/ingester.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/ingest/ingester.ts))
-3. **An injection hook** on `UserPromptSubmit` — a ~30-line wrapper that spawns the retrieval CLI, captures its stdout, and emits the result as `additionalContext` for the model's turn. **The hook never blocks the user's message.** If the CLI isn't built, if the DB is unreachable, if the pipeline times out, if anything errors at any layer — the hook silently exits and the user's prompt proceeds untouched. Fails open by design. ([`template/.claude/hooks/memory-inject.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-inject.cjs))
+3. **An injection hook** on `UserPromptSubmit`: a ~30-line wrapper that spawns the retrieval CLI, captures its stdout, and emits the result as `additionalContext` for the model's turn. **The hook never blocks the user's message.** If the CLI isn't built, if the DB is unreachable, if the pipeline times out, if anything errors at any layer, the hook silently exits and the user's prompt proceeds untouched. Fails open by design. ([`template/.claude/hooks/memory-inject.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-inject.cjs))
 4. **A multi-tier retrieval pipeline** behind that hook. It includes an **entity tier that reads the last 20 lines of the active transcript** so pronoun-shaped prompts like *"ok let's do that"* still find the right history. ([`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts), [`src/inject/tiers/entity.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/entity.ts))
-5. **An MCP server** with four tools — `searchMemory`, `getMemoryContext`, `unwindFromEvent`, `getSessionTimeline` — registered in the consumer's `.mcp.json` so the agent can deliberately drill in when auto-injection isn't enough. ([`src/mcp-server/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/mcp-server/index.ts))
+5. **An MCP server** with four tools (`searchMemory`, `getMemoryContext`, `unwindFromEvent`, `getSessionTimeline`) registered in the consumer's `.mcp.json` so the agent can deliberately drill in when auto-injection isn't enough. ([`src/mcp-server/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/mcp-server/index.ts))
 6. **A rationale-synthesis job** that compresses each turn into a 2-3 sentence "why" event at ingest time, so future searches for "why did we…" match the reasoning instead of the actions. ([`src/rationale/synthesize.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/rationale/synthesize.ts))
 
-`memory-pkg` was written fresh in the `drift-detector` monorepo and has since been extracted to its own standalone repo for distribution. Unlike `codebase-pkg` — which was ported into drift-detector from sylphie's `sylphie-pkg` — `memory-pkg` had no ancestor in the sylphie repo.
+`memory-pkg` was written fresh in the `drift-detector` monorepo and has since been extracted to its own standalone repo for distribution. Unlike `codebase-pkg`, which was ported into drift-detector from sylphie's `sylphie-pkg`, `memory-pkg` had no ancestor in the sylphie repo.
 
 ## Architecture at a glance
 
-Two views worth showing. The first is the system as designed — every retrieval tier engaged. The second is the live configuration today, which intentionally runs only the cheap tiers.
+Two views worth showing. The first is the system as designed: every retrieval tier engaged. The second is the live configuration today, which intentionally runs only the cheap tiers.
 
 ### Designed flow
 
@@ -78,15 +78,15 @@ Two views worth showing. The first is the system as designed — every retrieval
 └────────────────────────────────────────────────────────┘
 ```
 
-`embedding`, `classifier`, and `kg` tiers are imported into the registry but explicitly dormant — `void embeddingTier; void classifierTier; void kgTier;` ([`src/inject/tiers/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/index.ts)). The orchestration plumbing, the schema columns (`embedding`, `subsystem`), and the per-tier code are intact. Flipping any rescue tier back on is a one-line registry edit.
+`embedding`, `classifier`, and `kg` tiers are imported into the registry but explicitly dormant: `void embeddingTier; void classifierTier; void kgTier;` ([`src/inject/tiers/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/index.ts)). The orchestration plumbing, the schema columns (`embedding`, `subsystem`), and the per-tier code are intact. Flipping any rescue tier back on is a one-line registry edit.
 
 Two databases sit underneath: TimescaleDB for the time-series memory store, and Neo4j (shared with `codebase-pkg`) for the optional knowledge-graph retrieval tier. Both come up via `docker compose`.
 
 ## The capture path and multi-resolution event storage
 
-When a session ends, Claude Code fires its `Stop` event. The hook reads the official transcript JSONL at `~/.claude/projects/<sanitized-path>/<sessionId>.jsonl`, advancing a per-session cursor that tracks both byte offset and last-seen UUID — partial-line writes during reads are safely re-read on the next turn, and crash recovery is idempotent. ([`memory-capture.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-capture.cjs)) Five event types are emitted: `user_prompt`, `assistant_thinking`, `assistant_text`, `tool_call`, `tool_result`.
+When a session ends, Claude Code fires its `Stop` event. The hook reads the official transcript JSONL at `~/.claude/projects/<sanitized-path>/<sessionId>.jsonl`, advancing a per-session cursor that tracks both byte offset and last-seen UUID. Partial-line writes during reads are safely re-read on the next turn, and crash recovery is idempotent. ([`memory-capture.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-capture.cjs)) Five event types are emitted: `user_prompt`, `assistant_thinking`, `assistant_text`, `tool_call`, `tool_result`.
 
-Each event is stored at **four resolutions** — a pattern I'll call **multi-resolution event storage**:
+Each event is stored at **four resolutions**, a pattern I'll call **multi-resolution event storage**:
 
 | Resolution | Field | Cap | Used by |
 |---|---|---|---|
@@ -95,7 +95,7 @@ Each event is stored at **four resolutions** — a pattern I'll call **multi-res
 | Search | `search_text` | up to 2000 chars | GIN trigram index, fuzzy lookup |
 | Replay | `payload` | full JSONB | `unwindFromEvent`, full-detail recall |
 
-Different consumers — display, injection, search, replay — each pick the cheapest representation sufficient for their job. The hot retrieval path never has to scan full event bodies; the fuzzy search only touches a 2 KB column; the injection block only pulls a 600 char excerpt. The same content stored four ways is what makes the cost story work. ([`memory-capture.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-capture.cjs))
+Different consumers (display, injection, search, replay) each pick the cheapest representation sufficient for their job. The hot retrieval path never has to scan full event bodies; the fuzzy search only touches a 2 KB column; the injection block only pulls a 600 char excerpt. The same content stored four ways is what makes the cost story work. ([`memory-capture.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-capture.cjs))
 
 The buffer rotates atomically before ingest; failed batches move to `buffer.failed.jsonl` rather than being silently dropped. ([`src/ingest/ingester.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/ingest/ingester.ts)) Deduplication is enforced by a unique index on `(session_id, transcript_uuid, ts)`. ([`src/schema.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/schema.ts))
 
@@ -113,19 +113,19 @@ memory_events  (hypertable, partition by ts)
      file_path, summary, excerpt, transcript_uuid)
 ```
 
-The schema script is idempotent — safe to re-run on every deploy. Full DDL: [`src/schema.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/schema.ts).
+The schema script is idempotent: safe to re-run on every deploy. Full DDL: [`src/schema.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/schema.ts).
 
 ## The retrieval pipeline
 
-Every new user prompt fires the injection hook ([`memory-inject.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-inject.cjs)), which spawns the compiled CLI with a 30-second timeout (`DRIFT_MEMORY_HOOK_TIMEOUT_MS`-overridable) and emits the CLI's stdout as `additionalContext` on a `UserPromptSubmit` event. The hook fails open at every layer — if anything errors, the user's prompt proceeds untouched.
+Every new user prompt fires the injection hook ([`memory-inject.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-inject.cjs)), which spawns the compiled CLI with a 30-second timeout (`DRIFT_MEMORY_HOOK_TIMEOUT_MS`-overridable) and emits the CLI's stdout as `additionalContext` on a `UserPromptSubmit` event. The hook fails open at every layer: if anything errors, the user's prompt proceeds untouched.
 
 Inside the CLI, `generateInjection()` runs a tiered retrieval system. Five tiers are implemented; the live registry returns `[trigramTier, entityTier]` for the fast path and an empty rescue array. ([`src/inject/tiers/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/index.ts))
 
 ### The two live tiers
 
-**Trigram lexical** ([`src/inject/tiers/trigram.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/trigram.ts)). Pure SQL. Postgres `word_similarity(query, search_text)` against the GIN trigram index. `word_similarity` finds the query's best-matching extent inside a longer document — the right metric for short prompts against longer event records. Pulls top 20 above 0.2 similarity, ordered by score then recency. Zero LLM cost.
+**Trigram lexical** ([`src/inject/tiers/trigram.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/trigram.ts)). Pure SQL. Postgres `word_similarity(query, search_text)` against the GIN trigram index. `word_similarity` finds the query's best-matching extent inside a longer document, the right metric for short prompts against longer event records. Pulls top 20 above 0.2 similarity, ordered by score then recency. Zero LLM cost.
 
-**Entity-aware lexical** ([`src/inject/tiers/entity.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/entity.ts)). Same trigram engine, different inputs. Pure trigram fails when the prompt is a pronoun — *"ok let's do that"* contains no extractable concept. The entity tier extracts identifiers — backticked terms, double-quoted phrases, file paths, CamelCase, snake_case — from both the current prompt *and the last 20 lines of the active transcript*. Identifiers from the prompt are weighted double over transcript mentions; the top-ranked entities get one `word_similarity` query each, in parallel. Metadata is surfaced — queried entities, dropped ones, overflow counts — so the orchestrator can hint *"more matches exist for `<entity>`; call `searchMemory` to widen."* ([`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts))
+**Entity-aware lexical** ([`src/inject/tiers/entity.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/entity.ts)). Same trigram engine, different inputs. Pure trigram fails when the prompt is a pronoun: *"ok let's do that"* contains no extractable concept. The entity tier extracts identifiers (backticked terms, double-quoted phrases, file paths, CamelCase, snake_case) from both the current prompt *and the last 20 lines of the active transcript*. Identifiers from the prompt are weighted double over transcript mentions; the top-ranked entities get one `word_similarity` query each, in parallel. Metadata is surfaced (queried entities, dropped ones, overflow counts) so the orchestrator can hint *"more matches exist for `<entity>`; call `searchMemory` to widen."* ([`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts))
 
 ### The three dormant tiers
 
@@ -133,13 +133,13 @@ Inside the CLI, `generateInjection()` runs a tiered retrieval system. Five tiers
 
 **Classifier-driven** ([`src/inject/tiers/classifier.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/classifier.ts), [`src/inject/classify.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/classify.ts)). Would shell out to a local `claude` CLI (Haiku via Max OAuth) for strict-JSON classification `{intent, subsystems, files, entities, confidence}`, validate the results against the filesystem and a subsystem whitelist, then query by subsystem tag and file-path suffix with classifications cached on disk for 24 hours. Off because it adds 6–10 s on a cold call and the trigram + entity path covers the same ground for most prompts. Available when you need entity-aware retrieval that goes beyond what regex-extraction can catch.
 
-**Knowledge graph** ([`src/inject/tiers/kg.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/kg.ts)). Would read the classifier's cached file list, expand each file by one hop through `codebase-pkg`'s Neo4j `IMPORTS` edges, and query `memory_events` for events touching those files. Off because it depends on the classifier (also dormant) and the two-DB coordination is expensive for a tier whose contribution is by construction discounted (`× 0.7`). Useful for cross-module retrieval — "find memory events on files structurally related to the one we're discussing." Reactivating it is two registry edits.
+**Knowledge graph** ([`src/inject/tiers/kg.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/tiers/kg.ts)). Would read the classifier's cached file list, expand each file by one hop through `codebase-pkg`'s Neo4j `IMPORTS` edges, and query `memory_events` for events touching those files. Off because it depends on the classifier (also dormant) and the two-DB coordination is expensive for a tier whose contribution is by construction discounted (`× 0.7`). Useful for cross-module retrieval: "find memory events on files structurally related to the one we're discussing." Reactivating it is two registry edits.
 
 ### The merger
 
 Each tier returns `{event_id, score, source_tier}` candidates. The merger ([`src/inject/merger.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/merger.ts)) combines them by weighted average (default strategy; alternatives: `union`, `intersection`). Default weights: trigram 0.2, entity 0.3, embedding 0.3, classifier 0.4, kg 0.1. Only the first two weights are active in the live config; the others describe what the merger would do if the rescue tiers were re-enabled. An event surfaced by multiple tiers wins on agreement, not just raw score.
 
-**Fast-path short-circuit.** If trigram + entity produce a merged candidate at score ≥ 0.7, the rescue phase is skipped entirely — no Haiku call, no graph expansion. ([`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts)) For well-formed prompts the answer comes back as pure SQL.
+**Fast-path short-circuit.** If trigram + entity produce a merged candidate at score ≥ 0.7, the rescue phase is skipped entirely: no Haiku call, no graph expansion. ([`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts)) For well-formed prompts the answer comes back as pure SQL.
 
 **Output.** Up to 3 candidates (default; configurable 1–10; capped at 4 KB total chars) are formatted into a `<memory-context>` markdown block. Each entry shows score, event type, tool name, file path, date, and source tiers (`[trigram+entity]`). The block is wrapped: *"These are from previous sessions, not the current conversation. Use them as reference, not as current state."*
 
@@ -151,13 +151,13 @@ Real prompt: *"what did we decide about the classifier cache TTL?"*
 |---|---|
 | **Trigram** | `word_similarity` against `search_text`. Hits past `assistant_text` and `turn_rationale` events containing "classifier" and "cache". Top hits in the ~0.35–0.45 range. |
 | **Entity** | Extracts `classifier`, `cache`, `TTL`. Queries each as a separate `word_similarity` lookup in parallel. The `classifier` and `TTL` queries hit focused content; `cache` returns noisier matches. Top merged entity score ~0.5. |
-| **Merger** (weighted, trigram 0.2 / entity 0.3) | An event surfaced by *both* tiers — say, a prior `turn_rationale` that explained the 24h TTL choice — wins on agreement. Top merged candidate ~0.47, below the 0.7 strong threshold but above the 0.2 floor. |
+| **Merger** (weighted, trigram 0.2 / entity 0.3) | An event surfaced by *both* tiers (say, a prior `turn_rationale` that explained the 24h TTL choice) wins on agreement. Top merged candidate ~0.47, below the 0.7 strong threshold but above the 0.2 floor. |
 | **Output** | Up to 3 candidates formatted into the `<memory-context>` block. The prompt arrives at the model with the prior decision pre-loaded. |
 | **Cost** | ~600 ms of SQL. Zero LLM tokens during retrieval. |
 
-(Score ranges are illustrative — actual values depend on what's in your store. The pipeline shape is faithful to the code in [`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts).)
+(Score ranges are illustrative; actual values depend on what's in your store. The pipeline shape is faithful to the code in [`src/inject/generate.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/inject/generate.ts).)
 
-## Surfacing memory deliberately — the MCP path
+## Surfacing memory deliberately: the MCP path
 
 Auto-injection is the primary path; every user prompt fires it. But the model can also reach for memory deliberately via four MCP tools exposed over stdio and registered in the consumer's `.mcp.json`:
 
@@ -182,7 +182,7 @@ The MCP wiring itself is one stanza of the consumer's `.mcp.json`:
 
 That's all Claude Code needs to discover the server, spawn it as a child process, and call its tools. See the published server entrypoint: [`src/mcp-server/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/mcp-server/index.ts).
 
-## Rationale synthesis — the original idea
+## Rationale synthesis: the original idea
 
 The transcript captures *what happened*. It does not, by default, capture *why*. A `tool_call` event with summary `Edit packages/foo/bar.ts` will not match a future fuzzy search for *"why did we change the timeout?"* The event doesn't contain the word "timeout" or "why" anywhere. It just shows that an edit happened.
 
@@ -208,21 +208,21 @@ search_text:  turn_rationale We bumped the classify.ts CLI timeout from 5s
               to 12s because the Haiku call's P95 was around 8s and the
               prior 5s timeout was silently failing the classifier…
 ```
-A future trigram search for *"why did we change the timeout"* now matches on `bumped`, `timeout`, `because`, `silently failing` — high overlap on the reasoning vocabulary, not just the edit vocabulary.
+A future trigram search for *"why did we change the timeout"* now matches on `bumped`, `timeout`, `because`, `silently failing`. High overlap on the reasoning vocabulary, not just the edit vocabulary.
 
 ### Cost model
 
-One Haiku call per turn, paid once at ingest time, amortized across every future retrieval. ([`src/rationale/synthesize.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/rationale/synthesize.ts)) The call uses the local `claude` CLI without the `--bare` flag, which keeps Max-subscription OAuth as the auth path; no `ANTHROPIC_API_KEY` is consumed in the default setup. Synthesis is idempotent — turns that already have a rationale are skipped via the `transcript_uuid` of `rationale:<session>:<userPromptId>` — and the job runs on demand (`pnpm memory:rationale`) or on a cron, not on every `Stop`. So the cost ceiling is bounded by how often you choose to run it.
+One Haiku call per turn, paid once at ingest time, amortized across every future retrieval. ([`src/rationale/synthesize.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/rationale/synthesize.ts)) The call uses the local `claude` CLI without the `--bare` flag, which keeps Max-subscription OAuth as the auth path; no `ANTHROPIC_API_KEY` is consumed in the default setup. Synthesis is idempotent (turns that already have a rationale are skipped via the `transcript_uuid` of `rationale:<session>:<userPromptId>`), and the job runs on demand (`pnpm memory:rationale`) or on a cron, not on every `Stop`. So the cost ceiling is bounded by how often you choose to run it.
 
 ### Episodic compression at write time
 
-The framing that makes this work: **episodic compression at write time**. The expensive part of recall — extracting narrative meaning from a turn's worth of prompts, replies, and tool calls — happens once, when the events are fresh and the model that wrote them is the right model to summarize them. After that, the rationale lives as a normal indexed row, searchable by the same SQL trigram tier that handles everything else. The first search costs the same as the millionth.
+The framing that makes this work: **episodic compression at write time**. The expensive part of recall (extracting narrative meaning from a turn's worth of prompts, replies, and tool calls) happens once, when the events are fresh and the model that wrote them is the right model to summarize them. After that, the rationale lives as a normal indexed row, searchable by the same SQL trigram tier that handles everything else. The first search costs the same as the millionth.
 
 Run this for six months and the memory store accumulates a searchable archive of *decisions*, not just *actions*. Git already has the actions. The rationale layer is what makes the store worth more than `git log -p`.
 
 ## What this costs
 
-**What you pay.** Storage is cheap — Postgres on Docker, hypertable chunking keeps old chunks compressible, multi-resolution event storage keeps the indexed columns small. Embedding inference is zero in dollars — `bge-small-en-v1.5` is local CPU; the embed module documents ~30–80 ms per call after warmup with a ~1–2 s cold-load on the first call ([`src/embed.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/embed.ts) — values stated in source, not independently measured). LLM retrieval cost in the live config is **zero**: trigram and entity tiers are pure SQL. If you enable the classifier or rerank tier, both use Haiku via the local `claude` CLI under Max OAuth, no API key consumed, classifications cache for 24 hours. Rationale synthesis is the same pattern — Haiku via Max, one call per turn at ingest, amortized forever after.
+**What you pay.** Storage is cheap: Postgres on Docker, hypertable chunking keeps old chunks compressible, multi-resolution event storage keeps the indexed columns small. Embedding inference is zero in dollars. `bge-small-en-v1.5` is local CPU; the embed module documents ~30–80 ms per call after warmup with a ~1–2 s cold-load on the first call ([`src/embed.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/embed.ts); values stated in source, not independently measured). LLM retrieval cost in the live config is **zero**: trigram and entity tiers are pure SQL. If you enable the classifier or rerank tier, both use Haiku via the local `claude` CLI under Max OAuth, no API key consumed, classifications cache for 24 hours. Rationale synthesis is the same pattern: Haiku via Max, one call per turn at ingest, amortized forever after.
 
 Latency budget (documented in [`memory-inject.cjs`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/template/.claude/hooks/memory-inject.cjs) as a design target, not measured here):
 
@@ -233,7 +233,7 @@ Latency budget (documented in [`memory-inject.cjs`](https://github.com/Sylphie-L
 
 The fast-path short-circuit at score ≥ 0.7 is intended to keep the typical prompt in the first bucket.
 
-**What you save.** Without injection, the developer either re-explains context every session — expensive in human time and tokens — or the agent operates without it: poorer decisions, more clarifying questions, more tokens spent re-deriving prior reasoning. With injection, every turn gets up to 4 KB of pre-fetched targeted history for free; injection cost is fixed per turn, while the cost of *not* having it grows with project complexity. I don't have a calibrated token-saved benchmark, and it depends heavily on what work is being done. The structural argument: 4 KB of pre-targeted history retrieved by a ~600 ms SQL pipeline replaces ad-hoc re-explanation and re-derivation that costs both wall time and tokens. The ratio favors injection by a wide margin.
+**What you save.** Without injection, the developer either re-explains context every session (expensive in human time and tokens) or the agent operates without it: poorer decisions, more clarifying questions, more tokens spent re-deriving prior reasoning. With injection, every turn gets up to 4 KB of pre-fetched targeted history for free; injection cost is fixed per turn, while the cost of *not* having it grows with project complexity. I don't have a calibrated token-saved benchmark, and it depends heavily on what work is being done. The structural argument: 4 KB of pre-targeted history retrieved by a ~600 ms SQL pipeline replaces ad-hoc re-explanation and re-derivation that costs both wall time and tokens. The ratio favors injection by a wide margin.
 
 ## What this doesn't do (yet)
 
@@ -269,4 +269,4 @@ Repo: [`Sylphie-Labs/memory-pkg`](https://github.com/Sylphie-Labs/memory-pkg). C
 | MCP server | [`src/mcp-server/index.ts`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/src/mcp-server/index.ts) |
 | README | [`README.md`](https://github.com/Sylphie-Labs/memory-pkg/blob/main/README.md) |
 
-The complementary `codebase-pkg` package — what the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688` — is also published standalone at [`Sylphie-Labs/codebase-pkg`](https://github.com/Sylphie-Labs/codebase-pkg). Both can be pulled into any project as normal npm dependencies; see the [`sylphie-pkg`](/cutting-edge-tech/sylphie-pkg) write-up for what the codebase graph does.
+The complementary `codebase-pkg` package, which the (currently dormant) KG retrieval tier consults at `bolt://localhost:7688`, is also published standalone at [`Sylphie-Labs/codebase-pkg`](https://github.com/Sylphie-Labs/codebase-pkg). Both can be pulled into any project as normal npm dependencies; see the [`sylphie-pkg`](/cutting-edge-tech/sylphie-pkg) write-up for what the codebase graph does.

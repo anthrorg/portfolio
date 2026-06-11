@@ -27,8 +27,8 @@ export const career: CareerData = {
       },
       dates: "Nov 2021 – Mar 2026",
       detail: {
-        en: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. De facto AI-tooling lead — built the internal Claude workflows and review patterns other engineers adopted; initiated the company R&D program. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
-        ja: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. De facto AI-tooling lead — built the internal Claude workflows and review patterns other engineers adopted; initiated the company R&D program. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
+        en: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. De facto AI-tooling lead: built the internal Claude workflows and review patterns other engineers adopted; initiated the company R&D program. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
+        ja: "Built Mediavine Journey end-to-end with a small team (onboarding, analytics engine, publisher dashboards). Primary developer on the analytics & data-visualization dashboard. De facto AI-tooling lead: built the internal Claude workflows and review patterns other engineers adopted; initiated the company R&D program. Stack: React, TypeScript, Node.js, Nest.js, PostgreSQL, REST + GraphQL.",
       },
     },
     {

@@ -5,7 +5,7 @@ test.describe("SEO meta", () => {
     page,
   }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle("Jim Tisdale — Agent Engineer");
+    await expect(page).toHaveTitle("Jim Tisdale · Agent Engineer");
     const desc = await page
       .locator('head > meta[name="description"]')
       .getAttribute("content");
@@ -32,12 +32,12 @@ test.describe("SEO meta", () => {
 
   test("each route updates the document title", async ({ page }) => {
     await page.goto("/cutting-edge-tech");
-    await expect(page).toHaveTitle("Cutting Edge Tech — Jim Tisdale");
+    await expect(page).toHaveTitle("Cutting Edge Tech · Jim Tisdale");
 
     await page.goto("/career");
-    await expect(page).toHaveTitle("Career — Jim Tisdale");
+    await expect(page).toHaveTitle("Career · Jim Tisdale");
 
     await page.goto("/cutting-edge-tech/sylphie");
-    await expect(page).toHaveTitle("Sylphie — Jim Tisdale");
+    await expect(page).toHaveTitle("Sylphie · Jim Tisdale");
   });
 });

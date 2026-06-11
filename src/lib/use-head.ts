@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_NAME = "Jim Tisdale";
-const DEFAULT_TITLE = `${SITE_NAME} — Agent Engineer`;
+const DEFAULT_TITLE = `${SITE_NAME} · Agent Engineer`;
 const SITE_URL = "https://author.sylphie.live";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png?v=2026-06-10`;
 
@@ -39,7 +39,7 @@ function upsertCanonical(href: string) {
 export function useHead(config: HeadConfig) {
   const { title, description, path, ogImage, ogType } = config;
   useEffect(() => {
-    const fullTitle = title ? `${title} — ${SITE_NAME}` : DEFAULT_TITLE;
+    const fullTitle = title ? `${title} · ${SITE_NAME}` : DEFAULT_TITLE;
     const url = `${SITE_URL}${path}`;
     const image = ogImage ?? DEFAULT_OG_IMAGE;
     const type = ogType ?? "website";

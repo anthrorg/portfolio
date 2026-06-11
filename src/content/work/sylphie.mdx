@@ -1,6 +1,6 @@
 ## The thesis, stated as a metric
 
-Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. The Type 1 / Type 2 ratio is the metric the architecture is shaped to surface — live instrumentation of it is a Phase 2 deliverable, not currently broadcast. The case for the design is the trajectory, not today's reading.
+Most agent systems put a language model in the decision loop. Sylphie keeps it at the edges: input is parsed, output is rendered, and everything between (drives, retrieval, arbitration, prediction, evaluation, learning) runs on structures the system can introspect, decay, and graduate. The headline number is not throughput or latency. It is the share of decisions made *without* calling a language model. Sylphie starts LLM-dependent and is built to end LLM-independent. The Type 1 / Type 2 ratio is the metric the architecture is shaped to surface. Live instrumentation of it is a Phase 2 deliverable, not currently broadcast. The case for the design is the trajectory, not today's reading.
 
 Sylphie runs live at [sylphie.live](https://sylphie.live).
 
@@ -8,7 +8,7 @@ Sylphie runs live at [sylphie.live](https://sylphie.live).
 
 The 12-drive substrate is the only motivational signal in the system. Every action is reinforced or punished by drive deltas; there is no other reward channel. Three of the drives are composite (SystemHealth, MoralValence, Integrity, CognitiveAwareness); the other eight accumulate or decay at hand-tuned rates per 1 Hz tick. Curiosity climbs at +0.0012; Boredom at +0.0015; Satisfaction decays at −0.0009. The asymmetric range `[-10.0, +1.0]` makes positive values mean *unmet need* and negative values a relief reservoir. Pressure is the sum of positive components only, capped at 12.
 
-The drive list isn't the commitment. What the rest of the system isn't allowed to do to it — that's the commitment.
+The drive list isn't the commitment. The commitment is what the rest of the system isn't allowed to do to it.
 
 The drive engine runs as a separate Node process. The main backend talks to it over a Zod-validated WebSocket. The runtime database user is denied UPDATE and DELETE on the `drive_rules` table by Postgres row-level security, and the system aborts at startup if RLS verification fails. There is no RPC surface for "tell me your rules." A single-client lock prevents a second main app from connecting. Sylphie cannot introspect her own drive rules, accumulation rates, or evaluation function. She only sees the resulting drive snapshots.
 
@@ -88,13 +88,13 @@ Phase 1.5. The spec calls out its own scaffolding:
 
 The system flags its own stubs in the spec and in code rather than papering over them. That is itself a Phase 1.5 commitment: the next phase begins by making each of those a yes.
 
-The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the share-of-decisions-without-an-LLM number — once it's instrumented to report live (Phase 2) — has somewhere to actually land.
+The forward direction follows the thesis. Today, Type 2 deliberation runs through multiple LLMs in a focus-group pattern. The path to closing the loop is replacing those LLMs with three specialized tensor pipelines (pragmatist, conservative, advocate) that have already shadowed the LLM panel long enough to earn promotion. When that lands, the last LLM dependency in the cognitive path is gone, and the share-of-decisions-without-an-LLM number, once it's instrumented to report live (Phase 2), has somewhere to actually land.
 
 ## Why it matters
 
-Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure — drives, predictions, evaluations, and graduated procedures are the load-bearing structure. The metric the architecture is built to surface is **the share of decisions made without calling a language model**, and it's supposed to climb. Live instrumentation of that number is on the Phase 2 list, not on a dashboard yet — but the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
+Most agent products are LLM wrappers that get smarter by switching to a bigger LLM. Sylphie is built so the LLM is the scaffolding, not the load-bearing structure. The load-bearing structure is drives, predictions, evaluations, and graduated procedures. The metric the architecture is built to surface is **the share of decisions made without calling a language model**, and it's supposed to climb. Live instrumentation of that number is on the Phase 2 list, not on a dashboard yet. But the architecture is what makes "slowly, then faster, then mostly not at all" a coherent trajectory rather than a slogan.
 
-The shorter version: an agent that watches itself, predicts the consequences of its own actions, measures how wrong those predictions were, and can only graduate a behavior after the measurement says it earned it — that's a different category of system than one that prompts a frontier model harder.
+The shorter version: an agent that watches itself, predicts the consequences of its own actions, measures how wrong those predictions were, and can only graduate a behavior after the measurement says it earned it. That's a different category of system than one that prompts a frontier model harder.
 
 ## Code map
 

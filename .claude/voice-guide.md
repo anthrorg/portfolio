@@ -61,7 +61,7 @@ Three beats: concession, evidence, why the old argument was wrong. No throat-cle
 
 ### Punctuation tics
 
-- **Em dashes** — used a lot, often to slip in the qualification that would otherwise need its own sentence. Don't overdo them, but they're a real part of the rhythm.
+- **Em dashes: banned in all user-facing copy** (reversed 2026-06-10 — Jim: "they are a massive tell for AI content"). The qualification that used to ride an em dash gets a period, comma, colon, semicolon, middot, or parenthetical instead. Recast the sentence rather than swapping punctuation 1:1.
 - **Colons that introduce a list inside a sentence**: like that one, not as a heading delimiter.
 - **Parentheticals** for the aside that's funny or for the practical caveat (the kind of thing you'd mutter under your breath).
 - **Bold** sparingly, only on the actual claim of a paragraph, never on transitional phrases.
@@ -109,6 +109,8 @@ This is the highest-leverage section of the doc. Run any draft against this tabl
 | Meandering intro (more than two sentences before stakes) | Start with the friction or the claim. |
 | Tidy summary ending that recaps what was just said | End by extending, reframing, or pointing to action. |
 | "Game-changing," "revolutionary," "cutting-edge" | Cut. Promotional language doesn't sound like me. |
+| Em dashes (—) anywhere in user-facing copy | Recast with a period, comma, colon, semicolon, middot, or parenthetical. They read as an AI tell. |
+| "ex-Company" badge framing ("ex-Mediavine") | Name the tenure plainly ("4.5 yrs at Mediavine") or lead with the artifact. |
 
 ### Words I do use that earn their place
 
